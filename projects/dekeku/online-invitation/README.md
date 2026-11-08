@@ -17,3 +17,6 @@ Mengembangkan produk undangan digital DEKEKU, termasuk halaman undangan, detail 
 
 ## Dokumentasi berikutnya
 Tambahkan brief, arsitektur, task list, dan keputusan teknis ketika ruang lingkup produk disetujui.
+
+## Testing
+Strategi, skenario RSVP, privasi, dan acceptance: [docs/TESTING.md](docs/TESTING.md). Test otomatis akan ditambahkan setelah stack aplikasi dipilih: [tests/](tests/README.md).

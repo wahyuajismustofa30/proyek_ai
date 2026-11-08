@@ -15,7 +15,7 @@ STACK_MANIFESTS = {
     "python": ("pyproject.toml", "requirements.txt"),
     "php": ("composer.json",),
 }
-PROJECT_SLUG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\\Z")
+PROJECT_SLUG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 
 
 def validate_project_directory_name(name: str) -> None:
@@ -95,7 +95,7 @@ def main() -> int:
 
     if args.github_output:
         with args.github_output.open("a", encoding="utf-8") as output:
-            output.write(f"matrix={payload}\\n")
+            output.write(f"matrix={payload}\n")
         count = len(
             {item["slug"] for item in matrix["include"] if item["slug"] != "__no_projects__"}
         )

@@ -63,12 +63,24 @@ class WebValidationTests(unittest.TestCase):
         self.assertTrue(any("invalid SVG/XML asset" in e for e in errors))
         self.assertTrue(any("empty project asset" in e for e in errors))
 
-    def test_reports_malformed_html_and_css(self) -> None:
+    def test_reports_malformed_html_and_unclosed_css_block(self) -> None:
         (self.project / "index.html").write_text("<html><p>unclosed", encoding="utf-8")
         (self.project / "site.css").write_text("a { color: red", encoding="utf-8")
         errors = validate_project(self.project)
         self.assertTrue(any("invalid HTML" in e for e in errors))
+        self.assertTrue(any("CSS syntax error" in e and "unclosed delimiter" in e for e in errors))
+
+    def test_reports_malformed_css_declaration(self) -> None:
+        (self.project / "site.css").write_text("a { color red; }", encoding="utf-8")
+        errors = validate_project(self.project)
         self.assertTrue(any("CSS syntax error" in e for e in errors))
+
+    def test_ignores_delimiters_inside_css_strings_and_comments(self) -> None:
+        (self.project / "site.css").write_text(
+            'a::before { content: "}"; /* } ] ) */ background: url("image).png"); }',
+            encoding="utf-8",
+        )
+        self.assertEqual(validate_project(self.project), [])
 
 
 if __name__ == "__main__":

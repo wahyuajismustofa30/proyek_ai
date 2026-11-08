@@ -5,8 +5,9 @@
 2. docs/PROJECT_BRIEF.md
 3. docs/ARCHITECTURE.md
 4. docs/TASKS.md
-5. docs/TESTING.md (wajib sebelum implementasi fitur)
-6. docs/DECISIONS.md dan docs/CHANGELOG.md bila relevan
+5. docs/AI_GUIDELINES.md (wajib untuk fitur berbasis AI/model)
+6. docs/TESTING.md (wajib sebelum implementasi fitur)
+7. docs/DECISIONS.md dan docs/CHANGELOG.md bila relevan
 
 ## Aturan utama
 - Pahami tujuan, batasan, dan acceptance criteria sebelum coding.

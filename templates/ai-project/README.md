@@ -11,7 +11,7 @@ Diperbarui: **[YYYY-MM-DD]**
 [Jelaskan masalah yang ingin diselesaikan dan hasil yang diharapkan.]
 
 ## Mulai bekerja dengan AI
-1. Baca AGENTS.md.
+1. Baca AGENTS.md dan docs/AI_GUIDELINES.md.
 2. Lengkapi docs/PROJECT_BRIEF.md.
 3. Periksa docs/ARCHITECTURE.md dan docs/TASKS.md.
 4. Sepakati scope sebelum implementasi.

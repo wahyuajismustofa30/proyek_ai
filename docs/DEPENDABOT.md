@@ -8,7 +8,17 @@ Dependabot dikonfigurasi di `.github/dependabot.yml`. Saat ini repository menggu
 - **Pengelompokan:** pembaruan minor dan patch Actions digabungkan dalam satu grup agar pull request tidak berlebihan.
 - **Major update:** tetap dibuat terpisah untuk memudahkan review perubahan yang berpotensi memerlukan penyesuaian.
 - **Pull request:** target branch `main`, label `dependencies` dan `github-actions`, maksimum 10 PR terbuka.
-- **Security updates:** tetap mengikuti fitur security updates bawaan Dependabot GitHub; jadwal version updates tidak menggantikan pemeriksaan keamanan.
+- **Security updates:** mengikuti fitur security updates bawaan Dependabot GitHub. Status aktif/nonaktif harus diverifikasi pada Settings → Security → Code security and analysis; konfigurasi version updates tidak mengaktifkannya secara otomatis.
+
+## Pinning GitHub Actions
+
+Semua referensi Action yang dijalankan dalam workflow harus menggunakan commit SHA penuh (40 karakter), disertai komentar versi rilis agar mudah dibaca. Jangan hanya menggunakan tag bergerak seperti `@v4` atau `@v5`.
+
+- SHA pin mengunci kode Action ke satu commit tertentu dan mengurangi risiko tag dipindahkan.
+- Komentar versi membantu reviewer mengenali versi rilis yang dimaksud.
+- Dependabot tetap memantau referensi SHA dan dapat mengusulkan pembaruan ke commit rilis yang lebih baru.
+- Setiap pembaruan SHA harus direview melalui diff/changelog dan lulus CI sebelum digabungkan.
+- Contoh Action dalam template juga ditulis dengan SHA pin agar aman saat diaktifkan.
 
 ## Inventaris stack saat ini
 

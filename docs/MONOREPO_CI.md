@@ -9,8 +9,8 @@ di `projects/<slug>/.github/workflows/` sebagai CI aktif.
 
 Workflow utama:
 
-- `.github/workflows/validate.yml`: validasi repository, dokumentasi, JSON, Python,
-  aset arsip, tautan internal, secret, dan whitespace.
+- `.github/workflows/validate.yml`: validasi repository, dokumentasi, JSON, YAML dan schema
+  Dependabot, Python, aset arsip, tautan internal, secret, dan whitespace.
 - `.github/workflows/project-matrix.yml`: menemukan proyek, menjalankan test aplikasi
   per stack, serta memvalidasi HTML, CSS, dan referensi aset lokal setiap proyek.
 - `.github/workflows/dependency-security.yml`: pemindaian OSV-Scanner rekursif
@@ -89,7 +89,12 @@ saat meninjau dokumentasi yang bergantung pada referensi eksternal.
 
 # Dependabot
 
-Dependabot is configured centrally in `.github/dependabot.yml`. The active
+Dependabot is configured centrally in `.github/dependabot.yml`. On every PR and push,
+`validate.yml` runs the pinned `@bugron/validate-dependabot-yaml` CLI against this file.
+The validator parses the YAML and checks it against the Dependabot v2 JSON Schema,
+then applies additional semantic checks such as duplicate/overlapping directories and
+unsupported option combinations. Schema validation catches structural mistakes but
+is not a replacement for GitHub's own Dependabot runtime validation. The active
 configuration must point only to dependency manifests that actually exist:
 
 | Scope | Dependabot ecosystem | Directory | Existing manifest / adapter |

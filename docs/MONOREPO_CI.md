@@ -35,7 +35,7 @@ Satu proyek boleh memiliki lebih dari satu stack. Setiap stack mendapatkan job t
 agar kegagalan satu stack tidak menyembunyikan hasil stack lainnya. Matriks dibatasi
 maksimum empat job paralel untuk menjaga penggunaan runner.
 
-Validasi web dijalankan terpisah dari matriks bahasa: HTML diparse dengan parser HTML5 strict, CSS diperiksa sintaksnya, dan referensi aset lokal HTML/CSS diperiksa keberadaannya serta dibatasi agar tidak keluar dari folder proyek. Ini bukan pengganti browser-based test, visual regression, atau audit accessibility penuh.\n\nProyek tanpa stack yang didukung tidak dianggap lulus pengujian aplikasi. Statusnya
+Validasi web dijalankan terpisah dari matriks bahasa: HTML diparse dengan parser HTML5 strict, CSS diperiksa sintaksnya, dan referensi aset lokal HTML/CSS diperiksa keberadaannya serta dibatasi agar tidak keluar dari folder proyek; SVG diparse sebagai XML dan file kosong ditolak. Ini bukan pengganti browser-based test, visual regression, atau audit accessibility penuh.\n\nProyek tanpa stack yang didukung tidak dianggap lulus pengujian aplikasi. Statusnya
 dilaporkan sebagai notice sampai adapter stack tersedia. Tambahkan adapter dan test
 discovery sebelum memperluas stack yang didukung.
 

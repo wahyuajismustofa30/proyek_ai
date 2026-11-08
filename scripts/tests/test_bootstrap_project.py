@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 import unittest
@@ -67,6 +68,19 @@ class BootstrapProjectTests(unittest.TestCase):
         )
         self.assertEqual(result.name, "preview-project")
         self.assertFalse(self.output.exists())
+
+    def test_real_template_contains_monorepo_metadata_and_no_nested_ci(self) -> None:
+        result = bootstrap.bootstrap_project(
+            "DEKEKU Landing Page", self.output, bootstrap.DEFAULT_TEMPLATE
+        )
+        metadata = json.loads(
+            (result / ".project-meta.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(metadata["project_name"], "DEKEKU Landing Page")
+        self.assertEqual(metadata["project_slug"], "dekeku-landing-page")
+        self.assertEqual(metadata["ci"]["orchestrator"], "repository-root")
+        self.assertFalse((result / ".github" / "workflows" / "ci.yml").exists())
+        self.assertFalse((result / ".github" / "dependabot.yml").exists())
 
 
 if __name__ == "__main__":

@@ -123,3 +123,17 @@ jobs:
       - name: Report unsupported or unconfigured stack
         if: ${{ matrix.stack == 'none' }}
         run: echo "::notice::${{ matrix.project }} has no supported Node.js, Python, or PHP manifest. Repository-wide validation and security scans still run."
+  project-ci:
+    name: Project matrix tests
+    if: always()
+    needs: project-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all project test jobs to pass
+        env:
+          PROJECT_TEST_RESULT: ${{ needs.project-tests.result }}
+        run: |
+          if [[ "$PROJECT_TEST_RESULT" != "success" ]]; then
+            echo "Project matrix tests did not complete successfully: $PROJECT_TEST_RESULT"
+            exit 1
+          fi

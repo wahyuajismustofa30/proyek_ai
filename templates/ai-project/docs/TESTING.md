@@ -1,6 +1,6 @@
 # Strategi Testing — [NAMA PROYEK]
 
-> Lengkapi setelah memilih stack. CI mendeteksi Node.js, Python, dan PHP dari manifest root.
+> Lengkapi setelah memilih stack. CI terpusat mendeteksi Node.js, Python, dan PHP.
 
 ## Risiko dan cakupan
 - Alur paling kritis: [isi]
@@ -10,11 +10,21 @@
 ## Perintah standar
 | Stack | Install | Test | Build / lint |
 |---|---|---|---|
-| Node.js | \`npm ci\` (wajib \`package-lock.json\`) | \`npm test\` (wajib script \`test\`) | \`npm run lint --if-present\`, \`npm run build --if-present\` |
-| Python | \`pip install -e ".[test]"\` atau \`pip install -r requirements.txt\` | \`python -m pytest\` | Tambahkan formatter/type checker pilihan |
-| PHP | \`composer install\` (wajib \`composer.lock\`) | \`composer run-script test\` | \`composer validate --strict\` |
+| Node.js | `npm ci` (wajib `package-lock.json`) | `npm test` (wajib script `test`) | `npm run lint --if-present`, `npm run build --if-present` |
+| Python | `pip install -e ".[test]"` atau `pip install -r requirements.txt` | `python -m pytest` | Tambahkan formatter/type checker pilihan |
+| PHP | `composer install` (wajib `composer.lock`) | `composer run-script test` | `composer validate --strict` |
 
-Jika menggunakan stack lain atau multi-stack, tambahkan job CI yang sesuai dan dokumentasikan perintahnya. Jangan membuat manifest kosong hanya untuk mengaktifkan job.
+Jika menggunakan stack lain atau multi-stack, tambahkan adapter CI dan dokumentasikan perintahnya. Jangan membuat manifest kosong hanya untuk mengaktifkan job.
+
+## Validasi web dan aset
+Untuk proyek web, CI root menjalankan pemeriksaan berikut secara otomatis:
+- Parse HTML dengan parser HTML5 yang strict untuk mendeteksi markup malformed.
+- Parse stylesheet CSS dan mendeteksi kesalahan sintaks.
+- Periksa referensi lokal HTML (`src`, `href`, `poster`, `data`) dan CSS (`url(...)`) agar file aset yang dirujuk benar-benar ada.
+- Periksa `srcset` dan tolak referensi yang keluar dari direktori proyek.
+- Abaikan URL eksternal dan data URI; jangan gunakan URL produksi sebagai pengganti fixture lokal.
+
+Pemeriksaan ini memvalidasi sintaks dan keberadaan referensi aset, bukan kualitas visual, rendering lintas-browser, accessibility penuh, atau keamanan runtime. Tambahkan browser-based tests (misalnya Playwright) dalam proyek bila diperlukan; sediakan script test/build yang akan dipanggil adapter stack.
 
 ## Skenario minimum
 - [ ] Alur sukses utama.
@@ -24,6 +34,7 @@ Jika menggunakan stack lain atau multi-stack, tambahkan job CI yang sesuai dan d
 - [ ] Regression test untuk bug yang diperbaiki.
 - [ ] Responsive dan accessibility untuk UI.
 - [ ] Build dapat direproduksi.
+- [ ] HTML, CSS, dan semua aset lokal yang dirujuk valid.
 
 ## Keamanan
 - [ ] Manifest dan lockfile dependency dikomit.
@@ -33,9 +44,10 @@ Jika menggunakan stack lain atau multi-stack, tambahkan job CI yang sesuai dan d
 - [ ] Hasil Gitleaks dan OSV-Scanner ditinjau.
 
 ## CI
-Workflow \`.github/workflows/ci.yml\` menjalankan validasi struktur, JSON, Markdown,
-whitespace, secret scanning, OSV-Scanner, serta test otomatis untuk Node.js, Python,
-atau PHP bila manifest ditemukan.
+Workflow root `.github/workflows/project-matrix.yml` menjalankan test aplikasi Node.js,
+Python, atau PHP sesuai manifest, serta validasi HTML, CSS, dan referensi aset lokal
+untuk setiap folder proyek di `projects/*`. Workflow repository root juga menjalankan
+validasi dokumentasi, secret scanning, dan OSV-Scanner.
 
 ## Hasil verifikasi terakhir
 | Tanggal | Commit | Pemeriksaan | Status | Catatan |

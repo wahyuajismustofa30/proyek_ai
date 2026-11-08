@@ -16,7 +16,6 @@ import tinycss2
 HTML_EXTENSIONS = {".html", ".htm"}
 CSS_EXTENSIONS = {".css"}
 ASSET_ATTRIBUTES = {"src", "href", "poster", "data"}
-URL_RE = re.compile(r"url\(\s*(['\"]?)(.*?)\1\s*\)", re.IGNORECASE)
 SRCSET_RE = re.compile(r"(?<![\w-])srcset\s*=\s*(['\"])(.*?)\1", re.IGNORECASE)
 
 
@@ -139,6 +138,41 @@ def css_delimiter_errors(source: str) -> list[str]:
     return errors
 
 
+def css_url_values(tokens):
+    """Yield URL references from parsed CSS tokens, excluding comments and ordinary strings."""
+    for token in tokens:
+        token_type = getattr(token, "type", None)
+        if token_type == "url":
+            yield token.value
+            continue
+        if token_type == "function":
+            if token.lower_name == "url":
+                significant = [
+                    item for item in token.arguments
+                    if item.type not in {"whitespace", "comment"}
+                ]
+                if len(significant) == 1 and significant[0].type == "string":
+                    yield significant[0].value
+            yield from css_url_values(token.arguments)
+            continue
+        if token_type == "at-rule":
+            if token.lower_at_keyword == "import":
+                significant = [
+                    item for item in token.prelude
+                    if item.type not in {"whitespace", "comment"}
+                ]
+                if significant and significant[0].type == "string":
+                    yield significant[0].value
+            yield from css_url_values(token.prelude)
+            if token.content is not None:
+                yield from css_url_values(token.content)
+            continue
+        for attribute in ("content", "prelude", "arguments"):
+            nested = getattr(token, attribute, None)
+            if nested is not None:
+                yield from css_url_values(nested)
+
+
 def css_rule_errors(rules: list, file: Path) -> list[str]:
     """Validate declarations and recursively inspect nested CSS at-rules."""
     errors: list[str] = []
@@ -229,8 +263,7 @@ def validate_project(project: Path) -> list[str]:
 
         rules = tinycss2.parse_stylesheet(stylesheet, skip_comments=True, skip_whitespace=True)
         errors.extend(css_rule_errors(rules, file))
-        for match in URL_RE.finditer(stylesheet):
-            raw_url = match.group(2).strip()
+        for raw_url in css_url_values(rules):
             try:
                 target = local_target(raw_url, file, project)
                 if target is not None and not target.is_file():

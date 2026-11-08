@@ -46,8 +46,8 @@ agar mengikuti struktur dan tata kelola proyek_ai.
 
 CI dan Dependabot dikelola secara terpusat oleh repository root:
 
-- .github/workflows/project-matrix.yml mendeteksi manifest proyek di projects/*
-  dan menjalankan test Node.js, Python, atau PHP secara terpisah.
+- .github/workflows/project-matrix.yml mendeteksi manifest proyek di projects/*,
+  menjalankan test Node.js/Python/PHP, dan memvalidasi HTML, CSS, serta referensi aset lokal.
 - .github/workflows/validate.yml menjalankan pemeriksaan kualitas repository.
 - .github/workflows/dependency-security.yml menjalankan OSV-Scanner secara rekursif.
 - .github/dependabot.yml memantau GitHub Actions, dependency CI, serta dependency
@@ -62,7 +62,7 @@ Stack yang didukung otomatis saat ini:
 - Python: pyproject.toml atau requirements.txt; test dijalankan dengan pytest.
 - PHP: composer.json + composer.lock; script Composer test wajib.
 
-Stack lain memerlukan adapter CI sebelum dianggap diuji otomatis.
+Stack lain memerlukan adapter CI sebelum dianggap diuji otomatis. Pemeriksaan HTML/CSS/aset berlaku untuk semua folder proyek, termasuk proyek tanpa stack aplikasi yang dikenali.
 
 ## Setelah bootstrap
 

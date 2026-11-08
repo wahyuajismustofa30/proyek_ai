@@ -2,11 +2,15 @@
 
 | Proyek | Lokasi | Status | Konteks awal |
 |---|---|---|---|
-| AI Project Template | templates/ai-project/ | Siap disalin untuk proyek baru | templates/ai-project/README.md |
-| DEKEKU Brand System | projects/dekeku/brand-system/ | Baseline v1.1 diarsipkan; pengembangan berikutnya dipisah | projects/dekeku/README.md |
+| DEKEKU — Brand System | `projects/dekeku/brand-system/` | Baseline v1.1 tersedia; pengembangan berikutnya harus memakai versi baru | `projects/dekeku/brand-system/README.md` |
+| DEKEKU — Business Website | `projects/dekeku/business-website/` | Ruang kerja disiapkan; belum ada implementasi produk | `projects/dekeku/business-website/README.md` |
+| DEKEKU — Online Invitation | `projects/dekeku/online-invitation/` | Ruang kerja disiapkan; belum ada implementasi produk | `projects/dekeku/online-invitation/README.md` |
+| AI Project Template | `templates/ai-project/` | Siap disalin untuk proyek baru | `templates/ai-project/README.md` |
 
 ## Cara memilih konteks
-- Kerjakan hanya proyek yang disebut pengguna.
-- Baca README proyek sebelum menyentuh source.
-- Versi di folder versions adalah referensi versi; jangan menimpa baseline.
-- Folder archives menyimpan arsip paket asli.
+- Kerjakan hanya proyek yang diminta pengguna.
+- Baca README proyek dan instruksi lokal sebelum mengubah file.
+- Jangan mencampur source antarproyek.
+- Source baseline bersifat read-only; buat versi baru untuk perubahan.
+- Arsip paket asli berada di `archives/` dan tidak diedit.
+- Tambahkan proyek baru ke tabel ini saat proyek benar-benar dibuat.

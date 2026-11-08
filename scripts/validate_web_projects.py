@@ -21,9 +21,9 @@ SRCSET_RE = re.compile(r"(?<![\w-])srcset\s*=\s*(['\"])(.*?)\1", re.IGNORECASE)
 
 
 def local_target(raw: str, source: Path, project: Path) -> Path | None:
-    """Resolve a local URL while rejecting paths that escape the project."""
+    """Resolve local URLs relative to the source file or website root."""
     value = raw.strip()
-    if not value or value.startswith("#") or value.startswith("data:"):
+    if not value or value.startswith("#") or value.lower().startswith("data:"):
         return None
     parsed = urlsplit(value)
     if parsed.scheme or parsed.netloc:
@@ -31,13 +31,47 @@ def local_target(raw: str, source: Path, project: Path) -> Path | None:
     path = unquote(parsed.path)
     if not path:
         return None
-    candidate = (source.parent / path).resolve()
     root = project.resolve()
+    candidate = root / path.lstrip("/") if path.startswith("/") else source.parent / path
+    candidate = candidate.resolve()
     try:
         candidate.relative_to(root)
     except ValueError:
         raise ValueError(f"reference escapes project directory: {raw}")
     return candidate
+
+
+def parse_srcset(value: str) -> list[str]:
+    """Parse srcset URLs without splitting commas embedded in data URLs."""
+    urls: list[str] = []
+    position = 0
+    while position < len(value):
+        while position < len(value) and (value[position].isspace() or value[position] == ","):
+            position += 1
+        if position >= len(value):
+            break
+        start = position
+        while position < len(value) and not value[position].isspace():
+            position += 1
+        url = value[start:position]
+        trailing = len(url) - len(url.rstrip(","))
+        url = url.rstrip(",")
+        if url:
+            urls.append(url)
+        if trailing:
+            continue
+        depth = 0
+        while position < len(value):
+            char = value[position]
+            if char == "(":
+                depth += 1
+            elif char == ")" and depth:
+                depth -= 1
+            elif char == "," and depth == 0:
+                position += 1
+                break
+            position += 1
+    return urls
 
 
 def css_delimiter_errors(source: str) -> list[str]:
@@ -105,6 +139,38 @@ def css_delimiter_errors(source: str) -> list[str]:
     return errors
 
 
+def css_rule_errors(rules: list, file: Path) -> list[str]:
+    """Validate declarations and recursively inspect nested CSS at-rules."""
+    errors: list[str] = []
+    block_rules = {"container", "document", "layer", "media", "scope", "supports"}
+    declaration_rules = {"font-face", "page", "property", "counter-style"}
+    for rule in rules:
+        if rule.type == "error":
+            errors.append(f"{file}: CSS syntax error: {rule.message}")
+        elif rule.type == "qualified-rule":
+            declarations = tinycss2.parse_declaration_list(
+                rule.content, skip_comments=True, skip_whitespace=True
+            )
+            for item in declarations:
+                if item.type == "error":
+                    errors.append(f"{file}: CSS syntax error: {item.message}")
+        elif rule.type == "at-rule" and rule.content is not None:
+            keyword = rule.lower_at_keyword
+            if keyword in block_rules or keyword.endswith("keyframes"):
+                nested = tinycss2.parse_rule_list(
+                    rule.content, skip_comments=True, skip_whitespace=True
+                )
+                errors.extend(css_rule_errors(nested, file))
+            elif keyword in declaration_rules:
+                declarations = tinycss2.parse_declaration_list(
+                    rule.content, skip_comments=True, skip_whitespace=True
+                )
+                for item in declarations:
+                    if item.type == "error":
+                        errors.append(f"{file}: CSS syntax error: {item.message}")
+    return errors
+
+
 def validate_project(project: Path) -> list[str]:
     errors: list[str] = []
     if not project.is_dir():
@@ -136,30 +202,21 @@ def validate_project(project: Path) -> list[str]:
         except (html5lib.html5parser.ParseError, ValueError) as exc:
             errors.append(f"{file}: invalid HTML: {exc}")
 
-        for match in SRCSET_RE.finditer(document):
-            for candidate in match.group(2).split(","):
-                url = candidate.strip().split()[0] if candidate.strip() else ""
-                try:
-                    target = local_target(url, file, project)
-                    if target is not None and not target.is_file():
-                        errors.append(f"{file}: missing asset referenced by srcset: {url}")
-                except ValueError as exc:
-                    errors.append(f"{file}: {exc}")
-
         # Parse attributes via the HTML parser, not a broad regex.
         from html5lib import HTMLParser
         parser = HTMLParser(strict=False)
         tree = parser.parse(document)
         for element in tree.iter():
             for attribute, value in element.attrib.items():
-                if attribute.rsplit("}", 1)[-1].lower() not in ASSET_ATTRIBUTES:
-                    continue
-                try:
-                    target = local_target(value, file, project)
-                    if target is not None and not target.is_file():
-                        errors.append(f"{file}: missing local asset: {value}")
-                except ValueError as exc:
-                    errors.append(f"{file}: {exc}")
+                name = attribute.rsplit("}", 1)[-1].lower()
+                candidates = parse_srcset(value) if name == "srcset" else ([value] if name in ASSET_ATTRIBUTES else [])
+                for raw_url in candidates:
+                    try:
+                        target = local_target(raw_url, file, project)
+                        if target is not None and not target.is_file():
+                            errors.append(f"{file}: missing local asset: {raw_url}")
+                    except ValueError as exc:
+                        errors.append(f"{file}: {exc}")
 
     for file in css_files:
         try:
@@ -171,18 +228,7 @@ def validate_project(project: Path) -> list[str]:
             errors.append(f"{file}: CSS syntax error: {message}")
 
         rules = tinycss2.parse_stylesheet(stylesheet, skip_comments=True, skip_whitespace=True)
-        for rule in rules:
-            if rule.type == "error":
-                errors.append(f"{file}: CSS syntax error: {rule.message}")
-            elif rule.type == "qualified-rule":
-                declarations = tinycss2.parse_declaration_list(
-                    rule.content, skip_comments=True, skip_whitespace=True
-                )
-                for declaration in declarations:
-                    if declaration.type == "error":
-                        errors.append(
-                            f"{file}: CSS syntax error: {declaration.message}"
-                        )
+        errors.extend(css_rule_errors(rules, file))
         for match in URL_RE.finditer(stylesheet):
             raw_url = match.group(2).strip()
             try:

@@ -120,9 +120,12 @@ jobs:
           }
           composer run-script test --no-interaction
 
-      - name: Report unsupported or unconfigured stack
-        if: ${{ matrix.stack == 'none' }}
-        run: echo "::notice::${{ matrix.project }} has no supported Node.js, Python, or PHP manifest. Repository-wide validation and security scans still run."
+      - name: Reject unsupported or unconfigured project stack
+        if: ${{ matrix.stack == 'none' && matrix.slug != '__no_projects__' }}
+        run: |
+          echo "::error::${{ matrix.project }} has no supported Node.js, Python, or PHP manifest."
+          echo "Add a supported manifest or implement and document a CI adapter before merging."
+          exit 1
   bootstrap-stack-e2e:
     name: Bootstrap / ${{ matrix.stack }}
     runs-on: ubuntu-latest

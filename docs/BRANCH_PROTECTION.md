@@ -1,62 +1,46 @@
 # Perlindungan Branch `main`
 
-Dokumen ini mencatat konfigurasi aktual dan rekomendasi untuk ruleset **Protect main**.
-Ruleset dikelola di GitHub Settings → Rules → Rulesets.
+Dokumen ini mencatat konfigurasi ruleset **Protect main** yang diverifikasi saat audit terakhir. Ruleset dikelola di GitHub Settings → Rules → Rulesets; periksa kembali UI GitHub jika aturan diubah.
 
-## Konfigurasi untuk maintainer tunggal
+## Konfigurasi ruleset
 
-| Aturan | Nilai |
+| Aturan | Nilai terverifikasi |
 |---|---|
 | Target | `refs/heads/main` |
 | Enforcement | Active |
 | Require a pull request before merging | Aktif |
-| Required approvals | 0 |
+| Required approvals | 0 (kebijakan maintainer tunggal) |
 | Dismiss stale pull request approvals | Aktif |
 | Require review from Code Owners | Nonaktif |
 | Require approval of the most recent reviewable push | Nonaktif |
 | Require conversation resolution | Aktif |
 | Require branches to be up to date | Aktif (strict required status checks) |
-| Required checks saat audit | Validate JSON, Python, Markdown, links, and whitespace; Scan dependencies with OSV-Scanner |
-| Required check tambahan untuk monorepo | **Project matrix tests** — perlu ditambahkan setelah check muncul pada PR |
+| Required status checks | `Validate JSON, Python, Markdown, links, and whitespace`; `Scan dependencies with OSV-Scanner`; `Project matrix tests` |
 | Require linear history | Aktif |
-| Restrict force pushes | Aktif (non-fast-forward ditolak) |
+| Restrict force pushes | Aktif |
 | Restrict deletions | Aktif |
 | Allowed merge method | Squash saja |
 | Bypass actors | Tidak ada |
 
-## Mengapa approval wajib dinonaktifkan
+## Kebijakan maintainer tunggal
 
-GitHub tidak mengizinkan penulis PR menyetujui PR miliknya sendiri. Karena repository ini dikelola oleh satu maintainer, mewajibkan approval atau Code Owner review akan mengunci merge PR yang dibuat oleh maintainer tersebut.
+GitHub tidak mengizinkan penulis PR menyetujui PR miliknya sendiri. Karena repository ini dikelola oleh satu maintainer, required approval dan Code Owner review tetap nonaktif agar PR pemilik repository tidak terkunci.
 
-CODEOWNERS tetap digunakan untuk mendokumentasikan kepemilikan area file. Jika kelak ada reviewer tepercaya kedua, pertimbangkan mengaktifkan kembali satu approval dan Code Owner review setelah memastikan reviewer tersebut dapat memenuhi kebijakan.
+CODEOWNERS tetap mendokumentasikan kepemilikan area file. Jika reviewer tepercaya kedua bergabung, evaluasi kembali satu approval dan Code Owner review.
 
-## Menambahkan gate CI monorepo
+## Peran required checks
 
-Workflow root `.github/workflows/project-matrix.yml` memiliki job agregat dengan nama stabil
-**Project matrix tests**. Job ini gagal jika discovery atau salah satu test stack gagal,
-sehingga branch protection tidak perlu bergantung pada nama job matrix yang berubah-ubah
-sesuai jumlah proyek.
+Ketiga check di atas adalah merge gate. `Project matrix tests` merupakan job agregat stabil yang menunggu pengujian proyek, validasi web, dan pengujian bootstrap Node.js/Python/PHP. Job agregat harus gagal jika salah satu pekerjaan wajib gagal.
 
-Setelah check tersebut muncul pada PR:
-
-1. Buka repository → **Settings → Rules → Rulesets**.
-2. Pilih **Protect main**.
-3. Pada **Require status checks to pass**, tambahkan **Project matrix tests**.
-4. Pertahankan dua check yang sudah diwajibkan.
-5. Simpan perubahan dan pastikan ketiga check menjadi required.
-
-Koneksi GitHub yang digunakan untuk perubahan repository ini hanya menyediakan pembacaan
-ruleset, bukan pengubahan aturan administrasi. Karena itu, penambahan required check
-tersebut harus dilakukan melalui Settings oleh pemilik repository. Sampai langkah ini
-dilakukan, Project matrix tests tetap berjalan pada PR tetapi belum menjadi merge gate.
+CI juga harus menolak proyek nyata yang tidak memiliki manifest stack yang didukung. Sentinel `__no_projects__` hanya digunakan ketika `projects/` benar-benar kosong dan tidak boleh dianggap sebagai proyek aplikasi.
 
 ## Cara memeriksa atau mengubah
 
 1. Buka repository → **Settings → Rules → Rulesets**.
 2. Pilih **Protect main**.
-3. Sesuaikan pengaturan dengan tabel di atas.
-4. Pastikan enforcement tetap **Active**, bypass actors kosong, dan semua required checks dipilih.
-5. Simpan perubahan.
-6. Uji melalui PR dan pastikan CI wajib lulus sebelum merge.
+3. Pastikan enforcement aktif dan target hanya `refs/heads/main`.
+4. Pastikan tiga required checks tercantum.
+5. Pertahankan bypass actors kosong, strict status checks, dan squash-only sesuai kebijakan.
+6. Simpan perubahan dan uji melalui PR.
 
-Perbarui dokumen ini setiap kali ruleset berubah agar kebijakan tertulis tetap sesuai dengan konfigurasi GitHub yang aktif.
+Perbarui dokumen ini setiap kali konfigurasi GitHub berubah. Nilai di atas adalah snapshot hasil pemeriksaan, bukan sinkronisasi otomatis dari GitHub Settings.

@@ -123,17 +123,33 @@ jobs:
       - name: Report unsupported or unconfigured stack
         if: ${{ matrix.stack == 'none' }}
         run: echo "::notice::${{ matrix.project }} has no supported Node.js, Python, or PHP manifest. Repository-wide validation and security scans still run."
+  web-validation:
+    name: HTML, CSS, and project assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Install validation tools
+        run: python -m pip install --requirement requirements-ci.txt
+      - name: Validate HTML, CSS, and local assets
+        run: python scripts/validate_web_projects.py
+
   project-ci:
     name: Project matrix tests
     if: always()
-    needs: project-tests
+    needs: [project-tests, web-validation]
     runs-on: ubuntu-latest
     steps:
-      - name: Require all project test jobs to pass
+      - name: Require application and web validation to pass
         env:
           PROJECT_TEST_RESULT: ${{ needs.project-tests.result }}
+          WEB_VALIDATION_RESULT: ${{ needs.web-validation.result }}
         run: |
-          if [[ "$PROJECT_TEST_RESULT" != "success" ]]; then
-            echo "Project matrix tests did not complete successfully: $PROJECT_TEST_RESULT"
+          if [[ "$PROJECT_TEST_RESULT" != "success" || "$WEB_VALIDATION_RESULT" != "success" ]]; then
+            echo "Project validation failed: application=$PROJECT_TEST_RESULT web=$WEB_VALIDATION_RESULT"
             exit 1
           fi

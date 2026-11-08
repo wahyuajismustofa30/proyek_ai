@@ -11,8 +11,8 @@ Workflow utama:
 
 - .github/workflows/validate.yml: validasi repository, dokumentasi, JSON, Python,
   aset arsip, tautan internal, secret, dan whitespace.
-- .github/workflows/project-matrix.yml: menemukan proyek dan menjalankan test
-  stack per proyek.
+- .github/workflows/project-matrix.yml: menemukan proyek, menjalankan test aplikasi
+  per stack, serta memvalidasi HTML, CSS, dan referensi aset lokal setiap proyek.
 - .github/workflows/dependency-security.yml: pemindaian OSV-Scanner rekursif
   untuk manifest dan lockfile di seluruh repository.
 
@@ -29,13 +29,13 @@ di bawah projects/. Setiap folder proyek dipetakan menjadi satu atau lebih job:
 | package.json | Node.js | npm ci, lint jika tersedia, test wajib, build jika tersedia |
 | pyproject.toml atau requirements.txt | Python | instalasi dependency, lalu pytest |
 | composer.json | PHP | validasi Composer, install lockfile, script test wajib |
-| Tidak ada manifest di atas | Belum didukung | Job memberi notice; validasi dan security scan root tetap berjalan |
+| Tidak ada manifest di atas | Belum didukung | Job memberi notice; validasi HTML/CSS/aset dan security scan tetap berjalan |
 
 Satu proyek boleh memiliki lebih dari satu stack. Setiap stack mendapatkan job terpisah
 agar kegagalan satu stack tidak menyembunyikan hasil stack lainnya. Matriks dibatasi
 maksimum empat job paralel untuk menjaga penggunaan runner.
 
-Proyek tanpa stack yang didukung tidak dianggap lulus pengujian aplikasi. Statusnya
+Validasi web dijalankan terpisah dari matriks bahasa: HTML diparse dengan parser HTML5 strict, CSS diperiksa sintaksnya, dan referensi aset lokal HTML/CSS diperiksa keberadaannya serta dibatasi agar tidak keluar dari folder proyek; SVG diparse sebagai XML dan file kosong ditolak. Ini bukan pengganti browser-based test, visual regression, atau audit accessibility penuh.\n\nProyek tanpa stack yang didukung tidak dianggap lulus pengujian aplikasi. Statusnya
 dilaporkan sebagai notice sampai adapter stack tersedia. Tambahkan adapter dan test
 discovery sebelum memperluas stack yang didukung.
 

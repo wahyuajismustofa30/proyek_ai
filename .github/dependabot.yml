@@ -413,3 +413,73 @@ updates:
     commit-message:
       prefix: "deps"
       include: scope
+
+  - package-ecosystem: conda
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, python]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: elm
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:30"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, elm]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: julia
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:45"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, julia]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: sbt
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "10:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, scala]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: vcpkg
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "10:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, cpp]
+    commit-message:
+      prefix: "deps"
+      include: scope

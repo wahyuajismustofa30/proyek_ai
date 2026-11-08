@@ -15,14 +15,11 @@ PARSER = MarkdownIt("default", {"html": True})
 
 
 def github_slugify(heading: str) -> str:
-    """Create a GitHub-style heading slug for ordinary Markdown headings."""
-    heading = re.sub(r"<[^>]+>", "", heading)
-    heading = re.sub(r"!?\[([^\]]+)\]\([^)]*\)", r"\1", heading)
-    heading = re.sub(r"\[([^\]]+)\]\[[^]]*\]", r"\1", heading)
-    heading = heading.replace(chr(96), "")
+    """Create a GitHub-style heading slug from rendered heading text."""
+    heading = re.sub("<[^>]+>", "", heading)
     heading = heading.strip().lower()
-    heading = re.sub(r"[^\w\- ]", "", heading, flags=re.UNICODE)
-    return re.sub(r"\s+", "-", heading)
+    heading = re.sub("[^\w -]", "", heading, flags=re.UNICODE)
+    return re.sub(" +" , "-", heading)
 
 
 def read_markdown(path: Path) -> str:
@@ -46,7 +43,13 @@ def markdown_anchors(path: Path) -> set[str]:
         if token.type != "heading_open":
             continue
         inline = tokens[index + 1] if index + 1 < len(tokens) else None
-        heading = inline.content if inline is not None and inline.type == "inline" else ""
+        if inline is None or inline.type != "inline":
+            heading = ""
+        else:
+            heading = "".join(
+                child.content for child in (inline.children or [])
+                if child.type in {"text", "code_inline"}
+            )
         base = github_slugify(heading)
         if not base:
             continue

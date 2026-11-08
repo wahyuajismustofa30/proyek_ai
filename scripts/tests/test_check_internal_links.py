@@ -84,5 +84,26 @@ class MarkdownParserTests(unittest.TestCase):
         self.assertIsNone(error)
 
 
+    def test_rejects_directory_index_symlink_that_escapes_repository(self) -> None:
+        """A directory index symlink must not bypass the repository boundary."""
+        guide = self.root / "guide"
+        guide.mkdir()
+        outside = self.root.parent / "outside-index.md"
+        outside.write_text("# Outside\n", encoding="utf-8")
+        index_link = guide / "README.md"
+        try:
+            index_link.symlink_to(outside)
+        except OSError:
+            self.skipTest("Symlink creation is not supported in this environment")
+
+        with patch.object(validator, "ROOT", self.root):
+            target, fragment, error = validator.resolve_target(self.source, "guide/")
+
+        self.assertEqual(target, outside.resolve())
+        self.assertEqual(fragment, "")
+        self.assertEqual(error, "target escapes the repository")
+
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -157,7 +157,7 @@ def main() -> int:
         print("Internal Markdown link validation failed:")
         for error in errors:
             print(f"  - {error}")
-        print(f"\\n{len(errors)} error(s); checked {checked} internal link(s).")
+        print(f"\n{len(errors)} error(s); checked {checked} internal link(s).")
         return 1
 
     print(

@@ -27,3 +27,6 @@ Sumber acuan visual bersama untuk website bisnis dan undangan online DEKEKU.
 - PNG maskot pada paket awal terdeteksi memiliki hash identik; validasi visual sebelum dipakai sebagai variasi pose.
 - Halaman referensi mengandung konten contoh; jangan anggap sebagai data bisnis produksi.
 - Form demo pada referensi perlu integrasi backend/WhatsApp sebelum dipakai produksi.
+
+## Testing
+Strategi pemeriksaan baseline dan aset: [docs/TESTING.md](docs/TESTING.md). Folder [tests/](tests/README.md) menjadi tempat skrip validasi versi pengembangan.

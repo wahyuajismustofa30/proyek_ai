@@ -61,6 +61,12 @@ Pemeriksaan CSS adalah validasi sintaks berbasis parser, bukan browser compatibi
 test. Validator ini juga bukan pengganti visual regression, browser-based test, atau
 audit accessibility penuh.
 
+Validator Markdown saat ini memeriksa tautan internal dan anchor dalam repository.
+Tautan HTTP/HTTPS eksternal sengaja dilewati: ketersediaan situs pihak ketiga tidak
+menjadi syarat kelulusan PR karena dapat berubah atau gagal sementara. Karena itu,
+status CI tidak menyatakan bahwa semua tautan eksternal masih aktif; periksa manual
+saat meninjau dokumentasi yang bergantung pada referensi eksternal.
+
 ## Kontrak setiap proyek
 
 - Node.js: commit `package-lock.json` dan sediakan script `test` di `package.json`.

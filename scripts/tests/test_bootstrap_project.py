@@ -119,7 +119,7 @@ class BootstrapProjectTests(unittest.TestCase):
 
 
     def test_cli_rejects_control_characters_and_long_names_without_creating_output(self) -> None:
-        invalid_names = ("Baris\\nDua", "A\\tB", "X" * 300)
+        invalid_names = ("Baris\nDua", "A\tB", "X" * 300)
         for index, name in enumerate(invalid_names):
             with self.subTest(name=repr(name)):
                 output = self.root / f"rejected-{index}"

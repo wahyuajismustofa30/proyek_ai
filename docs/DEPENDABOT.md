@@ -42,6 +42,11 @@ dan tidak memerlukan manifest palsu.
 | uv | pyproject.toml / uv.lock | /projects/* | Senin 08.30 |
 | Rust toolchain | rust-toolchain.toml | /projects/* | Senin 08.45 |
 | Git submodules | .gitmodules | /projects/* | Senin 09.00 |
+| Conda | environment.yml | /projects/* | Senin 09.15 |
+| Elm | elm.json | /projects/* | Senin 09.30 |
+| Julia | Project.toml / Manifest.toml | /projects/* | Senin 09.45 |
+| sbt | build.sbt | /projects/* | Senin 10.00 |
+| vcpkg | vcpkg.json | /projects/* | Senin 10.15 |
 
 Jadwal memakai zona waktu `Asia/Jakarta`. Semua pembaruan diarahkan ke `main`,
 menggunakan label stack, dan memiliki batas jumlah PR terbuka per konfigurasi.

@@ -33,8 +33,7 @@ updates:
       include: scope
 
   - package-ecosystem: npm
-    directories:
-      - "/projects/*"
+    directories: ["/projects/*"]
     schedule:
       interval: weekly
       day: monday
@@ -52,8 +51,7 @@ updates:
         update-types: [minor, patch]
 
   - package-ecosystem: pip
-    directories:
-      - "/projects/*"
+    directories: ["/projects/*"]
     schedule:
       interval: weekly
       day: monday
@@ -67,8 +65,7 @@ updates:
       include: scope
 
   - package-ecosystem: composer
-    directories:
-      - "/projects/*"
+    directories: ["/projects/*"]
     schedule:
       interval: weekly
       day: monday
@@ -77,6 +74,412 @@ updates:
     open-pull-requests-limit: 15
     target-branch: main
     labels: [dependencies, php]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: bundler
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "03:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, ruby]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: gomod
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "03:30"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, go]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: cargo
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "03:45"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, rust]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: maven
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, java]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: gradle
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, java]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: nuget
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:30"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, dotnet]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: dotnet-sdk
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:45"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, dotnet]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: mix
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, elixir]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: pub
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, dart]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: swift
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:30"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, swift]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: terraform
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:45"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, infrastructure]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: opentofu
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, infrastructure]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: docker
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, docker]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: docker-compose
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, docker]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: devcontainers
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:45"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, devcontainer]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: helm
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, kubernetes]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: bazel
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, bazel]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: nix
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:30"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, nix]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: pre-commit
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:45"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, tooling]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: bun
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, javascript]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: deno
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, javascript]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: uv
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:30"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, python]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: rust-toolchain
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:45"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, rust]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: gitsubmodule
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, git]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: conda
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, python]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: elm
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:30"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, elm]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: julia
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:45"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, julia]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: sbt
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "10:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, scala]
+    commit-message:
+      prefix: "deps"
+      include: scope
+
+  - package-ecosystem: vcpkg
+    directories: ["/projects/*"]
+    schedule:
+      interval: weekly
+      day: monday
+      time: "10:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, cpp]
     commit-message:
       prefix: "deps"
       include: scope

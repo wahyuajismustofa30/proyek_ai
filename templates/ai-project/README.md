@@ -2,9 +2,9 @@
 
 > [Deskripsi singkat proyek dalam satu atau dua kalimat.]
 
-Status: **Planning**  
-Versi: **0.1.0**  
-Pemilik: **[Nama/Tim]**  
+Status: **Planning**
+Versi: **0.1.0**
+Pemilik: **[Nama/Tim]**
 Diperbarui: **[YYYY-MM-DD]**
 
 ## Tujuan

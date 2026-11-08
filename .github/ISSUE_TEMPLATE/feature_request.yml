@@ -1,0 +1,51 @@
+name: Usulan Fitur
+description: Ajukan peningkatan untuk repository, tooling, template, atau proses CI.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Jelaskan kebutuhan dan dampak yang ingin dicapai.
+        Hindari memasukkan credential atau data pribadi.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Masalah atau kebutuhan
+      description: Masalah apa yang belum terselesaikan? Siapa atau proses apa yang terdampak?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Solusi yang diusulkan
+      description: Jelaskan perilaku atau hasil yang diharapkan.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatif yang dipertimbangkan
+      description: Apakah ada solusi lain atau workaround saat ini?
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area terkait
+      options:
+        - Repository dan dokumentasi
+        - CI dan GitHub Actions
+        - Keamanan dan dependency
+        - Bootstrap dan template proyek
+        - Tooling dan skrip
+        - Lainnya
+    validations:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Informasi tambahan
+      description: Tambahkan contoh, referensi, atau konteks lain yang membantu evaluasi.
+    validations:
+      required: false

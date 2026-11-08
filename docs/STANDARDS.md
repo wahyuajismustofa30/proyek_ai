@@ -36,3 +36,8 @@
 - CHANGELOG mencatat perubahan yang berdampak pada pengguna atau developer.
 - DECISIONS mencatat keputusan arsitektur jangka panjang.
 - Dokumentasi harus membedakan fakta, asumsi, placeholder, dan hal yang belum diverifikasi.
+
+## Testing
+- Setiap proyek wajib memiliki `docs/TESTING.md` dan direktori `tests/` atau alternatif terdokumentasi untuk proyek non-kode.
+- Ikuti [Standar Testing](TESTING_STANDARDS.md) untuk lapisan test, data, CI, dan pelaporan.
+- Strategi spesifik proyek harus menjelaskan skenario kritis, perintah test, dan pengecualian.

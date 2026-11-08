@@ -5,7 +5,7 @@ templates/ai-project/ tanpa menyalin folder secara manual.
 
 ## Persyaratan
 
-- Python 3.10 atau lebih baru.
+- Python 3.12 atau lebih baru.
 - Repository proyek_ai sudah di-clone.
 - Jalankan perintah dari root repository atau gunakan path script yang benar.
 

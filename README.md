@@ -12,7 +12,7 @@ Repository pusat untuk dokumentasi, standar, template, dan pengembangan proyek d
 
 ## Membuat proyek baru
 
-Gunakan bootstrap otomatis (Python 3.10+):
+Gunakan bootstrap otomatis (Python 3.12+):
 
     python scripts/bootstrap_project.py --name "Nama Proyek"
 

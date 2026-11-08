@@ -5,7 +5,7 @@
 - Folder `projects/` dipertahankan kosong sebagai ruang kerja proyek baru.
 - Proyek baru dibuat dari `templates/ai-project/` menggunakan `scripts/bootstrap_project.py`.
 
-## Baseline DEKEKU
-- Paket asli DEKEKU v1.1 tetap disimpan di `archives/Master-tema-dekeku-v1.1.zip`.
-- Salinan hasil ekstraksi baseline dipindahkan ke `archives/dekeku-brand-system-v1.1/` dan diperlakukan read-only.
-- Pengembangan berikutnya tidak mengubah arsip; buat salinan kerja atau versi baru di dalam proyek yang dibuat melalui bootstrap.
+## Arsip DEKEKU
+- Isi direktori `archives/` telah dikosongkan berdasarkan keputusan pemeliharaan repository.
+- Hanya `archives/README.md` yang dipertahankan; paket tema, paket logo, dan salinan Brand System lama tidak lagi tersedia di repository.
+- Pengembangan DEKEKU berikutnya harus menggunakan aset sumber yang disetujui dan ditempatkan pada proyek aktif; jangan mengasumsikan file arsip lama masih ada.

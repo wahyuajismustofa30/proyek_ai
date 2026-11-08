@@ -9,9 +9,20 @@ Repository pusat untuk dokumentasi, source code, aset, dan pengembangan proyek d
 4. Periksa file dan riwayat terkait sebelum mengedit.
 5. Jalankan pemeriksaan yang relevan dan laporkan hasilnya.
 
+## Membuat proyek baru
+
+Gunakan bootstrap otomatis (Python 3.10+):
+
+```bash
+python scripts/bootstrap_project.py --name "Nama Proyek"
+```
+
+Folder proyek akan dibuat di `projects/<slug-nama>/` dari template standar,
+tanpa menimpa folder yang sudah ada. Panduan lengkap: [Bootstrap Proyek](docs/PROJECT_BOOTSTRAP.md).
+
 ## Struktur utama
 - `.github/workflows/`: validasi otomatis repository.
-- `docs/`: standar, workflow, indeks, keputusan, checklist kualitas, [kebijakan Dependabot](docs/DEPENDABOT.md), dan [validasi Markdown](docs/MARKDOWN_VALIDATION.md).
+- `docs/`: standar, workflow, indeks, keputusan, checklist kualitas, [kebijakan Dependabot](docs/DEPENDABOT.md), [validasi Markdown](docs/MARKDOWN_VALIDATION.md), dan [panduan bootstrap](docs/PROJECT_BOOTSTRAP.md).
 - `projects/`: seluruh proyek aktif, masing-masing terisolasi.
 - `templates/ai-project/`: template untuk memulai proyek AI baru.
 - `archives/`: paket arsip asli yang tidak diedit.

@@ -1,65 +1,46 @@
 # Strategi Testing — [NAMA PROYEK]
 
-> Salin dan sesuaikan dokumen ini untuk setiap proyek. Hapus instruksi dalam tanda kurung setelah diisi.
+> Lengkapi setelah memilih stack. CI mendeteksi Node.js, Python, dan PHP dari manifest root.
 
-## Tujuan dan risiko
-- Jenis proyek: [website / aplikasi / API / CLI / design system / dokumentasi]
-- Alur/fitur paling kritis: [isi]
-- Risiko utama jika gagal: [isi]
-- Data yang digunakan saat test: [dummy / fixture / factory; jelaskan]
-
-## Lingkup testing
-| Lapisan | Digunakan? | Tool / lokasi | Alasan atau cakupan |
-|---|---|---|---|
-| Static / lint | [Ya/Tidak] | [isi] | [isi] |
-| Unit | [Ya/Tidak] | [isi] | [isi] |
-| Integration | [Ya/Tidak] | [isi] | [isi] |
-| Contract / API | [Ya/Tidak] | [isi] | [isi] |
-| E2E | [Ya/Tidak] | [isi] | [isi] |
-| Visual / accessibility | [Ya/Tidak] | [isi] | [isi] |
-| Security | [Ya/Tidak] | [isi] | [isi] |
-| Manual acceptance | Ya | [checklist / lokasi] | [isi] |
-
-## Prasyarat dan environment
-- Runtime dan versi: [isi]
-- Instalasi dependency: [isi]
-- Environment test: [isi]
-- Database/service test: [isi atau N/A]
-- Variabel environment: gunakan nilai dummy dari `.env.example`; jangan gunakan secret produksi.
+## Risiko dan cakupan
+- Alur paling kritis: [isi]
+- Dampak jika gagal: [isi]
+- Data test: sintetis/dummy; jangan gunakan data produksi.
 
 ## Perintah standar
-| Tujuan | Perintah |
-|---|---|
-| Install dependency | [isi] |
-| Lint / static check | [isi] |
-| Unit + integration test | [isi] |
-| E2E | [isi atau N/A] |
-| Build | [isi atau N/A] |
-
-## Skenario kritis
-| ID | Skenario | Hasil yang diharapkan | Otomatis / Manual |
+| Stack | Install | Test | Build / lint |
 |---|---|---|---|
-| T-001 | [alur sukses utama] | [hasil] | [jenis] |
-| T-002 | [input tidak valid / kegagalan] | [hasil] | [jenis] |
-| T-003 | [akses tanpa izin / batas] | [hasil] | [jenis] |
+| Node.js | \`npm ci\` (wajib \`package-lock.json\`) | \`npm test\` (wajib script \`test\`) | \`npm run lint --if-present\`, \`npm run build --if-present\` |
+| Python | \`pip install -e ".[test]"\` atau \`pip install -r requirements.txt\` | \`python -m pytest\` | Tambahkan formatter/type checker pilihan |
+| PHP | \`composer install\` (wajib \`composer.lock\`) | \`composer run-script test\` | \`composer validate --strict\` |
 
-## Aturan data dan keamanan
-- [ ] Seluruh data test sintetis dan bukan data pengguna/produksi.
-- [ ] Test tidak menghubungi atau mengubah layanan produksi.
-- [ ] Credential hanya dummy dan tidak disimpan di repository.
-- [ ] Resource sementara dibersihkan setelah test.
-- [ ] Kasus akses ditolak dan input tidak valid ikut diuji.
+Jika menggunakan stack lain atau multi-stack, tambahkan job CI yang sesuai dan dokumentasikan perintahnya. Jangan membuat manifest kosong hanya untuk mengaktifkan job.
+
+## Skenario minimum
+- [ ] Alur sukses utama.
+- [ ] Input tidak valid dan batas nilai.
+- [ ] Error dari dependency/service eksternal.
+- [ ] Akses tanpa izin untuk fitur yang dilindungi.
+- [ ] Regression test untuk bug yang diperbaiki.
+- [ ] Responsive dan accessibility untuk UI.
+- [ ] Build dapat direproduksi.
+
+## Keamanan
+- [ ] Manifest dan lockfile dependency dikomit.
+- [ ] Fixture tidak memuat secret atau data pribadi.
+- [ ] Test tidak mengakses layanan produksi.
+- [ ] Validasi input dan otorisasi diuji.
+- [ ] Hasil Gitleaks dan OSV-Scanner ditinjau.
 
 ## CI
-- Workflow: [path]
-- Trigger: [pull request / push / schedule]
-- Required checks: [isi]
-- Cara membaca hasil: [isi]
+Workflow \`.github/workflows/ci.yml\` menjalankan validasi struktur, JSON, Markdown,
+whitespace, secret scanning, OSV-Scanner, serta test otomatis untuk Node.js, Python,
+atau PHP bila manifest ditemukan.
 
 ## Hasil verifikasi terakhir
-| Tanggal | Commit | Perintah / skenario | Status | Catatan |
+| Tanggal | Commit | Pemeriksaan | Status | Catatan |
 |---|---|---|---|---|
-| [YYYY-MM-DD] | [SHA] | [isi] | [PASS/FAIL/BLOCKED/NOT RUN] | [isi] |
+| [YYYY-MM-DD] | [SHA] | [perintah / job] | [PASS/FAIL/BLOCKED/NOT RUN] | [catatan] |
 
-## Pengecualian
-Tuliskan lapisan yang tidak digunakan beserta alasan dan pemeriksaan penggantinya. Jangan hanya menandai N/A tanpa penjelasan.
+Jangan menyatakan PASS untuk pemeriksaan yang tidak dijalankan. Gunakan NOT RUN atau
+BLOCKED dan jelaskan alasannya.

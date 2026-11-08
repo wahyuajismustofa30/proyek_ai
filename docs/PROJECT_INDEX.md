@@ -6,6 +6,7 @@
 | DEKEKU — Business Website | `projects/dekeku/business-website/` | Ruang kerja disiapkan; belum ada implementasi produk | `projects/dekeku/business-website/README.md` |
 | DEKEKU — Online Invitation | `projects/dekeku/online-invitation/` | Ruang kerja disiapkan; belum ada implementasi produk | `projects/dekeku/online-invitation/README.md` |
 | AI Project Template | `templates/ai-project/` | Siap disalin untuk proyek baru | `templates/ai-project/README.md` |
+| Bootstrap Proyek | `scripts/bootstrap_project.py` | Tool otomatis untuk membuat proyek dari template | `docs/PROJECT_BOOTSTRAP.md` |
 
 ## Cara memilih konteks
 - Kerjakan hanya proyek yang diminta pengguna.

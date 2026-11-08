@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import sys
+from contextlib import redirect_stdout
+from io import StringIO
 import tempfile
 import unittest
 from pathlib import Path
@@ -102,6 +104,24 @@ class MarkdownParserTests(unittest.TestCase):
         self.assertEqual(target, outside.resolve())
         self.assertEqual(fragment, "")
         self.assertEqual(error, "target escapes the repository")
+
+
+
+    def test_main_rejects_markdown_source_symlink_outside_repository(self) -> None:
+        outside = self.root.parent / "outside-source.md"
+        outside.write_text("# External source\\n", encoding="utf-8")
+        source_link = self.root / "linked.md"
+        try:
+            source_link.symlink_to(outside)
+        except OSError:
+            self.skipTest("Symlink creation is not supported in this environment")
+
+        output = StringIO()
+        with patch.object(validator, "ROOT", self.root), redirect_stdout(output):
+            result = validator.main()
+
+        self.assertEqual(result, 1)
+        self.assertIn("Markdown file symlink escapes the repository", output.getvalue())
 
 
 

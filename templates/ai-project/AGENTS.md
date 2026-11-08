@@ -4,8 +4,9 @@
 1. README.md
 2. docs/PROJECT_BRIEF.md
 3. docs/ARCHITECTURE.md
-4. docs/TASKS.md\n5. docs/TESTING.md (wajib sebelum implementasi fitur)
-5. docs/DECISIONS.md dan docs/CHANGELOG.md bila relevan
+4. docs/TASKS.md
+5. docs/TESTING.md (wajib sebelum implementasi fitur)
+6. docs/DECISIONS.md dan docs/CHANGELOG.md bila relevan
 
 ## Aturan utama
 - Pahami tujuan, batasan, dan acceptance criteria sebelum coding.
@@ -40,5 +41,7 @@ Laporkan:
 - Pilih solusi sederhana, terbaca, dan mudah dirawat.
 - Tangani error dan validasi input pada batas sistem.
 - Jangan menyalin kode berulang jika abstraksi sederhana lebih tepat.
-- Ikuti `docs/TESTING.md` dan `docs/TESTING_STANDARDS.md`.\n- Tambahkan test untuk perilaku penting, batas input, akses ditolak, dan kasus gagal.\n- Jangan menyatakan task selesai sebelum pemeriksaan relevan dijalankan atau blocker dicatat.
+- Ikuti `docs/TESTING.md` dan standar repository `../../docs/TESTING_STANDARDS.md`.
+- Tambahkan test untuk perilaku penting, batas input, akses ditolak, dan kasus gagal.
+- Jangan menyatakan task selesai sebelum pemeriksaan relevan dijalankan atau blocker dicatat.
 - Jangan mengubah format file massal tanpa kebutuhan.

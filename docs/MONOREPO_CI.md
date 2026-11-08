@@ -46,8 +46,17 @@ bukan menyimpan proyek contoh di `projects/`.
 
 `scripts/validate_web_projects.py` memeriksa HTML dengan parser HTML5 strict,
 sintaks CSS menggunakan tinycss2, keberadaan referensi aset lokal, batas path
-agar tidak keluar dari proyek, serta parse SVG/XML. Pemeriksaan ini bukan
-browser compatibility, visual regression, atau audit aksesibilitas penuh.
+agar tidak keluar dari proyek, serta parse SVG/XML. Pemindaian melewati direktori dependency dan output/cache berikut di dalam
+proyek: `node_modules/`, `.venv/`, `venv/`, `vendor/`, `dist/`,
+`build/`, `.git/`, dan `__pycache__/`. Direktori tersebut tidak menjadi
+source web yang divalidasi.
+
+Pemeriksaan ukuran nol hanya berlaku untuk file HTML/HTM, CSS, dan SVG.
+File kosong bernama `.gitkeep`, `__init__.py`, atau `.nojekyll` diizinkan;
+file kosong lain dengan ekstensi aset/web tersebut ditolak. File kosong dengan
+ekstensi lain tidak diperiksa oleh aturan ukuran ini.
+
+Pemeriksaan ini bukan browser compatibility, visual regression, atau audit aksesibilitas penuh.
 
 `scripts/check_internal_links.py` memeriksa target tautan Markdown dan anchor
 lokal. URL HTTP/HTTPS eksternal sengaja dilewati; ketersediaan situs pihak

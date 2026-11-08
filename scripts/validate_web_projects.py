@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 import xml.etree.ElementTree as ET
@@ -15,6 +16,18 @@ import tinycss2
 
 HTML_EXTENSIONS = {".html", ".htm"}
 CSS_EXTENSIONS = {".css"}
+EMPTY_CHECK_EXTENSIONS = HTML_EXTENSIONS | CSS_EXTENSIONS | {".svg"}
+ALLOWED_EMPTY_FILENAMES = {".gitkeep", "__init__.py", ".nojekyll"}
+EXCLUDED_DIRECTORIES = {
+    "node_modules",
+    ".venv",
+    "venv",
+    "vendor",
+    "dist",
+    "build",
+    ".git",
+    "__pycache__",
+}
 ASSET_ATTRIBUTES = {"src", "href", "poster", "data"}
 SRCSET_RE = re.compile(r"(?<![\w-])srcset\s*=\s*(['\"])(.*?)\1", re.IGNORECASE)
 
@@ -210,14 +223,31 @@ def validate_project(project: Path) -> list[str]:
     if not project.is_dir():
         return [f"{project}: project directory does not exist"]
 
-    files = sorted(p for p in project.rglob("*") if p.is_file() and not p.is_symlink())
+    files: list[Path] = []
+    for current_root, directory_names, file_names in os.walk(project):
+        current_path = Path(current_root)
+        directory_names[:] = sorted(
+            name
+            for name in directory_names
+            if name not in EXCLUDED_DIRECTORIES
+            and not (current_path / name).is_symlink()
+        )
+        files.extend(
+            current_path / name
+            for name in file_names
+            if not (current_path / name).is_symlink()
+        )
+    files.sort()
     html_files = [p for p in files if p.suffix.lower() in HTML_EXTENSIONS]
     css_files = [p for p in files if p.suffix.lower() in CSS_EXTENSIONS]
 
     for file in files:
-        if file.name == ".gitkeep":
+        if file.name in ALLOWED_EMPTY_FILENAMES:
             continue
-        if file.stat().st_size == 0:
+        if (
+            file.suffix.lower() in EMPTY_CHECK_EXTENSIONS
+            and file.stat().st_size == 0
+        ):
             errors.append(f"{file}: empty project asset or source file")
         if file.suffix.lower() == ".svg":
             try:

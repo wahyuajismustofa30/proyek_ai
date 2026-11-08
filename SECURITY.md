@@ -26,6 +26,7 @@ reporter based on severity and remediation complexity.
 ## Scope and expectations
 
 Reports are especially useful for:
+
 - exposed credentials, tokens, private keys, or personal information;
 - authentication, authorization, or access-control bypasses;
 - unsafe file upload, path traversal, injection, or remote code execution;

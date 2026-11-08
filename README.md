@@ -3,6 +3,7 @@
 Repository pusat untuk dokumentasi, standar, template, dan pengembangan proyek dengan bantuan AI.
 
 ## Mulai dari sini
+
 1. Baca [AGENTS.md](AGENTS.md) sebelum mengubah apa pun.
 2. Baca [indeks proyek](docs/PROJECT_INDEX.md) untuk melihat ruang kerja dan template yang tersedia.
 3. Untuk proyek baru, gunakan bootstrap resmi; jangan membuat struktur proyek secara manual.
@@ -32,6 +33,7 @@ Baca [arsitektur CI monorepo](docs/MONOREPO_CI.md) untuk aturan penambahan stack
 manifest, lockfile, dan test.
 
 ## Struktur utama
+
 - .github/: workflow CI, konfigurasi Dependabot, serta template pull request dan issue.
 - .github/workflows/: validasi repository, orkestrasi test proyek, dan keamanan dependency.
 - docs/: standar, workflow, indeks, keputusan, checklist kualitas, dan panduan bootstrap.
@@ -47,6 +49,7 @@ berisi README penjelas. Lokasi sumber kanonis DEKEKU Master Theme belum ditetapk
 pemilik repository perlu memutuskan lokasinya sebelum aset tersebut digunakan kembali.
 
 ## Prinsip repository
+
 - Satu lokasi kanonis untuk setiap source aktif.
 - Arsip baseline tidak ditimpa atau diedit.
 - Proyek baru dimulai dari template dan diisolasi di bawah projects/.

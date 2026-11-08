@@ -62,6 +62,7 @@ proyek; direktori tersembunyi di dalam proyek (misalnya .github/ atau .config/)
 boleh digunakan untuk konfigurasi lokal. Lihat docs/PROJECT_STRUCTURE.md.
 
 Stack yang didukung otomatis saat ini:
+
 - Node.js: package.json + package-lock.json; script test wajib.
 - Python: pyproject.toml atau requirements.txt; test dijalankan dengan pytest.
 - PHP: composer.json + composer.lock; script Composer test wajib.

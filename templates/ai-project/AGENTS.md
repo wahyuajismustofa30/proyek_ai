@@ -5,7 +5,7 @@
 2. docs/PROJECT_BRIEF.md
 3. docs/ARCHITECTURE.md
 4. docs/TASKS.md
-5. docs/AI_GUIDELINES.md (wajib untuk fitur berbasis AI/model)
+5. [docs/AI_GUIDELINES.md](docs/AI_GUIDELINES.md) (wajib untuk fitur berbasis AI/model)
 6. docs/TESTING.md (wajib sebelum implementasi fitur)
 7. docs/DECISIONS.md dan docs/CHANGELOG.md bila relevan
 

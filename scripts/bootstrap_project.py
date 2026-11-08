@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import shutil
 import sys
@@ -62,9 +63,19 @@ def bootstrap_project(
                 original = path.read_text(encoding="utf-8")
             except (UnicodeDecodeError, OSError):
                 continue
-            updated = original.replace("[NAMA PROYEK]", clean_name)
-            updated = updated.replace("{{PROJECT_NAME}}", clean_name)
-            updated = updated.replace("{{PROJECT_SLUG}}", slug)
+            replacements = {
+                "[NAMA PROYEK]": clean_name,
+                "{{PROJECT_NAME}}": clean_name,
+                "{{PROJECT_SLUG}}": slug,
+            }
+            updated = original
+            for placeholder, value in replacements.items():
+                replacement = (
+                    json.dumps(value)[1:-1]
+                    if path.suffix.lower() == ".json"
+                    else value
+                )
+                updated = updated.replace(placeholder, replacement)
             if updated != original:
                 path.write_text(updated, encoding="utf-8")
     except Exception:

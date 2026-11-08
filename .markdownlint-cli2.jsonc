@@ -1,8 +1,11 @@
 {
   "config": {
-    "default": false,
-    "MD018": true,
-    "MD019": true,
-    "MD023": true
+    "default": true,
+    // Repository prose uses natural line lengths and existing wrapped sections.
+    "MD013": false,
+    // Inline HTML is used in Markdown where native Markdown has no equivalent.
+    "MD033": false,
+    // Documents may begin with introductory prose before the first heading.
+    "MD041": false
   }
 }

@@ -99,12 +99,36 @@ class WebValidationTests(unittest.TestCase):
         )
         self.assertTrue(any("escapes project directory" in e for e in validate_project(self.project)))
 
-    def test_reports_invalid_svg_and_empty_assets(self) -> None:
+    def test_reports_invalid_svg_and_empty_web_assets(self) -> None:
         (self.project / "broken.svg").write_text("<svg>", encoding="utf-8")
-        (self.project / "empty.png").write_bytes(b"")
+        (self.project / "empty.css").write_bytes(b"")
         errors = validate_project(self.project)
         self.assertTrue(any("invalid SVG/XML asset" in e for e in errors))
         self.assertTrue(any("empty project asset" in e for e in errors))
+
+    def test_allows_empty_python_package_initializer(self) -> None:
+        (self.project / "__init__.py").write_bytes(b"")
+        self.assertEqual(validate_project(self.project), [])
+
+    def test_rejects_empty_html_document(self) -> None:
+        (self.project / "index.html").write_bytes(b"")
+        self.assertTrue(
+            any("empty project asset" in error for error in validate_project(self.project))
+        )
+
+    def test_ignores_invalid_html_inside_node_modules(self) -> None:
+        dependency = self.project / "node_modules" / "package"
+        dependency.mkdir(parents=True)
+        (dependency / "index.html").write_text("<html><p>broken", encoding="utf-8")
+        self.assertEqual(validate_project(self.project), [])
+
+    def test_validates_invalid_html_inside_src(self) -> None:
+        source = self.project / "src"
+        source.mkdir()
+        (source / "index.html").write_text("<html><p>broken", encoding="utf-8")
+        self.assertTrue(
+            any("invalid HTML" in error for error in validate_project(self.project))
+        )
 
     def test_reports_malformed_html_and_unclosed_css_block(self) -> None:
         (self.project / "index.html").write_text("<html><p>unclosed", encoding="utf-8")

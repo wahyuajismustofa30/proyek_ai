@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -49,8 +50,15 @@ def validate_project(project: Path) -> list[str]:
     css_files = [p for p in files if p.suffix.lower() in CSS_EXTENSIONS]
 
     for file in files:
-        if file.stat().st_size == 0 and file.suffix.lower() in HTML_EXTENSIONS | CSS_EXTENSIONS:
-            errors.append(f"{file}: empty HTML/CSS file")
+        if file.name == ".gitkeep":
+            continue
+        if file.stat().st_size == 0:
+            errors.append(f"{file}: empty project asset or source file")
+        if file.suffix.lower() == ".svg":
+            try:
+                ET.parse(file)
+            except (ET.ParseError, OSError) as exc:
+                errors.append(f"{file}: invalid SVG/XML asset: {exc}")
 
     for file in html_files:
         try:

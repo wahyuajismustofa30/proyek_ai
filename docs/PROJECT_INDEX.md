@@ -2,6 +2,7 @@
 
 | Proyek | Lokasi | Status | Konteks awal |
 |---|---|---|---|
+| AI Project Template | templates/ai-project/ | Siap disalin untuk proyek baru | templates/ai-project/README.md |
 | DEKEKU Brand System | projects/dekeku/brand-system/ | Baseline v1.1 diarsipkan; pengembangan berikutnya dipisah | projects/dekeku/README.md |
 
 ## Cara memilih konteks

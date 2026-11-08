@@ -82,17 +82,36 @@ saat meninjau dokumentasi yang bergantung pada referensi eksternal.
 - Stack lain belum dijalankan otomatis. Jangan menambahkan manifest tanpa adapter
   CI dan dokumentasi cara test.
 
-## Dependabot
+# Dependabot
 
-Dependabot hanya dikonfigurasi di `.github/dependabot.yml` root:
+Dependabot is configured centrally in `.github/dependabot.yml`. The active
+configuration must point only to dependency manifests that actually exist:
 
-- GitHub Actions: direktori root.
-- pip tooling repository: direktori root.
-- npm, pip, dan Composer: pola direktori `/projects/*`.
+| Scope | Dependabot ecosystem | Directory | Existing manifest / adapter |
+|---|---|---|---|
+| Repository automation | `github-actions` | `/` | `.github/workflows/*.yml` |
+| Repository validation tooling | `pip` | `/` | `requirements-ci.txt` |
+| Node.js projects | `npm` | `/projects/<slug>` | `package.json`; CI adapter requires `package-lock.json` |
+| Python projects | `pip` | `/projects/<slug>` | `pyproject.toml` and/or `requirements*.txt` |
+| PHP projects | `composer` | `/projects/<slug>` | `composer.json`; CI adapter requires `composer.lock` |
 
-Gunakan kunci `directories` untuk pola direktori monorepo. Jangan membuat
-`.github/dependabot.yml` per proyek; konfigurasi bertingkat bukan sumber konfigurasi
-Dependabot repository.
+The project matrix currently implements Node.js, Python, and PHP adapters, but
+`projects/` currently contains no project directories. Therefore only the two
+repository-level entries (GitHub Actions and root pip tooling) are active in
+Dependabot today. Do not add npm, project pip, or Composer entries until a
+matching project manifest exists.
+
+When a project is added, add a concrete Dependabot entry using that project's
+directory and matching ecosystem in the same change that introduces its
+manifest and lockfile. Avoid a broad `/projects/*` pattern while there are no
+matching projects: Dependabot can report `dependency_file_not_found` when a
+configured directory has no manifest. Do not create per-project Dependabot
+configuration files; the root file is the single source of truth.
+
+CI support and Dependabot update support are related but distinct contracts:
+the CI adapter defines how a project is installed and tested, while Dependabot
+defines where dependency manifests are scanned and updated. A stack being
+supported by CI does not imply that a Dependabot directory exists yet.
 
 ## Proyek baru
 

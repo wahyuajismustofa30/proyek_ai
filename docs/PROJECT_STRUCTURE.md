@@ -9,7 +9,7 @@ pemeriksaan otomatis.
 - Hanya direktori satu tingkat langsung di bawah `projects/` yang dianggap proyek.
 - Nama direktori harus berupa slug ASCII huruf kecil dan angka, dengan segmen dipisahkan
   satu tanda hubung: `[a-z0-9]+(?:-[a-z0-9]+)*`.
-- Contoh valid: `web-app`, `api-v2`, `dekeku-landing-page`.
+- Contoh valid: `web-app`, `api-v2`, `landing-page`.
 - Contoh tidak valid: `.draft`, `MyApp`, `my_app`, `my app`, `project.backup`.
 - Nama harus unik karena satu direktori adalah satu batas proyek.
 - Symlink apa pun yang berada langsung di dalam `projects/` ditolak. Gunakan file
@@ -19,7 +19,7 @@ File biasa di root `projects/` (misalnya `.gitkeep` atau catatan) bukan proyek d
 diabaikan oleh discovery. Direktori tersembunyi tepat di bawah `projects/` ditolak
 dengan error, bukan diabaikan. Jangan gunakan nama seperti `.draft/`, `.archive/`,
 `.internal/`, atau `.cache/` untuk menyimpan proyek atau pekerjaan sementara.
-Simpan arsip di `archives/` dan fixture pengujian di direktori sementara test.
+`archives/` saat ini hanya berisi README penjelas. Jangan menaruh fixture atau pekerjaan sementara di sana; gunakan direktori sementara test. Penambahan arsip historis memerlukan keputusan dan dokumentasi pemilik repository.
 
 ## 2. Direktori tersembunyi di dalam proyek
 

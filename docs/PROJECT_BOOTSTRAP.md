@@ -17,9 +17,9 @@ Buat proyek dengan prompt interaktif:
 
 Buat proyek langsung dengan nama:
 
-    python scripts/bootstrap_project.py --name "DEKEKU Landing Page"
+    python scripts/bootstrap_project.py --name "Landing Page"
 
-Perintah di atas membuat folder projects/dekeku-landing-page/. Untuk lokasi lain:
+Perintah di atas membuat folder projects/landing-page/. Untuk lokasi lain:
 
     python scripts/bootstrap_project.py --name "API Internal" --output ../workspace
 

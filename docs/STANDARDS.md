@@ -12,7 +12,7 @@
 - Proyek baru wajib dibuat dari `templates/ai-project/` melalui bootstrap resmi.
 - Setiap proyek harus memiliki brief, instruksi AI, dokumentasi keputusan, dan strategi pengujian.
 - Pisahkan source setiap proyek; jangan menggabungkan aset atau konfigurasi tanpa alasan yang terdokumentasi.
-- Direktori `archives/` saat ini hanya mempertahankan `archives/README.md`; jangan menganggap baseline DEKEKU lama masih tersedia di repository.
+- Direktori `archives/` saat ini hanya mempertahankan `archives/README.md`; aset dan baseline DEKEKU lama tidak tersedia di repository. Lokasi sumber kanonis DEKEKU Master Theme belum ditetapkan (lihat `docs/DECISIONS.md`).
 
 ## Kualitas perubahan
 - Perbarui dokumentasi saat struktur, workflow, atau perilaku tooling berubah.

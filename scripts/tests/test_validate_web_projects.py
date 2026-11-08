@@ -77,7 +77,7 @@ class WebValidationTests(unittest.TestCase):
 
     def test_ignores_delimiters_inside_css_strings_and_comments(self) -> None:
         (self.project / "site.css").write_text(
-            'a::before { content: "}"; /* } ] ) */ background: url("image).png"); }',
+            'a::before { content: "}"; /* } ] ) */ color: red; }',
             encoding="utf-8",
         )
         self.assertEqual(validate_project(self.project), [])

@@ -36,6 +36,49 @@ class WebValidationTests(unittest.TestCase):
         (self.project / "assets" / "bg.png").write_bytes(b"image")
         self.assertEqual(validate_project(self.project), [])
 
+    def test_resolves_root_relative_html_and_css_assets(self) -> None:
+        (self.project / "assets").mkdir()
+        (self.project / "assets" / "logo.svg").write_text(
+            '<svg xmlns="http://www.w3.org/2000/svg"></svg>', encoding="utf-8"
+        )
+        (self.project / "assets" / "bg.png").write_bytes(b"image")
+        (self.project / "index.html").write_text(
+            '<!doctype html><html><body><img src="/assets/logo.svg"></body></html>',
+            encoding="utf-8",
+        )
+        (self.project / "css").mkdir()
+        (self.project / "css" / "site.css").write_text(
+            'body { background: url("/assets/bg.png"); }', encoding="utf-8"
+        )
+        self.assertEqual(validate_project(self.project), [])
+
+    def test_detects_malformed_declarations_inside_media_and_font_face(self) -> None:
+        (self.project / "site.css").write_text(
+            "@media screen { .card { color red; } } "
+            "@font-face { font-family: Example; src url('font.woff2'); }",
+            encoding="utf-8",
+        )
+        errors = validate_project(self.project)
+        self.assertGreaterEqual(sum("CSS syntax error" in error for error in errors), 2)
+
+    def test_parses_srcset_with_data_url_commas(self) -> None:
+        (self.project / "assets").mkdir()
+        (self.project / "assets" / "image-2x.png").write_bytes(b"image")
+        (self.project / "index.html").write_text(
+            '<!doctype html><html><body><img srcset="data:image/png;base64,AAAA 1x, '
+            'assets/image-2x.png 2x"></body></html>',
+            encoding="utf-8",
+        )
+        self.assertEqual(validate_project(self.project), [])
+
+    def test_reports_missing_srcset_candidate_after_data_url(self) -> None:
+        (self.project / "index.html").write_text(
+            '<!doctype html><html><body><img srcset="data:image/png;base64,AAAA 1x, '
+            'missing-2x.png 2x"></body></html>',
+            encoding="utf-8",
+        )
+        self.assertTrue(any("missing-2x.png" in error for error in validate_project(self.project)))
+
     def test_reports_missing_html_asset(self) -> None:
         (self.project / "index.html").write_text(
             '<!doctype html><html><body><img src="missing.png" alt="Missing"></body></html>',

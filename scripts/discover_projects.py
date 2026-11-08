@@ -20,6 +20,11 @@ PROJECT_SLUG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 
 def validate_project_directory_name(name: str) -> None:
     """Reject names that could be hidden, ambiguous, or bypass project discovery."""
+    if name.startswith("."):
+        raise ValueError(
+            f"Hidden directories are not allowed directly inside projects/: {name!r}. "
+            "Hidden configuration directories are allowed inside a project folder."
+        )
     if not PROJECT_SLUG_RE.fullmatch(name):
         raise ValueError(
             f"Invalid project directory name {name!r}: use lowercase ASCII letters "
@@ -28,7 +33,13 @@ def validate_project_directory_name(name: str) -> None:
 
 
 def discover_projects(repository_root: Path) -> dict[str, list[dict[str, str]]]:
-    """Return a GitHub Actions matrix with one entry per valid project and stack."""
+    """Discover only visible, valid first-level project directories under projects/.
+
+    Hidden files at the projects root are ignored. Hidden directories at that
+    level are rejected to prevent silently hiding a project from CI. Nested
+    directories (including hidden tool/configuration directories) belong to
+    their parent project and are not independently discovered.
+    """
     projects_root = repository_root / "projects"
     entries: list[dict[str, str]] = []
 

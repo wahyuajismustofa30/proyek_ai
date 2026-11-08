@@ -125,6 +125,51 @@ class WebValidationTests(unittest.TestCase):
         )
         self.assertEqual(validate_project(self.project), [])
 
+    def test_css_parser_ignores_url_text_in_comments_and_strings(self) -> None:
+        (self.project / "site.css").write_text(
+            '/* url(missing-comment.png) */ '
+            'a::before { content: "url(missing-content.png)"; }',
+            encoding="utf-8",
+        )
+        self.assertEqual(validate_project(self.project), [])
+
+    def test_css_parser_finds_quoted_unquoted_and_escaped_urls(self) -> None:
+        (self.project / "assets").mkdir()
+        for name in ("quoted image.png", "plain.png", "escaped name.png"):
+            (self.project / "assets" / name).write_bytes(b"asset")
+        (self.project / "site.css").write_text(
+            'a { background: url("assets/quoted image.png"); } '
+            'b { background: url(assets/plain.png); } '
+            'c { background: url(assets/escaped\\ name.png); }',
+            encoding="utf-8",
+        )
+        self.assertEqual(validate_project(self.project), [])
+
+    def test_css_parser_checks_string_form_import(self) -> None:
+        (self.project / "site.css").write_text(
+            '@import "missing-theme.css";',
+            encoding="utf-8",
+        )
+        self.assertTrue(any("missing-theme.css" in e for e in validate_project(self.project)))
+
+    def test_css_parser_finds_import_url_and_nested_urls(self) -> None:
+        (self.project / "assets").mkdir()
+        (self.project / "assets" / "theme.css").write_text("a { color: red; }", encoding="utf-8")
+        (self.project / "assets" / "nested.png").write_bytes(b"asset")
+        (self.project / "site.css").write_text(
+            '@import url("assets/theme.css"); '
+            '@supports (display: grid) { a { background: url(assets/nested.png); } }',
+            encoding="utf-8",
+        )
+        self.assertEqual(validate_project(self.project), [])
+
+    def test_css_parser_reports_missing_unquoted_url(self) -> None:
+        (self.project / "site.css").write_text(
+            'a { background-image: url(missing-image.png); }',
+            encoding="utf-8",
+        )
+        self.assertTrue(any("missing-image.png" in e for e in validate_project(self.project)))
+
 
 if __name__ == "__main__":
     unittest.main()

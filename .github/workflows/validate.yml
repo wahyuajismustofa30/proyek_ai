@@ -35,7 +35,13 @@ jobs:
           done < <(find . -type f -name '*.json' -not -path './.git/*' -print0)
 
       - name: Compile Python files
-        run: python -m compileall -q projects templates
+        run: python -m compileall -q projects templates scripts
+
+      - name: Lint Markdown
+        run: npx --yes markdownlint-cli2@0.18.1 "**/*.md"
+
+      - name: Validate internal Markdown links
+        run: python scripts/check_internal_links.py
 
       - name: Check whitespace errors in changed files
         shell: bash

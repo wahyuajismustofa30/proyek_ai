@@ -59,7 +59,7 @@ def validate_project(project: Path) -> list[str]:
             errors.append(f"{file}: HTML is not valid UTF-8")
             continue
         try:
-            html5lib.parse(document, strict=True)
+            html5lib.HTMLParser(strict=True).parse(document)
         except (html5lib.html5parser.ParseError, ValueError) as exc:
             errors.append(f"{file}: invalid HTML: {exc}")
 

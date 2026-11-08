@@ -66,3 +66,7 @@ Sesuaikan struktur dengan stack; jangan membuat folder atau dependency yang tida
 - Pemeriksaan/test yang relevan lulus.
 - Tidak ada secret atau data sensitif di repository.
 - Dokumentasi dan changelog diperbarui.
+
+## CI (GitHub Actions)
+
+Template workflow tersedia di `.github/workflows/ci.yml`. Workflow berjalan pada push/PR ke `main` dan dapat dijalankan manual. Pemeriksaan awal meliputi whitespace dan validasi JSON. Setelah stack dipilih, sesuaikan workflow untuk instalasi dependency, lint, test, dan build; hapus contoh stack yang tidak digunakan. Perintah CI harus konsisten dengan `docs/TESTING.md` dan README.

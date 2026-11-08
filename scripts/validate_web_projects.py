@@ -40,6 +40,71 @@ def local_target(raw: str, source: Path, project: Path) -> Path | None:
     return candidate
 
 
+def css_delimiter_errors(source: str) -> list[str]:
+    """Detect unbalanced CSS delimiters without counting those in strings/comments."""
+    errors: list[str] = []
+    pairs = {")": "(", "]": "[", "}": "{"}
+    stack: list[tuple[str, int, int]] = []
+    quote: str | None = None
+    escaped = False
+    comment = False
+    line = 1
+    column = 0
+    index = 0
+
+    while index < len(source):
+        char = source[index]
+        next_char = source[index + 1] if index + 1 < len(source) else ""
+
+        if char == "\n":
+            line += 1
+            column = 0
+        else:
+            column += 1
+
+        if comment:
+            if char == "*" and next_char == "/":
+                comment = False
+                index += 1
+                column += 1
+        elif quote:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+        elif char == "/" and next_char == "*":
+            comment = True
+            index += 1
+            column += 1
+        elif char in {"'", '"'}:
+            quote = char
+        elif char == "\\":
+            # CSS escapes can contain delimiter characters; skip the escaped char.
+            if next_char:
+                index += 1
+                column += 1
+        elif char in "([{":
+            stack.append((char, line, column))
+        elif char in ")]}":
+            if not stack or stack[-1][0] != pairs[char]:
+                errors.append(f"unmatched closing delimiter {char!r} at line {line}, column {column}")
+            else:
+                stack.pop()
+        index += 1
+
+    if quote:
+        errors.append("unterminated string")
+    if comment:
+        errors.append("unterminated comment")
+    for delimiter, start_line, start_column in stack:
+        errors.append(
+            f"unclosed delimiter {delimiter!r} opened at line {start_line}, column {start_column}"
+        )
+    return errors
+
+
 def validate_project(project: Path) -> list[str]:
     errors: list[str] = []
     if not project.is_dir():
@@ -102,10 +167,22 @@ def validate_project(project: Path) -> list[str]:
         except UnicodeDecodeError:
             errors.append(f"{file}: CSS is not valid UTF-8")
             continue
+        for message in css_delimiter_errors(stylesheet):
+            errors.append(f"{file}: CSS syntax error: {message}")
+
         rules = tinycss2.parse_stylesheet(stylesheet, skip_comments=True, skip_whitespace=True)
         for rule in rules:
             if rule.type == "error":
                 errors.append(f"{file}: CSS syntax error: {rule.message}")
+            elif rule.type == "qualified-rule":
+                declarations = tinycss2.parse_declaration_list(
+                    rule.content, skip_comments=True, skip_whitespace=True
+                )
+                for declaration in declarations:
+                    if declaration.type == "error":
+                        errors.append(
+                            f"{file}: CSS syntax error: {declaration.message}"
+                        )
         for match in URL_RE.finditer(stylesheet):
             raw_url = match.group(2).strip()
             try:

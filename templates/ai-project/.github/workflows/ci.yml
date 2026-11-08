@@ -2,9 +2,7 @@ name: Project CI
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -16,41 +14,86 @@ concurrency:
 
 jobs:
   quality:
-    name: Baseline quality checks
+    name: Baseline project checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check whitespace errors
-        run: git diff --check
+      # --root compares the first commit with an empty tree, so this also
+      # checks every tracked file when a new project has only one commit.
+      - name: Check whitespace and merge-conflict markers
+        run: git diff --check --root HEAD
 
-      - name: Validate JSON files
+      - name: Verify required project files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_files=(
+            "README.md"
+            "AGENTS.md"
+            ".gitignore"
+            "docs/PROJECT_BRIEF.md"
+            "docs/ARCHITECTURE.md"
+            "docs/TASKS.md"
+            "docs/DECISIONS.md"
+            "docs/CHANGELOG.md"
+            "docs/TESTING.md"
+          )
+
+          missing=()
+          for file in "${required_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              missing+=("$file")
+            fi
+          done
+
+          if (( ${#missing[@]} > 0 )); then
+            printf 'Required project files are missing:\n'
+            printf ' - %s\n' "${missing[@]}"
+            exit 1
+          fi
+
+          echo "All ${#required_files[@]} required project files are present."
+
+      - name: Validate tracked JSON files
         shell: bash
         run: |
           python - <<'PY'
           import json
-          from pathlib import Path
+          import subprocess
+          import sys
 
-          files = sorted(Path(".").rglob("*.json"))
-          files = [p for p in files if ".git" not in p.parts and "node_modules" not in p.parts]
+          result = subprocess.run(
+              ["git", "ls-files", "-z", "--", "*.json"],
+              check=True,
+              capture_output=True,
+          )
+          files = [
+              path.decode("utf-8")
+              for path in result.stdout.split(b"\0")
+              if path
+          ]
+
           errors = []
-          for path in files:
+          for filename in files:
               try:
-                  json.loads(path.read_text(encoding="utf-8"))
-              except Exception as exc:
-                  errors.append(f"{path}: {exc}")
+                  with open(filename, "r", encoding="utf-8") as stream:
+                      json.load(stream)
+              except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+                  errors.append(f"{filename}: {exc}")
 
           if errors:
-              print("\n".join(errors))
+              print("\n".join(errors), file=sys.stderr)
               raise SystemExit(1)
 
-          print(f"Validated {len(files)} JSON file(s).")
+          print(f"Validated {len(files)} tracked JSON file(s).")
           PY
 
-      # Configure the stack-specific steps below after choosing the project's
-      # language, framework, and package manager. Keep commands in sync with
-      # docs/TESTING.md and README.md.
+      # Add stack-specific installation, lint, test, and build steps after
+      # choosing the project's language and package manager. Keep them in
+      # sync with docs/TESTING.md and README.md.
       #
       # Node.js example:
       # - uses: actions/setup-node@v4

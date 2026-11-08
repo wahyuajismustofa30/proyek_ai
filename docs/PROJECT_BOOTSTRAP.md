@@ -80,4 +80,7 @@ Jalankan:
     python -m unittest discover -s scripts/tests -v
 
 Tes mencakup slug, penyalinan dan penggantian placeholder, pencegahan overwrite,
-mode dry-run, metadata template, serta discovery proyek dan stack CI.
+mode dry-run, metadata template, serta discovery proyek dan stack CI. Tes end-to-end
+menjalankan CLI bootstrap pada direktori sementara, memeriksa kelengkapan scaffold,
+memastikan proyek ditemukan oleh matriks CI, lalu menjalankan validator web pada
+fixture HTML/CSS/SVG/aset dan membuktikan referensi aset yang rusak ditolak.

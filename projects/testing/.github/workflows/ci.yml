@@ -1,0 +1,90 @@
+name: Project CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1"
+permissions:
+  contents: read
+concurrency:
+  group: project-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  quality:
+    name: Static quality and secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Check whitespace and conflict markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check --root HEAD
+          if git grep -n -E '^(<<<<<<< |=======|>>>>>>> )'; then
+            echo "Merge-conflict markers found."
+            exit 1
+          fi
+      - name: Verify required project files
+        shell: bash
+        run: |
+          set -euo pipefail
+          required_files=("README.md" "AGENTS.md" ".gitignore" "docs/PROJECT_BRIEF.md" "docs/ARCHITECTURE.md" "docs/TASKS.md" "docs/DECISIONS.md" "docs/CHANGELOG.md" "docs/TESTING.md")
+          for file in "${required_files[@]}"; do
+            test -f "$file" || { echo "Missing required file: $file"; exit 1; }
+          done
+      - name: Set up Python for JSON validation
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Validate JSON files
+        shell: bash
+        run: |
+          set -euo pipefail
+          count=0
+          while IFS= read -r -d '' file; do
+            python -m json.tool "$file" > /dev/null
+            count=$((count + 1))
+          done < <(find . -type f -name '*.json' -not -path './.git/*' -print0)
+          echo "Validated $count JSON file(s)."
+      - name: Lint Markdown
+        run: npx --yes markdownlint-cli2@0.18.1 "**/*.md"
+      - name: Scan repository for secrets
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
+  dependency-security:
+    name: Dependency vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Scan manifests and lockfiles with OSV-Scanner
+        uses: google/osv-scanner-action/osv-scanner-action@9a96bc4d2b09685b6142bcfe25a3dc17cb2d7347 # v2.7.0
+        with:
+          scan-args: |-
+            --recursive
+            ./
+  application-tests:
+    name: Stack-specific tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.1.0
+      - name: Detect supported stack manifests
+        id: detect
+        shell: bash
+        run: |
+          {
+            if [[ -f package.json ]]; then echo "node=true"; else echo "node=false"; fi
+            if [[ -f pyproject.toml || -f requirements.txt ]]; then echo "python=true"; else echo "python=false"; fi
+            if [[ -f composer.json ]]; then echo "php=true"; else echo "php=false"; fi
+          } >> "$GITHUB_OUTPUT"
+      - name: Report when no application stack is configured
+        if: steps.detect.outputs.node != 'true' && steps.detect.outputs.python != 'true' && steps.detect.outputs.php != 'true'
+        run: echo "::notice::No Node.js, Python, or PHP manifest detected. Static and security checks ran; application tests are not applicable yet."

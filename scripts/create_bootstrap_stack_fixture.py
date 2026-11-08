@@ -111,7 +111,7 @@ def create_fixture(stack: str, output_root: Path) -> Path:
     if completed.returncode:
         raise RuntimeError(completed.stderr or completed.stdout)
 
-    slug = fixture["name"].lower().replace(" ", "-")
+    slug = project_slug(fixture["name"])
     project = output_root.resolve() / slug
     for relative, content in fixture["files"].items():
         target = project / relative

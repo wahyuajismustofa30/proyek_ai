@@ -17,13 +17,28 @@ DEFAULT_TEMPLATE = REPOSITORY_ROOT / "templates" / "ai-project"
 DEFAULT_OUTPUT = REPOSITORY_ROOT / "projects"
 
 
+def validate_project_name(name: str) -> str:
+    """Validate and return a trimmed project name."""
+    if any(unicodedata.category(char) == "Cc" for char in name):
+        raise ValueError("Nama proyek tidak boleh memuat karakter kontrol.")
+    clean_name = name.strip()
+    if not clean_name:
+        raise ValueError("Nama proyek tidak boleh kosong.")
+    if len(clean_name) > 80:
+        raise ValueError("Nama proyek maksimal 80 karakter.")
+    return clean_name
+
+
 def project_slug(name: str) -> str:
     """Convert a human-readable project name to a safe directory slug."""
+    name = validate_project_name(name)
     normalized = unicodedata.normalize("NFKD", name)
     ascii_name = normalized.encode("ascii", "ignore").decode("ascii")
     slug = re.sub(r"[^a-zA-Z0-9]+", "-", ascii_name).strip("-").lower()
     if not slug or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
-        raise ValueError("Nama proyek harus menghasilkan slug alfanumerik yang valid.")
+        raise ValueError("Nama proyek harus menghasilkan slug yang valid.")
+    if len(slug) > 63:
+        raise ValueError("Slug proyek maksimal 63 karakter.")
     return slug
 
 
@@ -35,10 +50,7 @@ def bootstrap_project(
     dry_run: bool = False,
 ) -> Path:
     """Copy the template to output_root/<slug> and personalize project headings."""
-    clean_name = name.strip()
-    if not clean_name:
-        raise ValueError("Nama proyek tidak boleh kosong.")
-
+    clean_name = validate_project_name(name)
     slug = project_slug(clean_name)
     source = template_dir.resolve()
     destination_root = output_root.expanduser().resolve()
@@ -100,7 +112,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    name = (args.name or input("Nama proyek baru: ")).strip()
+    name = args.name if args.name is not None else input("Nama proyek baru: ")
     try:
         destination = bootstrap_project(
             name, args.output, args.template, dry_run=args.dry_run

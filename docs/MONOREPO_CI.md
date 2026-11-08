@@ -47,9 +47,10 @@ bukan menyimpan proyek contoh di `projects/`.
 `scripts/validate_web_projects.py` memeriksa HTML dengan parser HTML5 strict,
 sintaks CSS menggunakan tinycss2, keberadaan referensi aset lokal, batas path
 agar tidak keluar dari proyek, serta parse SVG/XML. Pemindaian melewati direktori dependency dan output/cache berikut di dalam
-proyek: `node_modules/`, `.venv/`, `venv/`, `vendor/`, `dist/`,
-`build/`, `.git/`, dan `__pycache__/`. Direktori tersebut tidak menjadi
-source web yang divalidasi.
+proyek: `node_modules/`, `.venv/`, `venv/`, `.git/`, dan `__pycache__/` pada
+kedalaman mana pun. Direktori `vendor/`, `dist/`, dan `build/` hanya dilewati
+jika berada langsung di root proyek. Direktori dengan nama tersebut di dalam
+`src/` atau subdirektori lain tetap divalidasi sebagai source proyek.
 
 Pemeriksaan ukuran nol hanya berlaku untuk file HTML/HTM, CSS, dan SVG.
 File kosong bernama `.gitkeep`, `__init__.py`, atau `.nojekyll` diizinkan;

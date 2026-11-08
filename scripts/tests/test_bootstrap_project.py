@@ -118,5 +118,34 @@ class BootstrapProjectTests(unittest.TestCase):
         self.assertFalse((result / ".github" / "dependabot.yml").exists())
 
 
+    def test_cli_rejects_control_characters_and_long_names_without_creating_output(self) -> None:
+        invalid_names = ("Baris\nDua", "A\tB", "X" * 300)
+        for index, name in enumerate(invalid_names):
+            with self.subTest(name=repr(name)):
+                output = self.root / f"rejected-{index}"
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(Path(bootstrap.__file__).resolve()),
+                        "--name",
+                        name,
+                        "--output",
+                        str(output),
+                    ],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(result.returncode, 1)
+                self.assertFalse(output.exists())
+                self.assertIn("ERROR: ", result.stderr)
+                self.assertLess(len(result.stderr), 100)
+                self.assertNotIn(str(output), result.stderr)
+
+    def test_rejects_slug_longer_than_63_characters(self) -> None:
+        with self.assertRaisesRegex(ValueError, "Slug proyek maksimal 63 karakter"):
+            bootstrap.project_slug("A" * 64)
+
+
 if __name__ == "__main__":
     unittest.main()

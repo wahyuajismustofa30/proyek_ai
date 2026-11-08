@@ -22,12 +22,10 @@ EXCLUDED_DIRECTORIES = {
     "node_modules",
     ".venv",
     "venv",
-    "vendor",
-    "dist",
-    "build",
     ".git",
     "__pycache__",
 }
+ROOT_EXCLUDED_DIRECTORIES = {"vendor", "dist", "build"}
 ASSET_ATTRIBUTES = {"src", "href", "poster", "data"}
 SRCSET_RE = re.compile(r"(?<![\w-])srcset\s*=\s*(['\"])(.*?)\1", re.IGNORECASE)
 
@@ -224,12 +222,15 @@ def validate_project(project: Path) -> list[str]:
         return [f"{project}: project directory does not exist"]
 
     files: list[Path] = []
-    for current_root, directory_names, file_names in os.walk(project):
+    project_root = project.resolve()
+    for current_root, directory_names, file_names in os.walk(project_root):
         current_path = Path(current_root)
+        root_level = current_path == project_root
         directory_names[:] = sorted(
             name
             for name in directory_names
             if name not in EXCLUDED_DIRECTORIES
+            and not (root_level and name in ROOT_EXCLUDED_DIRECTORIES)
             and not (current_path / name).is_symlink()
         )
         files.extend(

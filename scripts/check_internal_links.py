@@ -18,7 +18,7 @@ def github_slugify(heading: str) -> str:
     """Create a GitHub-style heading slug from rendered heading text."""
     heading = re.sub("<[^>]+>", "", heading)
     heading = heading.strip().lower()
-    heading = re.sub("[^\w -]", "", heading, flags=re.UNICODE)
+    heading = re.sub(r"[^\w -]", "", heading, flags=re.UNICODE)
     return re.sub(" +" , "-", heading)
 
 
@@ -36,9 +36,11 @@ def markdown_anchors(path: Path) -> set[str]:
     counts: dict[str, int] = {}
 
     for index, token in enumerate(tokens):
-        if token.type == "html_block":
-            anchors.update(re.findall(r"""\bid\s*=\s*["']([^"']+)["']""", token.content, re.I))
-            anchors.update(re.findall(r"""\bname\s*=\s*["']([^"']+)["']""", token.content, re.I))
+        html_tokens = [token, *(token.children or [])]
+        for html_token in html_tokens:
+            if html_token.type in {"html_block", "html_inline"}:
+                anchors.update(re.findall(r"""\bid\s*=\s*["']([^"']+)["']""", html_token.content, re.I))
+                anchors.update(re.findall(r"""\bname\s*=\s*["']([^"']+)["']""", html_token.content, re.I))
 
         if token.type != "heading_open":
             continue

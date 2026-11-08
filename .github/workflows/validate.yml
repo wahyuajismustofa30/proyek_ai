@@ -37,6 +37,9 @@ jobs:
       - name: Compile Python files
         run: python -m compileall -q projects templates scripts
 
+      - name: Validate DEKEKU brand assets
+        run: python projects/dekeku/brand-system/tests/validate_assets.py
+
       - name: Lint Markdown
         run: npx --yes markdownlint-cli2@0.18.1 "**/*.md"
 

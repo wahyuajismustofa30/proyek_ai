@@ -22,6 +22,7 @@ Untuk proyek web, CI root menjalankan pemeriksaan berikut secara otomatis:
 - Parse stylesheet CSS dan mendeteksi kesalahan sintaks.
 - Periksa referensi lokal HTML (`src`, `href`, `poster`, `data`) dan CSS (`url(...)`) agar file aset yang dirujuk benar-benar ada.
 - Periksa `srcset` dan tolak referensi yang keluar dari direktori proyek.
+- Parse SVG sebagai XML dan tolak file sumber/aset kosong (kecuali `.gitkeep`).
 - Abaikan URL eksternal dan data URI; jangan gunakan URL produksi sebagai pengganti fixture lokal.
 
 Pemeriksaan ini memvalidasi sintaks dan keberadaan referensi aset, bukan kualitas visual, rendering lintas-browser, accessibility penuh, atau keamanan runtime. Tambahkan browser-based tests (misalnya Playwright) dalam proyek bila diperlukan; sediakan script test/build yang akan dipanggil adapter stack.

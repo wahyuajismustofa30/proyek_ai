@@ -46,16 +46,20 @@ agar mengikuti struktur dan tata kelola proyek_ai.
 
 CI dan Dependabot dikelola secara terpusat oleh repository root:
 
-- .github/workflows/project-matrix.yml mendeteksi manifest proyek di projects/*,
-  menjalankan test Node.js/Python/PHP, dan memvalidasi HTML, CSS, serta referensi aset lokal.
+- .github/workflows/project-matrix.yml mendeteksi hanya direktori proyek tingkat pertama
+  projects/<slug>/, menjalankan test Node.js/Python/PHP, dan memvalidasi HTML, CSS,
+  serta referensi aset lokal.
 - .github/workflows/validate.yml menjalankan pemeriksaan kualitas repository.
 - .github/workflows/dependency-security.yml menjalankan OSV-Scanner secara rekursif.
-- .github/dependabot.yml memantau GitHub Actions, dependency CI, serta dependency
-  proyek pada direktori /projects/*.
+- .github/dependabot.yml memantau ekosistem yang memiliki manifest dan konfigurasi
+  direktori nyata. Entri proyek ditambahkan secara eksplisit saat proyek/manifest dibuat.
 
 Jangan membuat workflow CI atau .github/dependabot.yml di dalam folder proyek.
 GitHub Actions dan Dependabot untuk monorepo ini dikendalikan dari root. Metadata
 .project-meta.json mencatat nama, slug, versi template, dan lokasi orkestrator.
+Direktori tersembunyi tepat di bawah projects/ tidak boleh digunakan sebagai nama
+proyek; direktori tersembunyi di dalam proyek (misalnya .github/ atau .config/)
+boleh digunakan untuk konfigurasi lokal. Lihat docs/PROJECT_STRUCTURE.md.
 
 Stack yang didukung otomatis saat ini:
 - Node.js: package.json + package-lock.json; script test wajib.

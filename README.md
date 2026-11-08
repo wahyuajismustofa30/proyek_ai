@@ -21,14 +21,18 @@ tanpa menimpa folder yang sudah ada. Panduan lengkap: [Bootstrap Proyek](docs/PR
 ## CI dan keamanan monorepo
 
 CI dijalankan dari root repository. Workflow [project matrix](.github/workflows/project-matrix.yml)
-mendeteksi proyek di projects/* dan menjalankan test sesuai stack Node.js, Python,
-atau PHP. [Dependabot](.github/dependabot.yml) memantau dependency root dan seluruh
-proyek melalui pola direktori monorepo. OSV-Scanner memindai dependency secara rekursif.
+hanya mendeteksi direktori proyek tingkat pertama di `projects/<slug>/` dengan nama
+slug huruf kecil, angka, dan tanda hubung. Direktori tersembunyi pada tingkat tersebut
+ditolak; direktori konfigurasi tersembunyi di dalam proyek diperbolehkan. Baca
+[aturan struktur proyek](docs/PROJECT_STRUCTURE.md) sebelum menambah proyek.
+Workflow menjalankan adapter Node.js, Python, atau PHP. OSV-Scanner memindai dependency
+secara rekursif.
 
 Baca [arsitektur CI monorepo](docs/MONOREPO_CI.md) untuk aturan penambahan stack,
 manifest, lockfile, dan test.
 
 ## Struktur utama
+- .github/: workflow CI, konfigurasi Dependabot, serta template pull request dan issue.
 - .github/workflows/: validasi repository, orkestrasi test proyek, dan keamanan dependency.
 - docs/: standar, workflow, indeks, keputusan, checklist kualitas, dan panduan bootstrap.
 - projects/: ruang kerja proyek; saat ini sengaja kosong.

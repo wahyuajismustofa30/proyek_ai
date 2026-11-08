@@ -35,14 +35,17 @@ HTML, CSS, serta referensi aset lokal. Pastikan lockfile dan test command tersed
 ## Konfigurasi dan keamanan
 - Jangan commit secret, token, password, private key, atau data pribadi.
 - Periksa hasil Gitleaks dan OSV-Scanner pada setiap PR.
-- Dependency proyek dipantau oleh Dependabot root melalui pola /projects/*.
+- Dependabot root hanya memantau direktori proyek yang memiliki manifest dan entri
+  eksplisit di `.github/dependabot.yml`. Jangan mengandalkan wildcard `/projects/*`.
 - Buat SECURITY.md khusus proyek sebelum menerima kontribusi publik.
 
 ## CI monorepo
 CI dan Dependabot dikelola oleh repository root, bukan oleh workflow di folder proyek.
 Jangan menambahkan .github/workflows/ci.yml atau .github/dependabot.yml di proyek
-monorepo. Workflow root .github/workflows/project-matrix.yml akan mendeteksi manifest
-dan menjalankan test stack yang didukung. Baca docs/MONOREPO_CI.md di repository induk.
+monorepo. Workflow root .github/workflows/project-matrix.yml hanya mendeteksi folder proyek
+tingkat pertama projects/<slug>/. Nama folder tersembunyi di tingkat tersebut
+ditolak; folder konfigurasi tersembunyi di dalam proyek diperbolehkan. Baca
+docs/PROJECT_STRUCTURE.md dan docs/MONOREPO_CI.md di repository induk.
 
 ## Kriteria selesai
 - Kebutuhan dan acceptance criteria terpenuhi.

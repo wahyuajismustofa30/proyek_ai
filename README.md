@@ -37,12 +37,14 @@ manifest, lockfile, dan test.
 - docs/: standar, workflow, indeks, keputusan, checklist kualitas, dan panduan bootstrap.
 - projects/: ruang kerja proyek; saat ini sengaja kosong.
 - templates/ai-project/: template standar untuk memulai proyek AI baru.
-- archives/: paket sumber dan baseline historis yang dipertahankan tanpa modifikasi.
+- archives/: direktori arsip historis yang saat ini hanya berisi README penjelas.
 
 ## Referensi DEKEKU
-- [DEKEKU Brand System v1.1 — arsip baseline](archives/dekeku-brand-system-v1.1/README.md)
-- [Paket master tema asli](archives/Master-tema-dekeku-v1.1.zip)
-- [Paket logo resmi](archives/dekeku-logo-package.zip)
+
+Arsip DEKEKU sebelumnya telah dikosongkan. Paket master tema, paket logo, dan
+salinan Brand System tidak lagi disimpan di repository ini. Jangan mengandalkan
+tautan atau path arsip lama; jika aset dibutuhkan kembali, tambahkan sumber yang
+telah disetujui sebagai aset proyek aktif dan dokumentasikan asalnya.
 
 ## Prinsip repository
 - Satu lokasi kanonis untuk setiap source aktif.

@@ -15,7 +15,7 @@ Sumber acuan visual bersama untuk website bisnis dan undangan online DEKEKU.
 - Untuk pembaruan tema, buat versi baru seperti `versions/v1.2/` setelah requirement dan perubahan disepakati.
 
 ## Sumber identitas logo resmi
-- Arsip sumber resmi: [`archives/dekeku-logo-package.zip`](../../../archives/dekeku-logo-package.zip).
+- Arsip sumber resmi: [`archives/dekeku-logo-package.zip`](../dekeku-logo-package.zip).
 - Panduan inventaris, warna, penggunaan, dan catatan teknis: [OFFICIAL_LOGO_PACKAGE.md](docs/OFFICIAL_LOGO_PACKAGE.md).
 - ZIP adalah sumber biner asli yang immutable. Dokumentasi tidak menggantikan file logo.
 - Paket logo menjadi acuan logo untuk pekerjaan baru; jangan menimpa source baseline master tema v1.1.

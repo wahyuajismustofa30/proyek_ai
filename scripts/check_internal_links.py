@@ -17,12 +17,12 @@ PARSER = MarkdownIt("default", {"html": True})
 def github_slugify(heading: str) -> str:
     """Create a GitHub-style heading slug for ordinary Markdown headings."""
     heading = re.sub(r"<[^>]+>", "", heading)
-    heading = re.sub(r"!?\\[([^\\]]+)\\]\\([^)]*\\)", r"\\1", heading)
-    heading = re.sub(r"\\[([^\\]]+)\\]\\[[^]]*\\]", r"\\1", heading)
+    heading = re.sub(r"!?\[([^\]]+)\]\([^)]*\)", r"\1", heading)
+    heading = re.sub(r"\[([^\]]+)\]\[[^]]*\]", r"\1", heading)
     heading = heading.replace(chr(96), "")
     heading = heading.strip().lower()
-    heading = re.sub(r"[^\\w\\- ]", "", heading, flags=re.UNICODE)
-    return re.sub(r"\\s+", "-", heading)
+    heading = re.sub(r"[^\w\- ]", "", heading, flags=re.UNICODE)
+    return re.sub(r"\s+", "-", heading)
 
 
 def read_markdown(path: Path) -> str:
@@ -40,8 +40,8 @@ def markdown_anchors(path: Path) -> set[str]:
 
     for index, token in enumerate(tokens):
         if token.type == "html_block":
-            anchors.update(re.findall(r"""\\bid\\s*=\\s*["']([^"']+)["']""", token.content, re.I))
-            anchors.update(re.findall(r"""\\bname\\s*=\\s*["']([^"']+)["']""", token.content, re.I))
+            anchors.update(re.findall(r"""\bid\s*=\s*["']([^"']+)["']""", token.content, re.I))
+            anchors.update(re.findall(r"""\bname\s*=\s*["']([^"']+)["']""", token.content, re.I))
 
         if token.type != "heading_open":
             continue

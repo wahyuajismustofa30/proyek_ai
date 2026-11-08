@@ -3,24 +3,26 @@ name: Dependency Security Scan
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   schedule:
     - cron: "0 2 * * 1"
   workflow_dispatch:
 
 permissions:
   contents: read
-  actions: read
 
 jobs:
   scan:
     name: Scan dependencies with OSV-Scanner
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@b1d267aea5211fa648d9d442fa64b90dbdcbdd36 # v2.7.0
-    with:
-      scan-args: |-
-        --recursive
-        ./
-      upload-sarif: false
-      fail-on-vuln: true
-    permissions:
-      contents: read
-      actions: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan dependency manifests and lockfiles
+        uses: google/osv-scanner-action/osv-scanner-action@0a65f82af05cd58cf587827b0bb0489548c18346 # v2.7.0
+        with:
+          scan-args: |-
+            --recursive
+            ./

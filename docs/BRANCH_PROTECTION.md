@@ -37,4 +37,3 @@ merge; gunakan required checks dan review manual sampai reviewer kedua ditambahk
 4. Simpan perubahan.
 5. Pastikan enforcement tetap **Active**.
 6. Uji dengan PR percobaan dan pastikan CI wajib lulus sebelum merge.
-

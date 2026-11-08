@@ -22,7 +22,12 @@ juga memiliki jadwal mingguan dan pemicu manual.
 ## Cara discovery bekerja
 
 Script `scripts/discover_projects.py` hanya memeriksa satu tingkat folder langsung
-di bawah `projects/`. Setiap folder proyek dipetakan menjadi satu atau lebih job:
+di bawah `projects/`. Aturan nama, direktori tersembunyi, symlink, dan struktur scaffold
+dijelaskan lengkap di `docs/PROJECT_STRUCTURE.md`. File biasa di root `projects/`
+diabaikan; direktori tersembunyi di tingkat root ditolak secara eksplisit agar tidak
+dapat menyembunyikan proyek dari CI. Direktori tersembunyi di dalam folder proyek
+diperbolehkan dan tidak dianggap sebagai proyek terpisah. Setiap folder proyek dipetakan
+menjadi satu atau lebih job:
 
 | Manifest | Stack CI | Pemeriksaan |
 |---|---|---|

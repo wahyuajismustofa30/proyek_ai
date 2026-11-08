@@ -28,5 +28,8 @@ Sumber acuan visual bersama untuk website bisnis dan undangan online DEKEKU.
 - Halaman referensi mengandung konten contoh; jangan anggap sebagai data bisnis produksi.
 - Form demo pada referensi perlu integrasi backend/WhatsApp sebelum dipakai produksi.
 
+## Audit aset maskot
+Laporan pemeriksaan visual seluruh aset maskot: [MASCOT_ASSET_AUDIT.md](docs/MASCOT_ASSET_AUDIT.md). SVG layak digunakan dengan aturan kontras; seluruh PNG baseline harus diekspor ulang sebelum digunakan.
+
 ## Testing
 Strategi pemeriksaan baseline dan aset: [docs/TESTING.md](docs/TESTING.md). Folder [tests/](tests/README.md) menjadi tempat skrip validasi versi pengembangan.

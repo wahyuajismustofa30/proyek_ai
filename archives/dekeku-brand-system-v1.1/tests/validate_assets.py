@@ -13,8 +13,8 @@ import xml.etree.ElementTree as ET
 import zlib
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[4]
-SOURCE = ROOT / "projects/dekeku/brand-system/versions/v1.1/source/Dekeku"
+ROOT = Path(__file__).resolve().parents[3]
+SOURCE = ROOT / "archives/dekeku-brand-system-v1.1/versions/v1.1/source/Dekeku"
 ASSET_ROOTS = (SOURCE / "assets", SOURCE / "public")
 MASCOT_SVG = SOURCE / "assets/maskot/svg"
 MASCOT_PNG = SOURCE / "assets/maskot/png"

@@ -56,6 +56,13 @@ class WebValidationTests(unittest.TestCase):
         )
         self.assertTrue(any("escapes project directory" in e for e in validate_project(self.project)))
 
+    def test_reports_invalid_svg_and_empty_assets(self) -> None:
+        (self.project / "broken.svg").write_text("<svg>", encoding="utf-8")
+        (self.project / "empty.png").write_bytes(b"")
+        errors = validate_project(self.project)
+        self.assertTrue(any("invalid SVG/XML asset" in e for e in errors))
+        self.assertTrue(any("empty project asset" in e for e in errors))
+
     def test_reports_malformed_html_and_css(self) -> None:
         (self.project / "index.html").write_text("<html><p>unclosed", encoding="utf-8")
         (self.project / "site.css").write_text("a { color: red", encoding="utf-8")

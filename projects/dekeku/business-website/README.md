@@ -17,3 +17,6 @@ Mengembangkan website utama DEKEKU, landing page layanan, halaman informasi, dan
 
 ## Dokumentasi berikutnya
 Tambahkan brief, arsitektur, task list, dan keputusan teknis ketika ruang lingkup proyek disetujui.
+
+## Testing
+Strategi dan skenario penerimaan: [docs/TESTING.md](docs/TESTING.md). Test otomatis akan ditambahkan setelah stack aplikasi dipilih: [tests/](tests/README.md).

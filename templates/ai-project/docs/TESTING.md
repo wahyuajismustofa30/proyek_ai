@@ -10,9 +10,9 @@
 ## Perintah standar
 | Stack | Install | Test | Build / lint |
 |---|---|---|---|
-| Node.js | `npm ci` (wajib `package-lock.json`) | `npm test` (wajib script `test`) | `npm run lint --if-present`, `npm run build --if-present` |
-| Python | `pip install -e ".[test]"` atau `pip install -r requirements.txt` | `python -m pytest` | Tambahkan formatter/type checker pilihan |
-| PHP | `composer install` (wajib `composer.lock`) | `composer run-script test` | `composer validate --strict` |
+| Node.js | \`npm ci\` (wajib \`package-lock.json\`) | \`npm test\` (wajib script \`test\`) | \`npm run lint --if-present\`, \`npm run build --if-present\` |
+| Python | \`pip install -e ".[test]"\` atau \`pip install -r requirements.txt\` | \`python -m pytest\` | Tambahkan formatter/type checker pilihan |
+| PHP | \`composer install\` (wajib \`composer.lock\`) | \`composer run-script test\` | \`composer validate --strict\` |
 
 Jika menggunakan stack lain atau multi-stack, tambahkan job CI yang sesuai dan dokumentasikan perintahnya. Jangan membuat manifest kosong hanya untuk mengaktifkan job.
 
@@ -33,7 +33,7 @@ Jika menggunakan stack lain atau multi-stack, tambahkan job CI yang sesuai dan d
 - [ ] Hasil Gitleaks dan OSV-Scanner ditinjau.
 
 ## CI
-Workflow `.github/workflows/ci.yml` menjalankan validasi struktur, JSON, Markdown,
+Workflow \`.github/workflows/ci.yml\` menjalankan validasi struktur, JSON, Markdown,
 whitespace, secret scanning, OSV-Scanner, serta test otomatis untuk Node.js, Python,
 atau PHP bila manifest ditemukan.
 

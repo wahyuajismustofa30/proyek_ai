@@ -11,7 +11,7 @@ Repository pusat untuk dokumentasi, source code, aset, dan pengembangan proyek d
 
 ## Struktur utama
 - `.github/workflows/`: validasi otomatis repository.
-- `docs/`: standar, workflow, indeks, keputusan, dan checklist kualitas.
+- `docs/`: standar, workflow, indeks, keputusan, checklist kualitas, dan [kebijakan Dependabot](docs/DEPENDABOT.md).
 - `projects/`: seluruh proyek aktif, masing-masing terisolasi.
 - `templates/ai-project/`: template untuk memulai proyek AI baru.
 - `archives/`: paket arsip asli yang tidak diedit.

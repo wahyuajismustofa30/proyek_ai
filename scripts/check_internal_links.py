@@ -87,7 +87,12 @@ def resolve_target(source: Path, raw_target: str) -> tuple[Path | None, str, str
         for index_name in ("README.md", "index.md"):
             index = candidate / index_name
             if index.is_file():
-                return index, fragment, None
+                resolved_index = index.resolve()
+                try:
+                    resolved_index.relative_to(ROOT.resolve())
+                except ValueError:
+                    return resolved_index, fragment, "target escapes the repository"
+                return resolved_index, fragment, None
     return candidate, fragment, None
 
 

@@ -84,6 +84,10 @@ Jangan gunakan maskot sebagai satu-satunya penyampai status penting; tetap tampi
 - [ ] Skrip build gagal jika aset tidak termuat atau hasil raster identik secara tidak wajar.
 - [ ] Baseline v1.1 tetap tidak berubah; hasil perbaikan disimpan sebagai versi baru.
 
+## Validasi otomatis di CI
+
+Validator `tests/validate_assets.py` kini dijalankan oleh workflow `Validate repository`. Pemeriksaan bersifat read-only dan memvalidasi integritas file PNG, struktur SVG, kelengkapan inventaris maskot, serta duplikasi raster. Hash PNG maskot baseline yang sudah diketahui rusak diperlakukan sebagai pengecualian historis yang eksplisit dan tetap menghasilkan peringatan; validator tidak menyatakan PNG tersebut layak dipakai. PNG yang berubah dari hash pengecualian harus lolos validasi normal. Pemeriksaan visual tetap manual.
+
 ## Keputusan audit
 
 **SVG: layak digunakan sebagai aset utama dengan aturan kontras latar.**  

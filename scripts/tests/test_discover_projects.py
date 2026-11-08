@@ -45,15 +45,29 @@ class DiscoverProjectsTests(unittest.TestCase):
             [{"project": "projects/design-system", "slug": "design-system", "stack": "none"}],
         )
 
-    def test_ignores_nested_and_hidden_directories(self) -> None:
-        project = self.make_project("outer")
-        (project / "nested").mkdir()
-        (project / "nested" / "package.json").write_text("{}", encoding="utf-8")
+    def test_rejects_hidden_project_directory_instead_of_silently_ignoring_it(self) -> None:
         self.make_project(".internal", "package.json")
-        self.assertEqual(
-            discover_projects(self.root)["include"],
-            [{"project": "projects/outer", "slug": "outer", "stack": "none"}],
-        )
+        with self.assertRaisesRegex(ValueError, "Invalid project directory name"):
+            discover_projects(self.root)
+
+    def test_rejects_uppercase_spaces_and_special_characters(self) -> None:
+        for name in ("MyProject", "my project", "my_project", "project..backup", "équipe"):
+            with self.subTest(name=name):
+                self.make_project(name)
+                with self.assertRaisesRegex(ValueError, "Invalid project directory name"):
+                    discover_projects(self.root)
+                (self.root / "projects" / name).rmdir()
+
+    def test_rejects_symlink_entries(self) -> None:
+        target = self.root / "real-project"
+        target.mkdir()
+        link = self.root / "projects" / "linked-project"
+        try:
+            link.symlink_to(target, target_is_directory=True)
+        except OSError:
+            self.skipTest("Symlink creation is not supported in this environment")
+        with self.assertRaisesRegex(ValueError, "Symlink entries are not allowed"):
+            discover_projects(self.root)
 
     def test_returns_a_sentinel_for_an_empty_projects_directory(self) -> None:
         self.assertEqual(

@@ -32,6 +32,7 @@ Baca [arsitektur CI monorepo](docs/MONOREPO_CI.md) untuk aturan penambahan stack
 manifest, lockfile, dan test.
 
 ## Struktur utama
+- .github/: workflow CI, konfigurasi Dependabot, serta template pull request dan issue.
 - .github/workflows/: validasi repository, orkestrasi test proyek, dan keamanan dependency.
 - docs/: standar, workflow, indeks, keputusan, checklist kualitas, dan panduan bootstrap.
 - projects/: ruang kerja proyek; saat ini sengaja kosong.

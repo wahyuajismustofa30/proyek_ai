@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate local Markdown links and heading fragments with a CommonMark parser."""
+"""Validate local Markdown links and heading fragments with a Markdown parser."""
 
 from __future__ import annotations
 
@@ -11,18 +11,18 @@ from urllib.parse import unquote, urlsplit
 from markdown_it import MarkdownIt
 
 ROOT = Path(__file__).resolve().parents[1]
-PARSER = MarkdownIt("commonmark", {"html": True})
+PARSER = MarkdownIt("default", {"html": True})
 
 
 def github_slugify(heading: str) -> str:
     """Create a GitHub-style heading slug for ordinary Markdown headings."""
     heading = re.sub(r"<[^>]+>", "", heading)
-    heading = re.sub(r"!?[([^]]+)]([^)]*)", r"\1", heading)
-    heading = re.sub(r"[([^]]+)][[^]]*]", r"\1", heading)
-    heading = re.sub(r"`+", "", heading)
+    heading = re.sub(r"!?\\[([^\\]]+)\\]\\([^)]*\\)", r"\\1", heading)
+    heading = re.sub(r"\\[([^\\]]+)\\]\\[[^]]*\\]", r"\\1", heading)
+    heading = heading.replace(chr(96), "")
     heading = heading.strip().lower()
-    heading = re.sub(r"[^\w\- ]", "", heading, flags=re.UNICODE)
-    return re.sub(r"\s+", "-", heading)
+    heading = re.sub(r"[^\\w\\- ]", "", heading, flags=re.UNICODE)
+    return re.sub(r"\\s+", "-", heading)
 
 
 def read_markdown(path: Path) -> str:
@@ -40,8 +40,8 @@ def markdown_anchors(path: Path) -> set[str]:
 
     for index, token in enumerate(tokens):
         if token.type == "html_block":
-            anchors.update(re.findall(r"""\bid\s*=\s*["']([^"']+)["']""", token.content, re.I))
-            anchors.update(re.findall(r"""\bname\s*=\s*["']([^"']+)["']""", token.content, re.I))
+            anchors.update(re.findall(r"""\\bid\\s*=\\s*["']([^"']+)["']""", token.content, re.I))
+            anchors.update(re.findall(r"""\\bname\\s*=\\s*["']([^"']+)["']""", token.content, re.I))
 
         if token.type != "heading_open":
             continue
@@ -92,10 +92,14 @@ def markdown_destinations(path: Path) -> list[str]:
     destinations: list[str] = []
 
     def visit(token) -> None:
-        if token.type in {"link_open", "image"}:
+        if token.type == "link_open":
             href = token.attrGet("href")
             if href:
                 destinations.append(href)
+        elif token.type == "image":
+            src = token.attrGet("src")
+            if src:
+                destinations.append(src)
         for child in token.children or []:
             visit(child)
 
@@ -153,7 +157,7 @@ def main() -> int:
         print("Internal Markdown link validation failed:")
         for error in errors:
             print(f"  - {error}")
-        print(f"\n{len(errors)} error(s); checked {checked} internal link(s).")
+        print(f"\\n{len(errors)} error(s); checked {checked} internal link(s).")
         return 1
 
     print(

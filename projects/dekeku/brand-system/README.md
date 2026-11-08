@@ -4,27 +4,30 @@
 Sumber acuan visual bersama untuk website bisnis dan undangan online DEKEKU.
 
 ## Struktur
-- `versions/v1.1/source/Dekeku/`: source baseline hasil ekstraksi paket v1.1, dipertahankan tanpa modifikasi.
+- `versions/v1.1/source/Dekeku/`: source baseline hasil ekstraksi paket master tema v1.1, dipertahankan tanpa modifikasi.
 - `docs/`: dokumentasi pengembangan brand system berikutnya.
-- `archives/`: tidak digunakan untuk salinan paket; arsip asli dipusatkan di root `/archives`.
+- Paket arsip asli dipusatkan di root `archives/`; jangan membuat salinan arsip yang tidak perlu di dalam folder proyek.
 
 ## Baseline
 - Versi baseline repository: v1.1 (label arsip yang ditetapkan pemilik).
-- Metadata internal paket masih menyebut v1.5 pada beberapa dokumen. Jangan menyamakan kedua label secara otomatis.
+- Metadata internal paket master tema masih menyebut v1.5 pada beberapa dokumen. Jangan menyamakan kedua label secara otomatis.
 - Source v1.1 adalah referensi read-only.
-- Untuk pembaruan, buat versi baru seperti `versions/v1.2/` setelah requirement dan perubahan disepakati.
+- Untuk pembaruan tema, buat versi baru seperti `versions/v1.2/` setelah requirement dan perubahan disepakati.
+
+## Sumber identitas logo resmi
+- Arsip sumber resmi: [`archives/dekeku-logo-package.zip`](../../../archives/dekeku-logo-package.zip).
+- Panduan inventaris, warna, penggunaan, dan catatan teknis: [OFFICIAL_LOGO_PACKAGE.md](docs/OFFICIAL_LOGO_PACKAGE.md).
+- ZIP adalah sumber biner asli yang immutable. Dokumentasi tidak menggantikan file logo.
+- Paket logo menjadi acuan logo untuk pekerjaan baru; jangan menimpa source baseline master tema v1.1.
 
 ## Area penting
-- `tokens/`: design tokens JSON dan CSS.
-- `assets/logo/`: logo horizontal dan compact.
-- `assets/icon/`: ikon brand.
-- `assets/maskot/`: maskot SVG/PNG.
-- `public/`: favicon dan metadata PWA.
+- `tokens/`: design tokens JSON dan CSS pada source baseline.
+- `assets/logo/`: area logo pada source baseline.
+- `assets/icon/`: ikon brand pada source baseline.
+- `assets/maskot/`: maskot pada source baseline.
+- `public/`: favicon dan metadata PWA pada source baseline.
 - `referensi/`: halaman referensi tema.
 - `scripts/`: skrip pembangun aset/token.
-
-## Identitas logo resmi
-Paket logo yang diberikan pemilik ditetapkan sebagai acuan identitas visual untuk pekerjaan DEKEKU berikutnya. Aturan, inventaris, warna, dan catatan teknis: [OFFICIAL_LOGO_PACKAGE.md](docs/OFFICIAL_LOGO_PACKAGE.md). Aset baseline v1.1 tidak ditimpa.
 
 ## Catatan pemeriksaan
 - PNG maskot pada paket master tema awal terdeteksi memiliki hash identik; validasi visual sebelum dipakai sebagai variasi pose.
@@ -32,7 +35,7 @@ Paket logo yang diberikan pemilik ditetapkan sebagai acuan identitas visual untu
 - Form demo pada referensi perlu integrasi backend/WhatsApp sebelum dipakai produksi.
 
 ## Audit aset maskot
-Laporan pemeriksaan visual seluruh aset maskot: [MASCOT_ASSET_AUDIT.md](docs/MASCOT_ASSET_AUDIT.md). SVG layak digunakan dengan aturan kontras; seluruh PNG baseline harus diekspor ulang sebelum digunakan.
+Laporan pemeriksaan visual aset maskot baseline: [MASCOT_ASSET_AUDIT.md](docs/MASCOT_ASSET_AUDIT.md). SVG baseline layak digunakan dengan aturan kontras; seluruh PNG baseline harus diekspor ulang sebelum digunakan.
 
 ## Testing
 Strategi pemeriksaan baseline dan aset: [docs/TESTING.md](docs/TESTING.md). Folder [tests/](tests/README.md) menjadi tempat skrip validasi versi pengembangan.

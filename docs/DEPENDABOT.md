@@ -2,104 +2,65 @@
 
 ## Konfigurasi aktif
 
-Dependabot dikonfigurasi terpusat di `.github/dependabot.yml`. Jangan menambahkan
-konfigurasi Dependabot di dalam folder proyek monorepo.
+Dependabot dikelola terpusat melalui `.github/dependabot.yml`. Saat ini hanya dua
+entri repository-level yang aktif:
 
-Setiap entri stack proyek menggunakan `directories: ["/projects/*"]`. Wildcard
-ini mencakup setiap direktori proyek satu tingkat di bawah `projects/`. Dependabot
-hanya membuat pembaruan untuk direktori yang berisi manifest/lockfile yang dikenali
-oleh ecosystem terkait; entri untuk stack yang belum digunakan bersifat siap pakai
-dan tidak memerlukan manifest palsu.
+| Ecosystem | Direktori | Manifest |
+|---|---|---|
+| GitHub Actions | `/` | `.github/workflows/*.yml` |
+| pip | `/` | `requirements-ci.txt` |
 
-| Ecosystem | Stack / manifest umum | Direktori | Jadwal WIB |
-|---|---|---|---:|
-| GitHub Actions | workflow dan action metadata | / | Senin 02.00 |
-| pip | requirements-ci.txt (tooling repository) | / | Senin 02.15 |
-| npm | package.json, npm lockfiles | /projects/* | Senin 02.30 |
-| pip | requirements.txt, pyproject.toml | /projects/* | Senin 02.45 |
-| Composer | composer.json / composer.lock | /projects/* | Senin 03.00 |
-| Bundler | Gemfile / Gemfile.lock | /projects/* | Senin 03.15 |
-| Go modules | go.mod / go.sum | /projects/* | Senin 03.30 |
-| Cargo | Cargo.toml / Cargo.lock | /projects/* | Senin 03.45 |
-| Maven | pom.xml | /projects/* | Senin 04.00 |
-| Gradle | build.gradle(.kts) | /projects/* | Senin 04.15 |
-| NuGet | *.csproj, packages.config, *.sln | /projects/* | Senin 04.30 |
-| .NET SDK | global.json | /projects/* | Senin 04.45 |
-| Mix | mix.exs / mix.lock | /projects/* | Senin 05.00 |
-| Pub | pubspec.yaml / pubspec.lock | /projects/* | Senin 05.15 |
-| Swift | Package.swift / Package.resolved | /projects/* | Senin 05.30 |
-| Terraform | *.tf, .terraform.lock.hcl | /projects/* | Senin 05.45 |
-| OpenTofu | *.tf, .terraform.lock.hcl | /projects/* | Senin 06.00 |
-| Docker | Dockerfile | /projects/* | Senin 06.15 |
-| Docker Compose | compose.yaml / docker-compose.yml | /projects/* | Senin 06.30 |
-| Dev containers | devcontainer.json | /projects/* | Senin 06.45 |
-| Helm | Chart.yaml | /projects/* | Senin 07.00 |
-| Bazel | MODULE.bazel / WORKSPACE | /projects/* | Senin 07.15 |
-| Nix | flake.nix | /projects/* | Senin 07.30 |
-| pre-commit | .pre-commit-config.yaml | /projects/* | Senin 07.45 |
-| Bun | bun.lock / bun.lockb | /projects/* | Senin 08.00 |
-| Deno | deno.json / deno.jsonc | /projects/* | Senin 08.15 |
-| uv | pyproject.toml / uv.lock | /projects/* | Senin 08.30 |
-| Rust toolchain | rust-toolchain.toml | /projects/* | Senin 08.45 |
-| Git submodules | .gitmodules | /projects/* | Senin 09.00 |
-| Conda | environment.yml | /projects/* | Senin 09.15 |
-| Elm | elm.json | /projects/* | Senin 09.30 |
-| Julia | Project.toml / Manifest.toml | /projects/* | Senin 09.45 |
-| sbt | build.sbt | /projects/* | Senin 10.00 |
-| vcpkg | vcpkg.json | /projects/* | Senin 10.15 |
+Folder `projects/` sengaja kosong. Jangan menambahkan entri untuk
+`/projects/*` atau proyek yang belum ada; direktori tanpa manifest yang cocok
+dapat menghasilkan `dependency_file_not_found`. Jangan membuat konfigurasi
+Dependabot lokal di dalam proyek.
 
-Jadwal memakai zona waktu `Asia/Jakarta`. Semua pembaruan diarahkan ke `main`,
-menggunakan label stack, dan memiliki batas jumlah PR terbuka per konfigurasi.
-Pembaruan minor/patch npm dan GitHub Actions dikelompokkan; major tetap terpisah
-agar perubahan berisiko dapat ditinjau sendiri.
+## Checklist saat proyek pertama dibuat
 
-## Aturan struktur monorepo
+Dalam PR yang sama dengan penambahan proyek:
 
-1. Letakkan setiap proyek langsung di `projects/<slug>/`.
-2. Simpan manifest dan lockfile di direktori proyek tersebut atau sesuaikan cakupan
-   `directories` secara eksplisit jika manifest berada di subfolder.
-3. Jangan menambahkan file `.github/dependabot.yml` di dalam proyek.
-4. Bila memakai ecosystem yang belum tercantum, tambahkan satu entri terpusat
-   berdasarkan dokumentasi resmi GitHub sebelum proyek bergantung padanya.
-5. Bila satu proyek memakai beberapa stack, setiap ecosystem yang relevan akan
-   memindai direktori yang sama; Dependabot membuat PR sesuai dependency yang ditemukan.
+1. Tambahkan manifest nyata untuk setiap ecosystem yang dipakai.
+2. Commit lockfile yang sesuai dengan stack dan kontrak CI:
+   - Node.js: `package.json` dan `package-lock.json`.
+   - Python: `pyproject.toml` atau `requirements*.txt`; commit lockfile bila
+     dipakai oleh workflow/package manager proyek.
+   - PHP: `composer.json` dan `composer.lock`.
+3. Tambahkan satu entri Dependabot eksplisit per ecosystem, dengan
+   `directory: /projects/<slug>` dan `package-ecosystem` yang tepat.
+4. Pastikan entri hanya menunjuk direktori/manifest yang benar-benar ada,
+   lalu jalankan validasi YAML/schema pada workflow repository.
+5. Sinkronkan kontrak tersebut dengan adapter CI dan dokumentasikan stack baru.
 
-## Version updates dan security updates
+Jangan menambahkan entri ecosystem yang tidak digunakan hanya karena adapter CI
+mendukungnya. Dukungan CI dan cakupan Dependabot adalah dua hal terpisah.
 
-Konfigurasi ini mengatur version updates terjadwal. Dependabot security updates
-berjalan melalui fitur repository GitHub yang terpisah. Pastikan fitur tersebut
-aktif di Settings → Security → Code security and analysis. File `dependabot.yml`
-tidak otomatis mengaktifkan Dependabot alerts atau security updates.
+## Jadwal dan pembaruan
 
-## Manifest dependency Python root
+Jadwal repository-level menggunakan zona waktu `Asia/Jakarta`. Semua pembaruan
+ditargetkan ke `main`, memakai label, dan dibatasi jumlah PR terbuka. GitHub Actions
+dikelompokkan untuk pembaruan minor/patch; major tetap terpisah.
 
-File `requirements-ci.txt` adalah manifest dependency Python untuk tooling validasi
-repository. Dependabot ecosystem pip pada direktori root memantau file tersebut.
-Jika dependency CI ditambahkan atau diubah, perbarui manifest ini dan pastikan workflow
-validasi tetap lulus.
+File ini mengatur version updates terjadwal. Dependabot security updates dan alerts
+merupakan fitur repository terpisah yang perlu diperiksa di Settings → Security →
+Code security and analysis.
 
-## Pinning GitHub Actions
+## Dependency CI Python
 
-Semua referensi Action dalam workflow harus menggunakan commit SHA penuh (40 karakter),
-disertai komentar versi rilis. Dependabot memantau referensi SHA dan dapat mengusulkan
-pembaruan. Tinjau changelog, kompatibilitas runtime, dan hasil CI sebelum merge.
+`requirements-ci.txt` berisi tooling validasi repository dan dipantau oleh entri
+pip di root. Versi dependency dipatok, tetapi belum memakai `--require-hashes`.
+Hash mode membutuhkan hash lengkap untuk seluruh distribusi/platform dan proses
+pembaruan yang konsisten (misalnya pip-compile atau uv); menambahkan hash manual
+berisiko menghasilkan daftar tidak lengkap. Pertahankan pin versi saat ini sampai
+tool resmi dan alur regenerasi hash ditetapkan, lalu uji perintah instalasi CI
+dengan `--require-hashes` sebelum mengaktifkannya.
 
-## Review pembaruan
-
-1. Periksa changelog dan breaking changes dependency.
-2. Tinjau pembaruan major secara khusus.
-3. Jalankan CI, test, lint, dan build proyek terkait.
-4. Periksa advisory keamanan serta kompatibilitas runtime.
-5. Pastikan pemeriksaan wajib pada branch tujuan berhasil.
-6. Merge hanya setelah pemeriksaan relevan lulus.
-
-## OSV-Scanner
+## Keamanan dependency dan GitHub Actions
 
 Workflow `.github/workflows/dependency-security.yml` menjalankan OSV-Scanner
-secara rekursif dari root repository. Cakupan ini melengkapi Dependabot:
+secara rekursif untuk mencari advisory yang diketahui. Hasil bersih bukan jaminan
+bebas risiko; cakupannya bergantung pada manifest, lockfile, dan advisory yang
+tersedia.
 
-- Dependabot mengusulkan pembaruan dependency.
-- OSV-Scanner memeriksa advisory kerentanan yang diketahui.
-
-Lulus pemindaian OSV bukan jaminan bahwa dependency bebas dari seluruh risiko;
-hasilnya terbatas pada advisory yang tersedia dan cakupan file yang dipindai.
+Semua GitHub Actions harus dipatok ke full commit SHA 40 karakter dan disertai
+komentar versi rilis. Tinjau changelog, kompatibilitas, hasil CI, dan advisory
+sebelum menerima pembaruan dependency.

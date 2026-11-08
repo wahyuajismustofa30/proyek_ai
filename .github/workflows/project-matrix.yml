@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: monorepo-project-ci-${{github.workflow}-${{github.ref}
+  group: monorepo-project-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
     name: Discover projects and stacks
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{steps.discover.outputs.matrix}
+      matrix: ${{ steps.discover.outputs.matrix }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -34,35 +34,35 @@ jobs:
         run: python scripts/discover_projects.py --github-output "$GITHUB_OUTPUT"
 
   project-tests:
-    name: ${{matrix.project} / ${{matrix.stack}
+    name: ${{ matrix.project }} / ${{ matrix.stack }}
     needs: discover
-    if: ${{needs.discover.result == 'success'}
+    if: ${{ needs.discover.result == 'success' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       max-parallel: 4
-      matrix: ${{fromJSON(needs.discover.outputs.matrix)}
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
-        if: ${{matrix.stack == 'node'}
+        if: ${{ matrix.stack == 'node' }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: ${{matrix.project}/package-lock.json
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
       - name: Install Node.js dependencies
-        if: ${{matrix.stack == 'node'}
-        working-directory: ${{matrix.project}
+        if: ${{ matrix.stack == 'node' }}
+        working-directory: ${{ matrix.project }}
         run: |
           set -euo pipefail
           test -f package-lock.json || { echo "Commit package-lock.json for reproducible CI."; exit 1; }
           npm ci
       - name: Run Node.js checks
-        if: ${{matrix.stack == 'node'}
-        working-directory: ${{matrix.project}
+        if: ${{ matrix.stack == 'node' }}
+        working-directory: ${{ matrix.project }}
         run: |
           set -euo pipefail
           node -e "const p=require('./package.json'); if (!p.scripts?.test) { console.error('Define a test script in package.json'); process.exit(1) }"
@@ -71,13 +71,13 @@ jobs:
           npm run build --if-present
 
       - name: Set up Python
-        if: ${{matrix.stack == 'python'}
+        if: ${{ matrix.stack == 'python' }}
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
       - name: Install Python dependencies
-        if: ${{matrix.stack == 'python'}
-        working-directory: ${{matrix.project}
+        if: ${{ matrix.stack == 'python' }}
+        working-directory: ${{ matrix.project }}
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
@@ -91,27 +91,27 @@ jobs:
             python -m pip install pytest==8.4.2
           fi
       - name: Run Python tests
-        if: ${{matrix.stack == 'python'}
-        working-directory: ${{matrix.project}
+        if: ${{ matrix.stack == 'python' }}
+        working-directory: ${{ matrix.project }}
         run: python -m pytest
 
       - name: Set up PHP
-        if: ${{matrix.stack == 'php'}
+        if: ${{ matrix.stack == 'php' }}
         uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: "8.3"
           tools: composer
       - name: Install PHP dependencies
-        if: ${{matrix.stack == 'php'}
-        working-directory: ${{matrix.project}
+        if: ${{ matrix.stack == 'php' }}
+        working-directory: ${{ matrix.project }}
         run: |
           set -euo pipefail
           test -f composer.lock || { echo "Commit composer.lock for reproducible CI."; exit 1; }
           composer validate --strict
           composer install --no-interaction --prefer-dist
       - name: Run PHP tests
-        if: ${{matrix.stack == 'php'}
-        working-directory: ${{matrix.project}
+        if: ${{ matrix.stack == 'php' }}
+        working-directory: ${{ matrix.project }}
         run: |
           set -euo pipefail
           composer run-script --list | grep -qE '(^|[[:space:]])test([[:space:]]|$)' || {
@@ -121,5 +121,5 @@ jobs:
           composer run-script test --no-interaction
 
       - name: Report unsupported or unconfigured stack
-        if: ${{matrix.stack == 'none'}
-        run: echo "::notice::${{matrix.project} has no supported Node.js, Python, or PHP manifest. Repository-wide validation and security scans still run."
+        if: ${{ matrix.stack == 'none' }}
+        run: echo "::notice::${{ matrix.project }} has no supported Node.js, Python, or PHP manifest. Repository-wide validation and security scans still run."

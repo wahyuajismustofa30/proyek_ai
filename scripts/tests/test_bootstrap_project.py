@@ -153,7 +153,6 @@ class BootstrapProjectTests(unittest.TestCase):
 
         def fail_after_partial_copy(source: Path, target: Path, **kwargs: object) -> None:
             target = Path(target)
-            target.mkdir(parents=True)
             (target / "partial.txt").write_text("partial", encoding="utf-8")
             raise OSError("simulated copy failure")
 

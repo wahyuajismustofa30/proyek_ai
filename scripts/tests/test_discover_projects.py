@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -36,6 +38,40 @@ class DiscoverProjectsTests(unittest.TestCase):
                 {"project": "projects/web-api", "slug": "web-api", "stack": "python"},
                 {"project": "projects/web-api", "slug": "web-api", "stack": "php"},
             ],
+        )
+
+    def test_builds_matrix_for_multiple_projects_with_different_stacks(self) -> None:
+        """Each independent project folder must produce its own matrix entry."""
+        self.make_project("alpha-node", "package.json")
+        self.make_project("beta-python", "pyproject.toml")
+        self.make_project("gamma-php", "composer.json")
+
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).resolve().parents[1] / "discover_projects.py"),
+                "--root",
+                str(self.root),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        matrix = json.loads(completed.stdout)
+        self.assertEqual(
+            matrix["include"],
+            [
+                {"project": "projects/alpha-node", "slug": "alpha-node", "stack": "node"},
+                {"project": "projects/beta-python", "slug": "beta-python", "stack": "python"},
+                {"project": "projects/gamma-php", "slug": "gamma-php", "stack": "php"},
+            ],
+        )
+        self.assertEqual(
+            len({item["project"] for item in matrix["include"]}),
+            3,
+            "The matrix must contain three distinct project directories, not one multi-stack project.",
         )
 
     def test_reports_project_without_supported_manifest(self) -> None:

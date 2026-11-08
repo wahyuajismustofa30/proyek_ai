@@ -164,5 +164,22 @@ class BootstrapProjectTests(unittest.TestCase):
 
 
 
+    def test_rolls_back_destination_when_placeholder_write_fails(self) -> None:
+        destination = self.output / "write-failure"
+        original_write_text = Path.write_text
+
+        def fail_on_project_readme(path: Path, data: str, *args: object, **kwargs: object) -> int:
+            if path == destination / "README.md":
+                raise OSError("simulated placeholder write failure")
+            return original_write_text(path, data, *args, **kwargs)
+
+        with patch.object(Path, "write_text", autospec=True, side_effect=fail_on_project_readme):
+            with self.assertRaisesRegex(OSError, "simulated placeholder write failure"):
+                bootstrap.bootstrap_project("Write Failure", self.output, self.template)
+
+        self.assertFalse(destination.exists(), "A failed placeholder write must roll back the project.")
+
+
+
 if __name__ == "__main__":
     unittest.main()

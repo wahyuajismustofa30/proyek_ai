@@ -194,6 +194,17 @@ class WebValidationTests(unittest.TestCase):
         )
         self.assertTrue(any("missing-image.png" in e for e in validate_project(self.project)))
 
+    def test_skips_vendor_only_at_project_root(self) -> None:
+        root_vendor = self.project / "vendor"
+        root_vendor.mkdir()
+        (root_vendor / "x.html").write_text("<html><p>broken", encoding="utf-8")
+        self.assertEqual(validate_project(self.project), [])
+
+        nested_vendor = self.project / "src" / "vendor"
+        nested_vendor.mkdir(parents=True)
+        (nested_vendor / "x.html").write_text("<html><p>broken", encoding="utf-8")
+        errors = validate_project(self.project)
+        self.assertTrue(any("src/vendor/x.html" in error and "invalid HTML" in error for error in errors))
 
 if __name__ == "__main__":
     unittest.main()

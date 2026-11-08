@@ -42,9 +42,9 @@ manifest, lockfile, dan test.
 ## Referensi DEKEKU
 
 Arsip DEKEKU sebelumnya telah dikosongkan. Paket master tema, paket logo, dan
-salinan Brand System tidak lagi disimpan di repository ini. Jangan mengandalkan
-tautan atau path arsip lama; jika aset dibutuhkan kembali, tambahkan sumber yang
-telah disetujui sebagai aset proyek aktif dan dokumentasikan asalnya.
+salinan Brand System tidak lagi disimpan di repository ini. `archives/` hanya
+berisi README penjelas. Lokasi sumber kanonis DEKEKU Master Theme belum ditetapkan;
+pemilik repository perlu memutuskan lokasinya sebelum aset tersebut digunakan kembali.
 
 ## Prinsip repository
 - Satu lokasi kanonis untuk setiap source aktif.

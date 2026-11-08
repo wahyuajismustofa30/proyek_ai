@@ -9,3 +9,9 @@
 - Isi direktori `archives/` telah dikosongkan berdasarkan keputusan pemeliharaan repository.
 - Hanya `archives/README.md` yang dipertahankan; paket tema, paket logo, dan salinan Brand System lama tidak lagi tersedia di repository.
 - Pengembangan DEKEKU berikutnya harus menggunakan aset sumber yang disetujui dan ditempatkan pada proyek aktif; jangan mengasumsikan file arsip lama masih ada.
+
+
+## Sumber kanonis DEKEKU Master Theme
+- Lokasi sumber kanonis DEKEKU Master Theme **BELUM DITETAPKAN**.
+- Repository ini tidak menyimpan aset DEKEKU lama; `archives/` hanya berisi README penjelas.
+- Pemilik repository harus memutuskan dan menyetujui lokasi sumber kanonis sebelum pekerjaan DEKEKU berikutnya bergantung padanya.

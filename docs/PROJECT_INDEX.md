@@ -16,5 +16,5 @@ dipertahankan kosong sampai sistem inti repository dan kebutuhan proyek siap.
 - Buat proyek baru melalui bootstrap setelah brief dan ruang lingkup disepakati.
 - Baca README serta instruksi lokal proyek sebelum mengubah file.
 - Jangan mencampur source antarproyek.
-- Direktori arsip saat ini hanya berisi README; jangan merujuk aset historis yang telah dihapus.
+- Direktori `archives/` hanya berisi README penjelas; aset historis yang dihapus tidak tersedia. Lokasi sumber kanonis DEKEKU Master Theme belum ditetapkan.
 - Tambahkan proyek ke indeks setelah proyek benar-benar dibuat dan diterima sebagai ruang kerja aktif.

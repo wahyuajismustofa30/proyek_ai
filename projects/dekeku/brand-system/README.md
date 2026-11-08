@@ -23,8 +23,11 @@ Sumber acuan visual bersama untuk website bisnis dan undangan online DEKEKU.
 - `referensi/`: halaman referensi tema.
 - `scripts/`: skrip pembangun aset/token.
 
+## Identitas logo resmi
+Paket logo yang diberikan pemilik ditetapkan sebagai acuan identitas visual untuk pekerjaan DEKEKU berikutnya. Aturan, inventaris, warna, dan catatan teknis: [OFFICIAL_LOGO_PACKAGE.md](docs/OFFICIAL_LOGO_PACKAGE.md). Aset baseline v1.1 tidak ditimpa.
+
 ## Catatan pemeriksaan
-- PNG maskot pada paket awal terdeteksi memiliki hash identik; validasi visual sebelum dipakai sebagai variasi pose.
+- PNG maskot pada paket master tema awal terdeteksi memiliki hash identik; validasi visual sebelum dipakai sebagai variasi pose.
 - Halaman referensi mengandung konten contoh; jangan anggap sebagai data bisnis produksi.
 - Form demo pada referensi perlu integrasi backend/WhatsApp sebelum dipakai produksi.
 

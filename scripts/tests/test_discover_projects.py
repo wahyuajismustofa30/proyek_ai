@@ -81,10 +81,30 @@ class DiscoverProjectsTests(unittest.TestCase):
             [{"project": "projects/design-system", "slug": "design-system", "stack": "none"}],
         )
 
-    def test_rejects_hidden_project_directory_instead_of_silently_ignoring_it(self) -> None:
+    def test_rejects_hidden_project_directory_with_actionable_message(self) -> None:
         self.make_project(".internal", "package.json")
-        with self.assertRaisesRegex(ValueError, "Invalid project directory name"):
+        with self.assertRaisesRegex(ValueError, "Hidden directories are not allowed directly"):
             discover_projects(self.root)
+
+    def test_allows_hidden_configuration_directories_inside_a_project(self) -> None:
+        project = self.make_project("web-app", "package.json")
+        hidden_config = project / ".github" / "workflows"
+        hidden_config.mkdir(parents=True)
+        (hidden_config / "ci.yml").write_text("name: local-template\\n", encoding="utf-8")
+        (project / ".gitignore").write_text("node_modules/\\n", encoding="utf-8")
+
+        self.assertEqual(
+            discover_projects(self.root)["include"],
+            [{"project": "projects/web-app", "slug": "web-app", "stack": "node"}],
+        )
+
+    def test_ignores_root_files_but_rejects_hidden_root_directories(self) -> None:
+        (self.root / "projects" / ".gitkeep").write_text("", encoding="utf-8")
+        (self.root / "projects" / "notes.txt").write_text("not a project", encoding="utf-8")
+        self.assertEqual(
+            discover_projects(self.root)["include"],
+            [{"project": "projects", "slug": "__no_projects__", "stack": "none"}],
+        )
 
     def test_rejects_uppercase_spaces_and_special_characters(self) -> None:
         for name in ("MyProject", "my project", "my_project", "project..backup", "équipe"):

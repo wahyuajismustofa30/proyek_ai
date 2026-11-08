@@ -29,8 +29,8 @@ Diperbarui: **[YYYY-MM-DD]**
 
 ## Testing
 Lengkapi docs/TESTING.md dan ikuti standar testing repository. CI root mendeteksi
-manifest Node.js, Python, dan PHP di folder proyek. Pastikan lockfile dan test command
-tersedia sesuai stack.
+manifest Node.js, Python, dan PHP di folder proyek. Untuk proyek web, CI juga memvalidasi
+HTML, CSS, serta referensi aset lokal. Pastikan lockfile dan test command tersedia sesuai stack.
 
 ## Konfigurasi dan keamanan
 - Jangan commit secret, token, password, private key, atau data pribadi.

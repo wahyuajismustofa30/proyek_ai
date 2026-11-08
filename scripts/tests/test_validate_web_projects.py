@@ -1,0 +1,66 @@
+"""Tests for project HTML/CSS and asset validation."""
+
+from __future__ import annotations
+
+import tempfile
+import unittest
+from pathlib import Path
+
+from validate_web_projects import validate_project
+
+
+class WebValidationTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
+        self.project = Path(self.temp.name)
+
+    def tearDown(self) -> None:
+        self.temp.cleanup()
+
+    def test_valid_html_css_and_local_asset(self) -> None:
+        (self.project / "index.html").write_text(
+            '<!doctype html><html><head><link rel="stylesheet" href="css/site.css"></head>'
+            '<body><img src="assets/logo.svg" alt="Logo"></body></html>',
+            encoding="utf-8",
+        )
+        (self.project / "css").mkdir()
+        (self.project / "css" / "site.css").write_text(
+            'body { background-image: url("../assets/bg.png"); }', encoding="utf-8"
+        )
+        (self.project / "assets").mkdir()
+        (self.project / "assets" / "logo.svg").write_text(
+            '<svg xmlns="http://www.w3.org/2000/svg"></svg>', encoding="utf-8"
+        )
+        (self.project / "assets" / "bg.png").write_bytes(b"image")
+        self.assertEqual(validate_project(self.project), [])
+
+    def test_reports_missing_html_asset(self) -> None:
+        (self.project / "index.html").write_text(
+            '<!doctype html><html><body><img src="missing.png" alt="Missing"></body></html>',
+            encoding="utf-8",
+        )
+        self.assertTrue(any("missing local asset" in e for e in validate_project(self.project)))
+
+    def test_reports_missing_css_asset(self) -> None:
+        (self.project / "site.css").write_text(
+            "body { background: url('missing.png'); }", encoding="utf-8"
+        )
+        self.assertTrue(any("missing local CSS asset" in e for e in validate_project(self.project)))
+
+    def test_rejects_asset_reference_outside_project(self) -> None:
+        (self.project / "index.html").write_text(
+            '<!doctype html><html><body><img src="../../outside.png"></body></html>',
+            encoding="utf-8",
+        )
+        self.assertTrue(any("escapes project directory" in e for e in validate_project(self.project)))
+
+    def test_reports_malformed_html_and_css(self) -> None:
+        (self.project / "index.html").write_text("<html><p>unclosed", encoding="utf-8")
+        (self.project / "site.css").write_text("a { color: red", encoding="utf-8")
+        errors = validate_project(self.project)
+        self.assertTrue(any("invalid HTML" in e for e in errors))
+        self.assertTrue(any("CSS syntax error" in e for e in errors))
+
+
+if __name__ == "__main__":
+    unittest.main()

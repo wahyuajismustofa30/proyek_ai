@@ -15,6 +15,13 @@ Gunakan checklist ini sebelum menyatakan pekerjaan selesai. Item yang tidak rele
 - [ ] Nama, path, dan kontrak API yang sudah dipakai tetap kompatibel atau perubahan breaking dijelaskan.
 - [ ] Error handling dan validasi input ditangani sesuai kebutuhan.
 
+## Testing
+- [ ] Strategi proyek tersedia di `docs/TESTING.md` dan sesuai [standar testing](TESTING_STANDARDS.md).
+- [ ] Test untuk perilaku baru dan regresi bug ditambahkan.
+- [ ] Data dan environment test terisolasi dari produksi.
+- [ ] Test/lint/build relevan dijalankan; hasil PASS/FAIL/BLOCKED/NOT RUN dilaporkan.
+- [ ] Pengecualian lapisan test dijelaskan beserta alternatifnya.
+
 ## Verifikasi
 - [ ] JSON/YAML/config yang berubah tervalidasi.
 - [ ] Lint/test/build relevan dijalankan.

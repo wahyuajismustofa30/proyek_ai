@@ -55,3 +55,15 @@ pemilik repository perlu memutuskan lokasinya sebelum aset tersebut digunakan ke
 - Proyek baru dimulai dari template dan diisolasi di bawah projects/.
 - Jangan mengarang data bisnis, harga, testimoni, kontak, atau klaim produk.
 - Jangan menyimpan secret atau kredensial di Git.
+
+## Lisensi
+
+Repository ini dilisensikan berdasarkan **GNU General Public License v3.0 only
+(GPL-3.0-only)**. Anda boleh menggunakan, mempelajari, memodifikasi, dan
+mendistribusikan proyek ini, termasuk untuk tujuan komersial, dengan mematuhi
+ketentuan GPL-3.0. Versi turunan yang didistribusikan harus tetap dilisensikan
+di bawah GPL-3.0 dan menyertakan kode sumber yang sesuai.
+
+Lihat [LICENSE](LICENSE) untuk teks lisensi lengkap. Komponen, model AI,
+dataset, dan aset pihak ketiga dapat memiliki ketentuan lisensi tersendiri;
+periksa pemberitahuan masing-masing sebelum digunakan atau didistribusikan.

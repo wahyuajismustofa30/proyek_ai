@@ -2,7 +2,7 @@
 
 **Status:** acuan identitas visual resmi untuk pekerjaan DEKEKU berikutnya  
 **Tagline:** YOUR DIGITAL SPACE  
-**Sumber arsip resmi:** [`archives/dekeku-logo-package.zip`](../../../dekeku-logo-package.zip)
+**Sumber arsip resmi:** [`archives/dekeku-logo-package.zip`](../../dekeku-logo-package.zip)
 **Pemilik/sumber:** paket diberikan oleh pemilik DEKEKU.
 
 Dokumen ini menjelaskan inventaris dan aturan penggunaan paket. **File ZIP di `archives/` adalah sumber biner asli**; dokumen ini hanya panduan dan bukan pengganti aset logo. Arsip sumber dipertahankan tanpa modifikasi.
@@ -62,4 +62,4 @@ Jika aset dari ZIP digunakan dalam source proyek:
 3. Jangan mengedit atau menimpa ZIP arsip.
 4. Pertahankan file asli; optimasi atau konversi harus menghasilkan file turunan yang jelas diberi nama dan didokumentasikan.
 
-Lihat [inventaris seluruh arsip](../../../archives/README.md) untuk kebijakan penyimpanan dan hubungan antar paket.
+Lihat [inventaris seluruh arsip](../../README.md) untuk kebijakan penyimpanan dan hubungan antar paket.

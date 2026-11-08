@@ -49,7 +49,7 @@ class MarkdownParserTests(unittest.TestCase):
         self.source.write_text("[file](folder/a%20b%28c%29.md)\n", encoding="utf-8")
         self.assertEqual(
             validator.markdown_destinations(self.source),
-            ["folder/a b(c).md"],
+            ["folder/a%20b%28c%29.md"],
         )
 
     def test_heading_anchors_handle_duplicates_and_html_ids(self) -> None:
@@ -61,7 +61,9 @@ class MarkdownParserTests(unittest.TestCase):
             encoding="utf-8",
         )
         anchors = validator.markdown_anchors(self.target)
-        self.assertTrue({"getting-started", "getting-started-1", "api--usage", "custom-anchor"} <= anchors)
+        self.assertTrue(
+            {"getting-started", "getting-started-1", "api--usage", "custom-anchor"} <= anchors
+        )
 
     def test_rejects_paths_that_escape_repository(self) -> None:
         outside = self.root.parent / "outside.md"

@@ -8,6 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from bootstrap_project import project_slug
+
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 BOOTSTRAP = REPOSITORY_ROOT / "scripts" / "bootstrap_project.py"
 

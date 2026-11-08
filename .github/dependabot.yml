@@ -1,8 +1,6 @@
 version: 2
 updates:
-  # Satu-satunya ecosystem dependency yang benar-benar digunakan repository
-  # saat ini adalah GitHub Actions. Dependency aplikasi ditambahkan ketika
-  # manifest/lockfile proyek sudah tersedia.
+  # GitHub Actions workflows
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -25,3 +23,20 @@ updates:
         update-types:
           - minor
           - patch
+
+  # Python tooling used by CI; manifest is requirements-ci.txt.
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "02:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    target-branch: main
+    labels:
+      - dependencies
+      - python
+    commit-message:
+      prefix: "ci"
+      include: scope

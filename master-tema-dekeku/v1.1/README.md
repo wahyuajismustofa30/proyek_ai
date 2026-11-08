@@ -24,4 +24,4 @@ Nama arsip yang diberikan adalah v1.1 dan itulah label baseline yang digunakan d
 
 ## Status penyimpanan
 
-File ZIP asli belum disertakan oleh integrasi GitHub yang tersedia pada sesi ini karena endpoint penulisan file yang tersedia hanya menerima teks UTF-8. Dokumen ini mencatat identitas dan checksum arsip untuk menjaga referensi versi; bukan pengganti file ZIP aslinya.
+File ZIP asli sudah tersedia di repository pada path `master-tema-dekeku/v1.1/Master-tema-dekeku-v1.1.zip`. Keberadaan file diverifikasi dengan membaca objek file dari GitHub dalam format Base64. SHA blob GitHub: `8bee6a5ca1893e978fef0e01f5a066781dfa196e`.

@@ -2,18 +2,21 @@
 
 **Status:** acuan identitas visual resmi untuk pekerjaan DEKEKU berikutnya  
 **Tagline:** YOUR DIGITAL SPACE  
-**Sumber paket:** `dekeku-logo-package.zip` yang diberikan pemilik
+**Sumber arsip resmi:** [`archives/dekeku-logo-package.zip`](../../../archives/dekeku-logo-package.zip)  
+**Pemilik/sumber:** paket diberikan oleh pemilik DEKEKU.
 
-Dokumen ini mencatat aturan penggunaan paket logo. Arsip sumber berisi aset raster dan pembungkus SVG; jangan menganggap SVG di dalam paket sebagai artwork path vektor.
+Dokumen ini menjelaskan inventaris dan aturan penggunaan paket. **File ZIP di `archives/` adalah sumber biner asli**; dokumen ini hanya panduan dan bukan pengganti aset logo. Arsip sumber dipertahankan tanpa modifikasi.
 
 ## Inventaris aset
 
-| Folder | Isi |
+| Folder di dalam ZIP | Isi |
 |---|---|
 | `01-logos/` | Logo horizontal transparan, varian terang/gelap, maskot PNG dan SVG |
 | `02-icons-favicon/` | Ikon terang/gelap/transparan, favicon PNG 16–256 px, dan ICO |
 | `03-social/` | Open Graph 1200×630 dalam PNG dan JPG |
 | `04-guidelines/` | Panduan singkat identitas |
+
+Nama folder di atas merujuk pada struktur **di dalam arsip ZIP**, bukan direktori yang sudah diekstrak di repository.
 
 ## Aturan penggunaan
 
@@ -47,8 +50,16 @@ Gambar OG disiapkan pada ukuran 1200×630 (rasio 1.91:1). Saat diterapkan, ganti
 
 ## Catatan teknis
 
-File SVG dalam paket merupakan pembungkus SVG dengan PNG tertanam, bukan vektor murni. Untuk kebutuhan cetak besar atau pengubahan bentuk, siapkan artwork vektor final secara terpisah.
+File SVG dalam paket merupakan pembungkus SVG dengan PNG tertanam, bukan vektor murni berbasis path. Untuk kebutuhan cetak besar atau pengubahan bentuk, siapkan artwork vektor final secara terpisah.
 
-## Hubungan dengan baseline brand system
+## Hubungan dengan baseline Brand System
 
-Paket logo ini menjadi acuan identitas logo untuk pekerjaan baru. Jangan menimpa source baseline master theme v1.1 atau mengubah arsip versi terdahulu secara diam-diam. Integrasikan aset biner ke folder aset aktif pada commit terpisah ketika proses transfer file tersedia; dokumen ini sendiri bukan pengganti file logo.
+Paket logo resmi ini menjadi acuan identitas logo untuk pekerjaan DEKEKU berikutnya. Master tema v1.1 tetap merupakan baseline historis/read-only dan tidak ditimpa oleh paket logo ini.
+
+Jika aset dari ZIP digunakan dalam source proyek:
+1. Ekstrak hanya file yang diperlukan ke direktori aset aktif pada versi pengembangan.
+2. Catat nama file sumber dan asalnya dari `archives/dekeku-logo-package.zip`.
+3. Jangan mengedit atau menimpa ZIP arsip.
+4. Pertahankan file asli; optimasi atau konversi harus menghasilkan file turunan yang jelas diberi nama dan didokumentasikan.
+
+Lihat [inventaris seluruh arsip](../../../archives/README.md) untuk kebijakan penyimpanan dan hubungan antar paket.

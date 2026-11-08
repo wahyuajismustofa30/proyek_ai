@@ -12,7 +12,7 @@
 - Proyek baru wajib dibuat dari `templates/ai-project/` melalui bootstrap resmi.
 - Setiap proyek harus memiliki brief, instruksi AI, dokumentasi keputusan, dan strategi pengujian.
 - Pisahkan source setiap proyek; jangan menggabungkan aset atau konfigurasi tanpa alasan yang terdokumentasi.
-- Baseline DEKEKU v1.1 di `archives/dekeku-brand-system-v1.1/` bersifat read-only.
+- Direktori `archives/` saat ini hanya mempertahankan `archives/README.md`; jangan menganggap baseline DEKEKU lama masih tersedia di repository.
 
 ## Kualitas perubahan
 - Perbarui dokumentasi saat struktur, workflow, atau perilaku tooling berubah.

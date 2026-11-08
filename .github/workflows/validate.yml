@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   validate:
-    name: Validate JSON, Python, and whitespace
+    name: Validate JSON, Python, Markdown, links, and whitespace
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

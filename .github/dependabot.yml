@@ -1,5 +1,6 @@
 version: 2
 updates:
+  # Repository-level tooling that is actually present at the repository root.
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -18,6 +19,7 @@ updates:
         patterns: ["*"]
         update-types: [minor, patch]
 
+  # Root Python validation tools: requirements-ci.txt.
   - package-ecosystem: pip
     directory: /
     schedule:
@@ -32,6 +34,13 @@ updates:
       prefix: "ci"
       include: scope
 
-# Project-specific ecosystems are added when a project with the matching
-# manifest exists under /projects. Avoid /projects/* here: Dependabot reports
-# dependency_file_not_found when the glob has no matching project directories.
+# Project adapters currently supported by project-matrix.yml:
+#   node   -> npm      -> package.json (requires package-lock.json in CI)
+#   python -> pip      -> pyproject.toml and/or requirements*.txt
+#   php    -> composer -> composer.json (requires composer.lock in CI)
+#
+# Add a concrete Dependabot directory entry for an ecosystem only when a
+# project with its matching manifest exists under projects/<slug>/. Do not
+# configure /projects/* while projects/ has no matching project: Dependabot
+# would report dependency_file_not_found for a directory with no manifest.
+# Keep this list synchronized with the real project directories and CI adapters.

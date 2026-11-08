@@ -13,6 +13,24 @@ venv/
 # Node.js
 node_modules/
 
+# Local credentials and private material
+*.pem
+*.key
+secrets/
+credentials/
+
+# IDE and editor settings
+.idea/
+.vscode/
+
+# Build and test output
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+
 # Operating systems
 .DS_Store
 Thumbs.db

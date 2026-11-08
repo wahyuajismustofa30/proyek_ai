@@ -21,6 +21,17 @@ coverage/
 .next/
 .nuxt/
 
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE and editor settings
+.idea/
+.vscode/
+
 # Logs & temporary files
 *.log
 .tmp/

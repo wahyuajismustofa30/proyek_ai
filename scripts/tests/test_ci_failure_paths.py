@@ -119,6 +119,7 @@ class CIFailurePathTests(unittest.TestCase):
         )
         empty_wheelhouse = self.root / "empty-wheelhouse"
         empty_wheelhouse.mkdir()
+        install_target = self.root / "pip-target"
 
         result = self.run_command(
             [
@@ -130,6 +131,8 @@ class CIFailurePathTests(unittest.TestCase):
                 "--find-links",
                 str(empty_wheelhouse),
                 "--no-deps",
+                "--target",
+                str(install_target),
                 "--requirement",
                 str(requirements),
             ]

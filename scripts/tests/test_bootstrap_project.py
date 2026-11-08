@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -46,6 +47,40 @@ class BootstrapProjectTests(unittest.TestCase):
             (result / "docs" / "PROJECT_BRIEF.md").read_text(encoding="utf-8"),
             "Project: DEKEKU Website\n",
         )
+
+    def test_json_metadata_escapes_quotes_backslashes_and_unicode(self) -> None:
+        (self.template / ".project-meta.json").write_text(
+            '{"project_name": "{{PROJECT_NAME}}"}\n', encoding="utf-8"
+        )
+        name = 'Foo "Bar" \\ Baz café 東京'
+        result = bootstrap.bootstrap_project(name, self.output, self.template)
+        metadata = json.loads(
+            (result / ".project-meta.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(metadata["project_name"], name)
+
+    def test_cli_bootstrap_escapes_json_metadata(self) -> None:
+        name = 'Uji "Kutip" \\ Backslash café 東京'
+        output = self.root / "cli-output"
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(Path(bootstrap.__file__).resolve()),
+                "--name",
+                name,
+                "--output",
+                str(output),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        metadata_path = (
+            output / bootstrap.project_slug(name) / ".project-meta.json"
+        )
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        self.assertEqual(metadata["project_name"], name)
 
     def test_refuses_to_overwrite_existing_directory(self) -> None:
         destination = self.output / "my-project"

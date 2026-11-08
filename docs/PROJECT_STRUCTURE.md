@@ -78,6 +78,12 @@ Peran direktori:
 | `.github/` | Template issue dan konfigurasi kontribusi; bukan tempat workflow CI aktif |
 | `.env.example` | Nama variabel dan contoh non-rahasia saja; jangan isi credential nyata |
 
+Template issue root repository menggunakan YAML GitHub Issue Forms agar pelaporan
+masalah tooling dan CI memiliki field terstruktur serta validasi wajib. Template
+proyek menggunakan Markdown karena scaffold bersifat generik dan tiap pemilik
+proyek dapat mengubah pertanyaan sesuai domain tanpa mempertahankan skema form
+terpusat repository induk.
+
 Folder tambahan boleh ditambahkan sesuai kebutuhan stack, misalnya `public/`,
 `config/`, `migrations/`, atau `scripts/`. Jangan menambahkan folder hanya sebagai
 placeholder. Folder `node_modules/`, `.venv/`, `vendor/`, cache, hasil build, dan

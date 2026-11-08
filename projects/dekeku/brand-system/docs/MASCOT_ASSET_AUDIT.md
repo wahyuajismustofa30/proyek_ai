@@ -8,7 +8,7 @@ Cakupan: seluruh 20 file visual maskot (10 SVG dan 10 PNG) serta skrip pembangki
 
 ## Ringkasan
 
-<badge>Temuan kritis: PNG tidak valid secara visual</badge>
+**Temuan kritis: seluruh PNG tidak valid secara visual.**
 
 - 10 SVG (5 ekspresi × 2 varian warna) berhasil dirender dan ditinjau.
 - 10 PNG memiliki ukuran file, dimensi, dan SHA-256 yang identik. Semua berukuran 2.506 byte dengan dimensi 512 × 389; SHA-256: `e406ef3e5808f1c3336a06be0b44937790b30d3a9caf7f0f12146094c453562d`.

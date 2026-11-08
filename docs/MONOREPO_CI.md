@@ -104,6 +104,17 @@ menambahkan aplikasi contoh minimal, membuat lockfile yang diperlukan, memasang
 dependency, dan menjalankan test aplikasi. Job ini menjaga contoh integrasi tetap
 teruji tanpa menyimpan proyek fixture di `projects/`.
 
+## Pengujian failure-path
+
+Suite `scripts/tests/test_ci_failure_paths.py` membuat fixture sementara untuk memastikan jalur gagal CI benar-benar menolak:
+
+- proyek tanpa manifest stack yang didukung;
+- konfigurasi JSON Node.js/Composer dan TOML Python yang rusak;
+- lockfile Node.js atau Composer yang hilang;
+- dependency Python yang tidak tersedia.
+
+Fixture dependency menggunakan pip `--no-index` dan wheelhouse kosong, sehingga kegagalan resolusi tidak bergantung pada jaringan atau layanan eksternal. Seluruh fixture dibersihkan setelah test dan tidak ditulis ke `projects/` repository.
+
 ## Verifikasi lokal
 
     python scripts/discover_projects.py

@@ -51,6 +51,11 @@ Sesuaikan struktur dengan stack; jangan membuat folder atau dependency yang tida
 ## Menjalankan proyek
 [Isi perintah instalasi, konfigurasi, development, build, dan test setelah stack dipilih.]
 
+## Testing
+- Wajib lengkapi `docs/TESTING.md` berdasarkan [template strategi testing](docs/TESTING.md).
+- Ikuti [standar testing repository](../../docs/TESTING_STANDARDS.md).
+- Cantumkan perintah test pada bagian ini setelah stack ditentukan.
+
 ## Konfigurasi dan keamanan
 - Salin contoh konfigurasi dari `.env.example` jika diperlukan.
 - Jangan commit secret, token, password, private key, atau data pribadi.

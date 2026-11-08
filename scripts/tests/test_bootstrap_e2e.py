@@ -13,6 +13,7 @@ SCRIPTS = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = SCRIPTS.parent
 sys.path.insert(0, str(SCRIPTS))
 
+from create_bootstrap_stack_fixture import create_fixture  # noqa: E402
 from discover_projects import discover_projects  # noqa: E402
 from validate_web_projects import validate_project  # noqa: E402
 
@@ -25,6 +26,24 @@ class BootstrapEndToEndTests(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.temp.cleanup()
+
+
+    def test_bootstrap_creates_discoverable_node_python_and_php_projects(self) -> None:
+        expected_manifests = {
+            "node": "package.json",
+            "python": "pyproject.toml",
+            "php": "composer.json",
+        }
+        for stack, manifest in expected_manifests.items():
+            with self.subTest(stack=stack):
+                project = create_fixture(stack, self.output)
+                self.assertTrue((project / manifest).is_file())
+                discovered = discover_projects(self.root)["include"]
+                match = [
+                    item for item in discovered
+                    if item["slug"] == project.name and item["stack"] == stack
+                ]
+                self.assertEqual(len(match), 1, discovered)
 
     def test_cli_bootstrap_produces_a_discoverable_valid_project(self) -> None:
         name = "DEKEKU Bootstrap E2E"

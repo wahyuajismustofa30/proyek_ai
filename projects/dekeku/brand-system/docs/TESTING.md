@@ -15,8 +15,9 @@ Dari root repository:
 - `python -m json.tool projects/dekeku/brand-system/versions/v1.1/source/Dekeku/tokens/tokens.json`
 - `python scripts/check_internal_links.py`
 - `python -m compileall -q projects templates scripts`
+- `python projects/dekeku/brand-system/tests/validate_assets.py`
 
-Pemeriksaan CSS dan visual dilakukan manual sampai pipeline khusus design-token ditambahkan. Jangan menyatakan pemeriksaan visual otomatis telah dilakukan.
+Validator aset memakai Python standard library untuk memeriksa integritas chunk/CRC dan data raster PNG, struktur XML/viewBox SVG, inventaris 10 SVG dan 10 PNG maskot, serta duplikasi konten raster. CI menjalankannya otomatis pada push, pull request, dan manual run. Validator tidak mengklaim menilai kualitas visual atau kontras secara otomatis; pemeriksaan tersebut tetap memerlukan review visual.
 
 ## Kriteria penerimaan
 - Token JSON valid dan tidak ada referensi token yang tidak dikenal.

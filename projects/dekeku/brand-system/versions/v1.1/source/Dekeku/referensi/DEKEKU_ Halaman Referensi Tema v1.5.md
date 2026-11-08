@@ -1,12 +1,12 @@
-[Lewati ke konten](#top)
+[Lewati ke konten](#website-yang-rapi-solid-dan-siap-menerima-pesanan)
 
-[DEKEKU](#top)
+[DEKEKU](#website-yang-rapi-solid-dan-siap-menerima-pesanan)
 
-[Layanan](#layanan)[Paket](#paket)[Kontak](#kontak)
+[Layanan](#tiga-layanan-satu-standar-kualitas)[Paket](#pilih-paket-sesuai-kebutuhan)[Kontak](#ceritakan-kebutuhan-anda)
 
-[Mulai konsultasi](#kontak)
+[Mulai konsultasi](#ceritakan-kebutuhan-anda)
 
-[Layanan](#layanan)[Paket](#paket)[Kontak](#kontak)
+[Layanan](#tiga-layanan-satu-standar-kualitas)[Paket](#pilih-paket-sesuai-kebutuhan)[Kontak](#ceritakan-kebutuhan-anda)
 
 Your Digital Space
 
@@ -14,7 +14,7 @@ Your Digital Space
 
 Kami merancang dan membangun website bisnis dan undangan online yang cepat dibuka di ponsel dan mudah dihubungi lewat WhatsApp.
 
-[Chat via WhatsApp](https://wa.me/6281234567890?text=Halo%20DEKEKU%2C%20saya%20ingin%20konsultasi) [Lihat portfolio](#layanan)
+[Chat via WhatsApp](https://wa.me/6281234567890?text=Halo%20DEKEKU%2C%20saya%20ingin%20konsultasi) [Lihat portfolio](#tiga-layanan-satu-standar-kualitas)
 
 Layanan
 
@@ -48,7 +48,7 @@ Rp 1.500.000
 - Tombol WhatsApp
 - Revisi 2 kali
 
-[Pesan layanan](#kontak)
+[Pesan layanan](#ceritakan-kebutuhan-anda)
 
 Populer
 
@@ -60,7 +60,7 @@ Rp 3.500.000
 - Formulir kontak
 - Revisi 5 kali
 
-[Pesan layanan](#kontak)
+[Pesan layanan](#ceritakan-kebutuhan-anda)
 
 Kontak
 
@@ -177,11 +177,11 @@ Tabel
 
 Navigasi: breadcrumb dan pagination
 
-1. [Beranda](#top)
-2. [Layanan](#layanan)
+1. [Beranda](#website-yang-rapi-solid-dan-siap-menerima-pesanan)
+2. [Layanan](#tiga-layanan-satu-standar-kualitas)
 3. Website bisnis
 
-[1](#komponen)[2](#komponen)[3](#komponen)
+[1](#pustaka-komponen)[2](#pustaka-komponen)[3](#pustaka-komponen)
 
 Progress, skeleton, tooltip
 
@@ -209,13 +209,13 @@ Halaman 404, empty state, dan modal
 
 Alamat yang Anda buka tidak ada atau sudah dipindahkan.
 
-[Kembali ke beranda](#top)
+[Kembali ke beranda](#website-yang-rapi-solid-dan-siap-menerima-pesanan)
 
 #### Belum ada pesanan
 
 Pesanan yang masuk akan tampil di sini.
 
-[Pesan layanan](#kontak)
+[Pesan layanan](#ceritakan-kebutuhan-anda)
 
 Hapus draf ini? Draf yang dihapus tidak bisa dikembalikan.
 
@@ -225,18 +225,18 @@ Mulai dengan obrolan singkat lewat WhatsApp.
 
 [Chat via WhatsApp](https://wa.me/6281234567890?text=Halo%20DEKEKU%2C%20saya%20ingin%20konsultasi)
 
-[DEKEKU](#top)
+[DEKEKU](#website-yang-rapi-solid-dan-siap-menerima-pesanan)
 
 Your Digital Space
 
 #### Layanan
 
-- [Website bisnis](#layanan)
-- [Undangan online](#layanan)
+- [Website bisnis](#tiga-layanan-satu-standar-kualitas)
+- [Undangan online](#tiga-layanan-satu-standar-kualitas)
 
 #### Kontak
 
-- [WhatsApp](#kontak)
-- [Formulir](#kontak)
+- [WhatsApp](#ceritakan-kebutuhan-anda)
+- [Formulir](#ceritakan-kebutuhan-anda)
 
 © 2026 DEKEKU. Seluruh hak cipta dilindungi.

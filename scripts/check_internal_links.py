@@ -128,7 +128,16 @@ def main() -> int:
 
     for source in markdown_files:
         try:
-            destinations = markdown_destinations(source)
+            resolved_source = source.resolve()
+            resolved_source.relative_to(ROOT.resolve())
+        except ValueError:
+            errors.append(
+                f"{source.relative_to(ROOT)}: Markdown file symlink escapes the repository"
+            )
+            continue
+
+        try:
+            destinations = markdown_destinations(resolved_source)
         except ValueError as exc:
             errors.append(str(exc))
             continue

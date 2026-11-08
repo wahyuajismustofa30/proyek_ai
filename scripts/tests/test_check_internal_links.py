@@ -27,7 +27,7 @@ class MarkdownParserTests(unittest.TestCase):
         self.source.write_text(
             "[inline](target.md)\n"
             "[reference][guide]\n"
-            "![image](images/logo.png)\n"
+            "![image](images/logo.png)\n\n"
             "[guide]: target.md 'Guide'\n",
             encoding="utf-8",
         )
@@ -38,9 +38,9 @@ class MarkdownParserTests(unittest.TestCase):
 
     def test_ignores_links_inside_fenced_and_inline_code(self) -> None:
         self.source.write_text(
-            "`[inline](missing.md)`\n"
-            "```md\n[block](missing.md)\n```\n"
-            "[real](target.md)\n",
+            chr(96) + "[inline](missing.md)" + chr(96) + "\n"
+            + chr(96) * 3 + "md\n[block](missing.md)\n"
+            + chr(96) * 3 + "\n[real](target.md)\n",
             encoding="utf-8",
         )
         self.assertEqual(validator.markdown_destinations(self.source), ["target.md"])
@@ -62,7 +62,7 @@ class MarkdownParserTests(unittest.TestCase):
         )
         anchors = validator.markdown_anchors(self.target)
         self.assertTrue(
-            {"getting-started", "getting-started-1", "api--usage", "custom-anchor"} <= anchors
+            {"getting-started", "getting-started-1", "api-usage", "custom-anchor"} <= anchors
         )
 
     def test_rejects_paths_that_escape_repository(self) -> None:

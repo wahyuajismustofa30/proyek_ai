@@ -70,6 +70,12 @@ Bootstrap resmi menambahkan .project-meta.json dengan nama, slug, versi template
 dan penunjuk orkestrasi CI root. Pilih stack dengan menambahkan manifest dan lockfile
 yang sesuai. Tidak perlu membuat workflow CI atau konfigurasi Dependabot lokal.
 
+Workflow juga menjalankan matriks bootstrap end-to-end terpisah untuk Node.js, Python,
+dan PHP. Setiap job membuat proyek baru melalui CLI bootstrap pada direktori sementara,
+menambahkan aplikasi contoh minimal, membuat lockfile yang diperlukan, memasang
+dependency, dan menjalankan test aplikasi. Job ini menjaga contoh integrasi tetap
+teruji tanpa menyimpan proyek fixture di projects/.
+
 ## Verifikasi lokal
 
     python scripts/discover_projects.py

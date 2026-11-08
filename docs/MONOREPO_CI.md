@@ -35,6 +35,8 @@ Satu proyek boleh memiliki lebih dari satu stack. Setiap stack mendapatkan job t
 agar kegagalan satu stack tidak menyembunyikan hasil stack lainnya. Matriks dibatasi
 maksimum empat job paralel untuk menjaga penggunaan runner.
 
+Pengujian discovery mencakup dua bentuk berbeda: satu folder dengan beberapa manifest, dan beberapa folder proyek independen yang masing-masing memakai stack berbeda. Kasus kedua menjalankan CLI discovery sungguhan lalu memeriksa JSON matrix berisi `projects/alpha-node` (Node.js), `projects/beta-python` (Python), dan `projects/gamma-php` (PHP). Assertion juga memastikan ketiganya memiliki path proyek berbeda, sehingga test tidak dapat terpenuhi hanya dengan beberapa manifest dalam satu folder.
+
 Jika `projects/` kosong, discovery menghasilkan sentinel `__no_projects__` agar
 GitHub Actions tetap dapat menjalankan matrix yang valid. Sentinel ini bukan proyek
 aplikasi dan tidak menggagalkan CI. Sebaliknya, folder proyek nyata tanpa manifest

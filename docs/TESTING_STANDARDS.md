@@ -1,110 +1,88 @@
 # Standar Testing untuk Setiap Proyek
 
-Dokumen ini wajib menjadi acuan semua proyek aktif di `projects/` dan semua proyek baru yang dibuat dari `templates/ai-project/`. Setiap proyek harus memiliki strategi testing yang sesuai risiko dan teknologinya; jangan memaksakan framework yang tidak relevan.
+Gunakan dokumen ini untuk proyek aktif di `projects/` dan scaffold dari
+`templates/ai-project/`. Pilih lapisan test sesuai stack, kebutuhan, dan risiko;
+jangan menambah framework yang tidak diperlukan.
 
 ## Prinsip wajib
 
-1. **Test perilaku, bukan sekadar implementasi.** Verifikasi hasil yang terlihat oleh pengguna dan kontrak antarbagian.
-2. **Uji perubahan dan regresi.** Setiap bug yang diperbaiki idealnya mendapat test yang gagal sebelum perbaikan dan lulus sesudahnya.
-3. **Otomatisasi yang dapat diulang.** Test harus dapat dijalankan dari instruksi tertulis, tanpa bergantung pada mesin developer tertentu.
-4. **Isolasi.** Gunakan data dummy/factory dan environment test. Jangan memakai data, akun, kredensial, atau layanan produksi.
-5. **Deterministik.** Hindari test yang bergantung pada waktu, jaringan eksternal, urutan eksekusi, atau state bersama tanpa kontrol.
-6. **Jujur dalam pelaporan.** Bedakan PASS, FAIL, BLOCKED, dan NOT RUN. Jangan menyebut test lulus jika tidak dijalankan.
-7. **Proporsional terhadap risiko.** Area autentikasi, pembayaran, data pribadi, upload, hak akses, dan operasi destruktif memerlukan pengujian lebih ketat.
+- Uji perilaku dan kontrak yang terlihat, bukan hanya detail implementasi.
+- Tambahkan regression test untuk bug dan perubahan berisiko.
+- Test harus dapat diulang, deterministik, terisolasi, dan dijalankan dari instruksi tertulis.
+- Gunakan fixture sintetis; jangan gunakan data, akun, credential, atau layanan produksi.
+- Hindari ketergantungan jaringan eksternal, waktu, urutan test, dan state bersama.
+- Laporkan hasil secara jujur: PASS, FAIL, BLOCKED, atau NOT RUN.
+- Perketat test untuk autentikasi, pembayaran, data pribadi, upload, otorisasi, dan operasi destruktif.
 
-## Artefak yang wajib ada pada setiap proyek
+## Artefak proyek
 
-- `tests/`: test otomatis atau pemeriksaan terstruktur yang sesuai jenis proyek. Untuk proyek non-kode, isi dengan checklist/pemeriksaan aset dan tautkan dokumentasinya.
-- `docs/TESTING.md`: strategi, prasyarat, perintah, cakupan, data test, dan prosedur verifikasi manual proyek.
-- README: perintah singkat untuk menjalankan test dan tautan ke `docs/TESTING.md`.
-- CI workflow: jalankan pemeriksaan otomatis yang relevan pada Pull Request dan push ke branch utama, jika proyek sudah memiliki implementasi yang dapat diuji.
+Setiap proyek menyediakan:
 
-Jika suatu artefak tidak relevan, jelaskan alasan dan alternatifnya di `docs/TESTING.md`; jangan menghapus kewajiban dokumentasi tanpa alasan.
+- `tests/`: test otomatis atau pemeriksaan terstruktur yang sesuai.
+- `docs/TESTING.md`: strategi, prasyarat, perintah, cakupan, fixture, dan verifikasi manual.
+- README: ringkasan perintah test dan tautan ke `docs/TESTING.md`.
+- CI: pemeriksaan otomatis relevan pada PR/push jika implementasi sudah dapat diuji.
 
-## Tingkatan testing
+Untuk proyek non-kode, jelaskan alternatif checklist/pemeriksaan aset di
+`docs/TESTING.md`. Jangan menghapus dokumentasi wajib tanpa alasan.
 
-Pilih lapisan yang relevan; tidak semua proyek memerlukan semua lapisan.
+## Lapisan test
 
-| Lapisan | Tujuan | Contoh |
-|---|---|---|
-| Static / lint | Menemukan masalah sebelum runtime | formatter, linter, type check, validasi JSON/YAML |
-| Unit | Memeriksa fungsi/komponen terkecil secara terisolasi | utilitas, validasi, kalkulasi, formatter |
-| Integration | Memeriksa kerja sama beberapa komponen | API + database test, service + repository |
-| Contract / API | Menjaga bentuk request, response, dan kompatibilitas | schema, status code, auth policy |
-| End-to-end (E2E) | Memeriksa alur pengguna utama | registrasi, checkout, RSVP, form kontak |
-| Visual / accessibility | Memeriksa tampilan dan aksesibilitas | responsive screenshot, keyboard, contrast, semantic HTML |
-| Security | Memeriksa risiko keamanan yang relevan | dependency audit, authz, input validation, upload |
-| Manual acceptance | Memastikan hasil sesuai kebutuhan | checklist skenario pengguna dan perangkat |
+| Lapisan | Tujuan |
+|---|---|
+| Static/lint/type check | Format, tipe, schema, dan kesalahan sebelum runtime |
+| Unit | Fungsi/komponen kecil dan logika bisnis |
+| Integration | Interaksi API, database, service, dan filesystem |
+| Contract/API | Bentuk request/response, status, dan kebijakan auth |
+| End-to-end | Alur pengguna utama |
+| Visual/accessibility | Responsive, keyboard, kontras, dan semantic HTML |
+| Security | Dependency, otorisasi, input, upload, dan secret |
+| Manual acceptance | Kesesuaian terhadap acceptance criteria |
 
-## Minimum coverage berdasarkan jenis proyek
+Pilih kombinasi yang relevan; tidak semua proyek memerlukan seluruh lapisan.
 
-### Aplikasi web / website bisnis
-- Unit test untuk logika bisnis, validasi, helper, dan komponen yang memiliki perilaku.
-- Integration test untuk API, database, autentikasi, dan pengiriman form.
-- E2E untuk halaman/arus utama: navigasi, form, error state, dan tampilan mobile.
-- Periksa responsive pada viewport mobile dan desktop, link, metadata dasar, serta aksesibilitas keyboard.
-- Uji loading, empty, success, dan error state.
+## Fokus menurut jenis proyek
 
-### Undangan online
-- Uji rendering detail acara, zona waktu/tanggal, nama tamu dan parameter URL.
-- Uji RSVP: validasi, submit sukses, submit gagal, duplikasi, dan batas akses.
-- Uji media, audio, galeri, dan performa halaman bila fitur tersebut digunakan.
-- Pastikan data tamu tidak bocor melalui URL, log, source map, atau endpoint publik.
-- E2E minimal untuk membuka undangan dan menyelesaikan RSVP pada mobile.
+- **Web/website:** unit untuk logika, integration untuk API/form, E2E alur utama,
+  responsive mobile/desktop, link, metadata, keyboard, dan loading/empty/success/error.
+- **Undangan online:** tanggal/zona waktu, nama tamu dan URL, RSVP normal/gagal/duplikat,
+  media, serta perlindungan data tamu dari URL, log, source map, dan endpoint publik.
+- **Design system/aset:** parse token JSON/CSS, konsistensi token, keberadaan dan format
+  aset, dimensi/rasio, kontras, light/dark, dan visual review manual.
+- **API/backend/CLI:** input valid/tidak valid, permission, exit code, error, timeout,
+  retry, dan integrasi eksternal melalui stub/container test.
+- **Dokumentasi/non-kode:** tautan internal, struktur, format, instruksi, contoh konfigurasi,
+  dan checklist review.
 
-### Brand system / design system / aset
-- Validasi struktur dan parse token JSON/CSS.
-- Pastikan nama token, referensi warna, font, ukuran, dan varian konsisten.
-- Validasi aset: file ada, format dapat dibaca, dimensi/rasio sesuai spesifikasi, dan tautan dokumentasi valid.
-- Lakukan visual review untuk light/dark, ukuran layar, kontras, dan konsistensi komponen.
-- Catat pemeriksaan manual visual karena screenshot comparison tidak selalu stabil.
+## Kualitas dan kapan menjalankan
 
-### API / backend / CLI
-- Unit test logika dan validasi input.
-- Integration test untuk database, filesystem, jaringan, dan proses eksternal menggunakan stub/container test.
-- Uji permission, error handling, timeout, retry, dan exit code.
-- Jangan menjalankan test yang mengubah data produksi.
-
-### Proyek dokumentasi / non-kode
-- Validasi tautan internal, struktur, format, dan contoh konfigurasi.
-- Periksa instruksi langkah demi langkah dan konsistensi antarhalaman.
-- Gunakan checklist review sebagai test yang terdokumentasi.
-
-## Aturan kualitas test
-
-- Nama test menjelaskan kondisi dan hasil yang diharapkan.
-- Satu test fokus pada satu perilaku utama.
-- Sertakan kasus normal, batas (boundary), input tidak valid, dan kegagalan untuk fungsi kritis.
-- Mock hanya batas eksternal; jangan mock logika yang justru ingin diverifikasi.
-- Test tidak boleh saling bergantung atau mengandalkan urutan tertentu.
-- Bersihkan file, database, proses, dan resource yang dibuat test.
-- Jangan menonaktifkan assertion atau mengurangi cakupan hanya untuk membuat CI hijau.
-- Hindari target coverage 100% sebagai tujuan kosong. Tetapkan ambang coverage per proyek jika alatnya tersedia; prioritaskan seluruh jalur kritis dan perubahan baru.
-- Simpan fixture kecil, sintetis, dan bebas data pribadi.
-
-## Kapan test wajib dijalankan
+- Satu test fokus pada satu perilaku; nama test menjelaskan kondisi dan hasil.
+- Sertakan kasus normal, batas, input invalid, dan failure path untuk fungsi kritis.
+- Mock hanya batas eksternal; jangan mock logika yang sedang diuji.
+- Bersihkan file, proses, database, dan resource test.
+- Jangan menurunkan assertion atau cakupan demi membuat CI hijau; coverage 100% bukan tujuan tersendiri.
+- Fixture harus kecil, sintetis, dan bebas data pribadi.
 
 | Perubahan | Pemeriksaan minimum |
 |---|---|
-| Perubahan kode | test terkait + lint/type check yang tersedia |
-| Perubahan API / schema / database | unit + integration/contract + migrasi pada database test |
-| Perubahan UI / CSS | test komponen terkait + visual/responsive review |
-| Perubahan autentikasi / hak akses | positive dan negative authorization tests |
-| Perbaikan bug | regression test + test suite terkait |
-| Perubahan dependency | test suite + dependency/security scan |
-| Perubahan dokumentasi / konfigurasi | link, format, schema, dan contoh perintah terkait |
+| Kode/bug | Test terkait, lint/type check, regression test |
+| API/schema/database | Unit, integration/contract, migrasi pada database test |
+| UI/CSS | Test komponen dan visual/responsive review |
+| Auth/permission | Positive dan negative authorization test |
+| Dependency | Suite terkait dan security scan |
+| Dokumentasi/konfigurasi | Link, format, schema, dan contoh perintah |
 
-Sebelum merge ke branch utama, seluruh pemeriksaan wajib pada CI harus lulus. Jika test tidak dapat dijalankan karena blocker eksternal, tandai BLOCKED, jelaskan penyebab dan risiko, serta jangan menyamarkannya sebagai PASS.
+Sebelum merge, required CI checks harus lulus. Jika ada blocker eksternal,
+catat BLOCKED dan risikonya; jangan menyebutnya PASS.
 
-## Laporan hasil testing
+## Laporan hasil
 
-Setiap penyelesaian task harus menyebutkan:
-- Perintah test/lint/build yang dijalankan.
-- Hasil masing-masing: PASS / FAIL / BLOCKED / NOT RUN.
-- Cakupan atau skenario penting yang diverifikasi.
-- Test manual yang dilakukan dan perangkat/viewport jika relevan.
-- Risiko dan area yang belum diuji.
+Sebutkan perintah yang dijalankan, status tiap pemeriksaan, skenario/cakupan
+penting, pemeriksaan manual yang dilakukan, serta risiko dan area yang belum diuji.
 
-## Penambahan stack baru
+## Stack baru
 
-Saat memilih bahasa/framework, tentukan test runner dan perintah standar lebih awal. Simpan versi dependency di manifest/lockfile. Tambahkan perintah yang konsisten, misalnya `test`, `lint`, `typecheck`, dan `build` pada package manager yang digunakan. CI harus menjalankan perintah proyek tersebut; jangan menebak perintah atau menginstal framework testing tanpa persetujuan dan alasan teknis.
+Tentukan test runner dan perintah standar saat stack dipilih. Pin dependency
+pada manifest/lockfile dan dokumentasikan perintah seperti `test`, `lint`,
+`typecheck`, dan `build`. Tambahkan adapter CI sebelum stack dianggap
+teruji otomatis; jangan menebak perintah atau memasang framework tanpa alasan.

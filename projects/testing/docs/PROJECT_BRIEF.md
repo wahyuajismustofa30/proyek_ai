@@ -13,25 +13,25 @@
 **Masalah yang diselesaikan:**
 
 **Tujuan utama:**
-- 
-- 
+-
+-
 
 **Indikator keberhasilan:**
-- 
+-
 
 ## 3. Pengguna dan skenario
 **Target pengguna:**
 
 **Skenario utama:**
 1. Sebagai [jenis pengguna], saya ingin [aksi], agar [manfaat].
-2. 
+2.
 
 ## 4. Ruang lingkup
 **Termasuk (in scope):**
-- 
+-
 
 **Tidak termasuk (out of scope):**
-- 
+-
 
 ## 5. Fitur dan prioritas
 | ID | Fitur | Prioritas | Kriteria penerimaan |

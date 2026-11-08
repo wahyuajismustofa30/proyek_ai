@@ -8,6 +8,9 @@ Repository kerja untuk proyek-proyek yang dikembangkan dengan bantuan AI.
 3. Baca instruksi proyek terkait sebelum membuat perubahan.
 4. Kerjakan perubahan sekecil mungkin dan verifikasi hasilnya.
 
+## Template
+- [AI Project Template](templates/ai-project/README.md): kerangka reusable untuk proyek baru.
+
 ## Proyek aktif
 - [DEKEKU — Brand System](projects/dekeku/README.md)
 

@@ -9,19 +9,19 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-LINK_RE = re.compile(r"!?\\[[^\\]]*\\]\\(\\s*(<[^>]+>|[^)\\s]+)(?:\\s+['\\"].*?['\\"])?\\s*\\)")
-HEADING_RE = re.compile(r"^\\s{0,3}(#{1,6})\\s+(.+?)\\s*#*\\s*$")
-FENCE_RE = re.compile(r"^\\s{0,3}(" + chr(96) + r"{3,}|~~~+)")
+LINK_RE = re.compile(r"!?\[[^\]]*\]\(\s*(<[^>]+>|[^)\s]+)(?:\s+['\"].*?['\"])?\s*\)")
+HEADING_RE = re.compile(r"^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$")
+FENCE_RE = re.compile(r"^\s{0,3}(" + chr(96) + r"{3,}|~~~+)")
 HTML_TAG_RE = re.compile(r"<[^>]+>")
 INLINE_CODE_RE = re.compile(chr(96) + r"+[^" + chr(96) + r"]*" + chr(96) + r"+") 
 
 
 def slugify(heading: str) -> str:
     heading = HTML_TAG_RE.sub("", heading)
-    heading = re.sub(r"\\[([^\\]]+)\\]\\([^)]*\\)", r"\\1", heading)
+    heading = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", heading)
     heading = heading.strip().lower()
-    heading = re.sub(r"[^\\w\\- ]", "", heading, flags=re.UNICODE)
-    return re.sub(r"\\s", "-", heading)
+    heading = re.sub(r"[^\w\- ]", "", heading, flags=re.UNICODE)
+    return re.sub(r"\s", "-", heading)
 
 
 def markdown_anchors(path: Path) -> set[str]:
@@ -154,7 +154,7 @@ def main() -> int:
         print("Internal Markdown link validation failed:")
         for error in errors:
             print(f"  - {error}")
-        print(f"\\n{len(errors)} error(s); checked {checked} internal link(s).")
+        print(f"\n{len(errors)} error(s); checked {checked} internal link(s).")
         return 1
 
     print(

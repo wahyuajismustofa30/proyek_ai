@@ -151,7 +151,7 @@ class BootstrapProjectTests(unittest.TestCase):
     def test_rolls_back_partial_destination_when_template_copy_fails(self) -> None:
         destination = self.output / "interrupted-copy"
 
-        def fail_after_partial_copy(source: Path, target: Path) -> None:
+        def fail_after_partial_copy(source: Path, target: Path, **kwargs: object) -> None:
             target = Path(target)
             target.mkdir(parents=True)
             (target / "partial.txt").write_text("partial", encoding="utf-8")

@@ -45,7 +45,9 @@ Lalu buka `http://127.0.0.1:8000`.
 - [ ] Pendidikan menampilkan tiga sekolah sesuai data.
 - [ ] Pekerjaan menampilkan empat entri kronologis dan status 2024–Sekarang.
 - [ ] Hanya ada satu tombol musik mengambang di kanan bawah dan dapat dioperasikan dengan Tab, Enter, dan Space.
-- [ ] Autoplay dicoba satu kali saat halaman dibuka; jika ditolak, interaksi awal pada area konten (klik/sentuh/awal swipe) memulai musik.
+- [ ] Listener fallback sudah aktif sebelum autoplay dicoba; interaksi pertama (pointerdown/touchstart termasuk awal swipe) tidak terlewat meskipun Promise autoplay belum selesai.
+- [ ] Jika fallback gesture ditolak browser, listener dipasang kembali untuk kesempatan interaksi berikutnya; status audio tidak dianggap terinisialisasi sebelum playback berhasil.
+- [ ] Volume default audio adalah 0.30 (30%) sebelum playback dimulai.
 - [ ] Ikon, aria-label, title, dan status aksesibel berubah sesuai kondisi Play, mute, dan unmute.
 - [ ] Setelah musik berhasil dimulai atau tombol musik ditekan, listener fallback dilepas; klik/swipe konten berikutnya tidak mengubah audio.
 - [ ] Jika file audio tidak tersedia/gagal dimuat, status kegagalan diumumkan secara aksesibel dan JavaScript halaman tetap berjalan.

@@ -16,8 +16,9 @@
   function renderProfile() {
     const profile = campaignData.profile;
     $('#profile-label').textContent = profile.label;
-    $('#profile-name-photo').textContent = profile.name;
-    $('#profile-heading').innerHTML = `${profile.headingPrefix} <span>${profile.name}</span>`;
+    const fullName = campaignData.candidate.fullName || profile.name;
+    $('#profile-name-photo').textContent = fullName;
+    $('#profile-heading').innerHTML = `${profile.headingPrefix} <span>${fullName}</span>`;
     $('#profile-role').textContent = profile.role;
     $('#profile-summary').textContent = profile.summary;
     $('#profile-image').src = profile.image;

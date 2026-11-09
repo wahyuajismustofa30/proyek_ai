@@ -14,6 +14,16 @@ Buka `index.html` langsung di browser, atau gunakan ekstensi server lokal (misal
 - Paket ikon kampanye berada di `assets/icons/color/` dan `assets/icons/monochrome/`. Ikon konten memakai varian berwarna; ikon aksi memakai varian monokrom agar mengikuti warna tombol melalui CSS.
 - Placeholder profil sengaja dipertahankan pada bagian riwayat pendidikan, organisasi, pekerjaan, dan kegiatan kemasyarakatan karena data belum disediakan.
 
+## Dokumentasi proyek
+
+- [Konteks proyek](docs/PROJECT_CONTEXT.md)
+- [Panduan AI khusus proyek](docs/AI_GUIDELINES.md)
+- [Arsitektur](docs/ARCHITECTURE.md)
+- [Katalog aset](docs/ASSETS.md)
+- [Testing dan verifikasi](docs/TESTING.md)
+- [Keputusan teknis](docs/DECISIONS.md)
+- [Changelog](docs/CHANGELOG.md)
+
 ## Fitur
 
 - Navigasi sticky responsif dan hamburger menu

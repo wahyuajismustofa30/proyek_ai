@@ -1,5 +1,0 @@
-# CI Python dependencies
-# Keep this list limited to tooling required by repository validation.
-markdown-it-py==4.2.0
-html5lib==1.1
-tinycss2==1.5.1

@@ -2,6 +2,8 @@
 
 ## Pemeriksaan otomatis
 
+Jalankan pemeriksaan kontrak fitur profil dan audio dengan `python3 projects/preview/tests/test_profile_audio.py`.
+
 Workflow monorepo mendeteksi proyek sebagai static site melalui `index.html` di root proyek dan menjalankan validasi HTML/CSS/aset lokal serta HTTP smoke test. Pada commit main yang diaudit, check `projects/preview / static` berstatus sukses.
 
 ## Cara uji lokal
@@ -38,6 +40,11 @@ Lalu buka `http://127.0.0.1:8000`.
 - [ ] Scroll progress dan back-to-top.
 - [ ] `prefers-reduced-motion` mengurangi animasi.
 - [ ] Console browser bebas error.
+- [ ] Pendidikan menampilkan tiga sekolah sesuai data.
+- [ ] Pekerjaan menampilkan empat entri kronologis dan status 2024–Sekarang.
+- [ ] Audio tidak autoplay; Play/Pause, mute, dan volume dapat digunakan dengan keyboard.
+- [ ] Tanpa file audio, status menjelaskan bahwa audio belum tersedia dan tidak ada error halaman.
+- [ ] Tab yang ditinggalkan menghentikan pemutaran tanpa memulai ulang otomatis.
 - [ ] Semua gambar dan ikon tampil; alt text tersedia.
 - [ ] Link internal dan canonical/domain diverifikasi bila deployment berubah.
 

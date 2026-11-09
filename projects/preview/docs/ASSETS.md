@@ -28,3 +28,10 @@
 - [ ] Tidak ada metadata sensitif yang tidak perlu.
 - [ ] Alt text menjelaskan gambar secara relevan.
 - [ ] Ukuran file wajar dan tampilan responsif diperiksa.
+
+
+## Audio latar
+
+- Pemutar disiapkan untuk file audio lokal yang hak penggunaannya telah diverifikasi.
+- Belum ada file audio yang disertakan. Jangan menambahkan audio sampai file original atau lisensi penggunaan website dapat dibuktikan.
+- Setelah aset legal tersedia, letakkan di `assets/audio/`, atur `BACKGROUND_AUDIO_SOURCE` pada `js/main.js`, dan catat sumber, pembuat, lisensi, serta bukti izinnya di sini.

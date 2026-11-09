@@ -16,7 +16,7 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         block = self.data.split("education: [", 1)[1].split("],", 1)[0]
         for school in ("SD Negeri 1 Tlagayasa", "SMP Negeri 1 Karangreja", "SMK Ma'arif NU Bobotsari"):
             self.assertIn(school, block)
-        self.assertEqual(block.count("'") + block.count('"'), 6)
+        self.assertEqual(block.count("',"), 2)
 
     def test_work_history_and_owner_roles_are_exact(self):
         block = self.data.split("workExperience: [", 1)[1].split("\n    ]", 1)[0]

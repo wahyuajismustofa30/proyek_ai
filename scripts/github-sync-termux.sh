@@ -70,7 +70,7 @@ else
 fi
 
 # Guard common secret filenames in Git's porcelain status output.
-if git_cmd status --porcelain | grep -Eiq '(^|[[:space:]])([^[:space:]]*/)?(\.env($|\.)|id_rsa|id_ed25519|credentials(\.json)?|secrets?)(/|$)|\.(pem|key|p12|pfx)$'; then
+if git_cmd status --porcelain | grep -Eiq '(^|[[:space:]])([^[:space:]]*/)?(\.env(\.[^/]*)?|id_rsa|id_ed25519|credentials(\.json)?|secrets?)(/|$)|\.(pem|key|p12|pfx)$'; then
   fail "Ada file dengan nama yang berpotensi rahasia pada perubahan. Periksa .gitignore dan status; tidak ada file yang di-stage otomatis."
 fi
 

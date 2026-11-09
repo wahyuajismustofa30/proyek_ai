@@ -83,7 +83,7 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertEqual(self.main.count("attemptAudioPlayback('autoplay')"), 1)
         self.assertIn("source === 'autoplay'", self.main)
         self.assertIn("activateAudioFallback()", self.main)
-        self.assertIn(".catch(() =>", self.main)
+        self.assertIn(".catch(error =>", self.main)
 
     def test_playback_errors_are_classified_by_dom_exception_name(self):
         classifier = self.main.split("function classifyAudioPlaybackError(error)", 1)[1].split(

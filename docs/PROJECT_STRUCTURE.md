@@ -97,10 +97,12 @@ Letakkan manifest stack pada root proyek agar adapter discovery dapat menemukann
 |---|---|---|
 | Node.js | `package.json` | `package-lock.json` dan script `test` |
 | Python | `pyproject.toml` atau `requirements.txt` | dependency test sesuai kontrak CI; test ditemukan pytest |
-| PHP | `composer.json` | `composer.lock` dan script Composer `test` |
+| PHP | `composer.json` | `composer.lock` dan script Composer `test` |\n| Static website | `index.html` tepat di root proyek | HTTP smoke test; HTML, CSS, dan aset lokal diperiksa oleh job web-validation |
 
 Satu proyek dapat memiliki lebih dari satu manifest dan akan menghasilkan satu entri
-matrix untuk setiap stack yang terdeteksi. Manifest di subfolder tidak otomatis
+matrix untuk setiap stack yang terdeteksi. Static website dideteksi dari keberadaan
+`index.html` di root proyek; halaman HTML yang hanya berada di subfolder tidak cukup.
+Satu proyek dapat menghasilkan job static dan job aplikasi sekaligus. Manifest di subfolder tidak otomatis
 membuat stack baru. Stack yang belum memiliki adapter CI tidak boleh dianggap telah
 teruji otomatis.
 

@@ -10,7 +10,7 @@
 
 ## Pengelolaan proyek
 
-- Folder `projects/` adalah ruang kerja proyek aktif dan saat ini sengaja kosong.
+- Folder `projects/` adalah ruang kerja proyek aktif; status dan lokasi kanonis dicatat di `docs/PROJECT_INDEX.md`.
 - Proyek baru wajib dibuat dari `templates/ai-project/` melalui bootstrap resmi.
 - Setiap proyek harus memiliki brief, instruksi AI, dokumentasi keputusan, dan strategi pengujian.
 - Pisahkan source setiap proyek; jangan menggabungkan aset atau konfigurasi tanpa alasan yang terdokumentasi.

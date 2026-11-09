@@ -61,3 +61,16 @@
 .work-entry p { margin:3px 0 0; color:var(--muted); font-size:.7rem; }
 .work-entry.current { border-left:2px solid var(--green); padding-left:9px; }
 @media(max-width:620px) { .work-entry { grid-template-columns:96px minmax(0,1fr); gap:8px; } }
+
+
+/* Nama lengkap kandidat melengkapi identitas merek kampanye SLAMET. */
+.candidate-full-name {
+  margin: -2px 0 13px;
+  color: #fff;
+  font: 600 clamp(1.05rem, 2vw, 1.4rem) var(--font-head);
+  letter-spacing: .06em;
+}
+
+@media (max-width: 620px) {
+  .candidate-full-name { font-size: 1.08rem; }
+}

@@ -139,6 +139,8 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertIn("updateAudioState(message)", pause_handler)
         self.assertNotIn("updateAudioState('Musik dijeda')", pause_handler.split("if (audioLifecyclePause)", 1)[1].split("return;", 1)[0])
         self.assertIn("audioLifecycleMessage = message", lifecycle)
+        self.assertIn("audioLifecycleAttemptId = audioPlayAttemptId", lifecycle)
+        self.assertIn("audioPlayAttemptId === audioLifecycleAttemptId", pause_handler)
         self.assertLess(lifecycle.index("audioLifecycleMessage = message"), lifecycle.index("backgroundAudio.pause()"))
 
     def test_pause_event_only_marks_manual_pause_outside_lifecycle(self):

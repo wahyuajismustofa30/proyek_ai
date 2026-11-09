@@ -1,6 +1,7 @@
 # Architecture & Product Decisions
 
 ## DEC-001 — Static-first demo
+
 - Tanggal: 2026-11-09
 - Status: Accepted
 - Konteks: Proyek dibuat untuk menguji pembuatan halaman web dan validasi CI monorepo.

@@ -209,9 +209,12 @@
         activateAudioFallback();
         updateAudioState(failure.message);
       } else {
-        updateAudioState(failure.type === 'unknown' && backgroundAudio.error
-          ? getAudioMediaErrorMessage()
-          : failure.message);
+        const message = failure.type === 'autoplay-blocked'
+          ? 'Browser masih membatasi pemutaran musik. Coba tekan tombol musik untuk mencoba kembali.'
+          : (failure.type === 'unknown' && backgroundAudio.error
+            ? getAudioMediaErrorMessage()
+            : failure.message);
+        updateAudioState(message);
       }
       return false;
     });

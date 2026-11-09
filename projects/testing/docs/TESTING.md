@@ -43,5 +43,7 @@ Test Node saat ini tidak merender DOM dan tidak menggantikan browser automation,
 
 | Tanggal | Commit | Pemeriksaan | Status | Catatan |
 |---|---|---|---|---|
-| 2026-11-09 | Pending | `npm test` | NOT RUN | Menunggu CI pada PR |
-| 2026-11-09 | Pending | Web validation | NOT RUN | Menunggu CI pada PR |
+| 2026-11-09 | 795b5db | `npm ci` + `npm test` | PASS | Job `projects/testing / node` berhasil. |
+| 2026-11-09 | 795b5db | Discovery + HTML/CSS/aset | PASS | Discovery dan web validation berhasil. |
+| 2026-11-09 | 795b5db | OSV-Scanner | PASS | Pemindaian dependency berhasil. |
+| 2026-11-09 | 795b5db | Markdown lint | FAIL | Run awal menemukan format Markdown; sudah diperbaiki di commit berikutnya, tetapi revisi akhir belum diuji ulang. |

@@ -21,7 +21,7 @@ memeriksa ulang branch protection.
 
 `scripts/discover_projects.py` hanya membaca direktori satu tingkat di
 `projects/<slug>/`. Aturan nama, symlink, direktori tersembunyi, dan scaffold
-diatur dalam [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md). Folder tersembunyi
+diatur dalam [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md). Discovery juga menolak file root selain `README.md`, dependency/cache umum, file log/sementara, dan output build/coverage yang terdeteksi. Folder tersembunyi
 di dalam proyek diperbolehkan; folder tersembunyi langsung di bawah
 `projects/` ditolak.
 
@@ -41,9 +41,12 @@ menghasilkan sentinel `__no_projects__`; sentinel bukan proyek aplikasi.
 Folder proyek nyata tanpa stack yang didukung tetap gagal.
 
 Tes discovery mencakup multi-manifest dalam satu proyek, beberapa proyek
-independen lintas stack, aturan direktori tersembunyi, dan symlink.
-Bootstrap E2E membuat fixture Node.js, Python, dan PHP di direktori sementara,
-bukan menyimpan proyek contoh di `projects/`.
+independen lintas stack, aturan direktori tersembunyi, symlink, file root, serta
+penolakan artefak dependency/cache dan file sementara. Bootstrap E2E membuat
+fixture Node.js, Python, dan PHP di direktori sementara di luar repository.
+Script fixture menolak output yang berada di dalam repository, sedangkan bootstrap
+proyek tetap mengizinkan output default ke root `projects/` dan menolak output
+yang bersarang di dalam proyek lain.
 
 ## Validasi web dan dokumentasi
 
@@ -70,10 +73,11 @@ ketiga bukan syarat CI.
 
 ## Dependabot dan keamanan
 
-Konfigurasi Dependabot terpusat di `.github/dependabot.yml`. Saat ini hanya
-GitHub Actions dan pip root (`requirements-ci.txt`) yang dipantau karena
-`projects/` kosong. Tambahkan entri eksplisit per ecosystem hanya bersama
-manifest/lockfile proyek nyata. Lihat [DEPENDABOT.md](DEPENDABOT.md).
+Konfigurasi Dependabot terpusat di `.github/dependabot.yml`. Saat ini pemantauan
+mencakup GitHub Actions dan pip root (`requirements-ci.txt`). Manifest proyek tidak
+didaftarkan otomatis oleh konfigurasi tersebut; tambahkan entri ecosystem secara
+eksplisit ketika proyek nyata memakai manifest/lockfile yang perlu dipantau.
+Lihat [DEPENDABOT.md](DEPENDABOT.md).
 
 OSV-Scanner melengkapi Dependabot dengan pemeriksaan advisory; keduanya tidak
 menjamin dependency bebas seluruh risiko. Semua GitHub Actions dipatok ke full

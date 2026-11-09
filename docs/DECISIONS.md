@@ -2,9 +2,10 @@
 
 ## Struktur proyek
 
-- Repository dipusatkan pada standar, dokumentasi, template, dan tooling sebelum proyek aktif dibuat.
-- Folder `projects/` dipertahankan kosong sebagai ruang kerja proyek baru.
-- Proyek baru dibuat dari `templates/ai-project/` menggunakan `scripts/bootstrap_project.py`.
+- Repository memusatkan standar, dokumentasi, template, tooling, dan proyek internal yang dipelihara.
+- `projects/preview/` dan `projects/testing/` merupakan proyek aktif yang terdaftar di `docs/PROJECT_INDEX.md`.
+- Root `projects/` hanya menyimpan `README.md` dan direktori proyek; fixture, cache, dependency, log, file sementara, hasil build, serta artefak harus berada di luar ruang kerja proyek.
+- Proyek baru dibuat secara eksplisit dari `templates/ai-project/` menggunakan `scripts/bootstrap_project.py`; output tidak boleh bersarang di dalam proyek yang sudah ada.
 
 ## Arsip DEKEKU
 

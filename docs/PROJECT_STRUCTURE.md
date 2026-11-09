@@ -15,10 +15,11 @@ pemeriksaan otomatis.
 - Symlink apa pun yang berada langsung di dalam `projects/` ditolak. Gunakan file
   dan direktori nyata di dalam batas proyek.
 
-File biasa di root `projects/` (misalnya `.gitkeep` atau catatan) bukan proyek dan
-diabaikan oleh discovery. Direktori tersembunyi tepat di bawah `projects/` ditolak
-dengan error, bukan diabaikan. Jangan gunakan nama seperti `.draft/`, `.archive/`,
-`.internal/`, atau `.cache/` untuk menyimpan proyek atau pekerjaan sementara.
+Hanya `projects/README.md` yang boleh menjadi file langsung di root `projects/`;
+file root lain ditolak oleh discovery agar fixture, catatan sementara, dan artefak
+tidak bercampur dengan proyek. Direktori tersembunyi tepat di bawah `projects/`
+ditolak dengan error, bukan diabaikan. Jangan gunakan nama seperti `.draft/`,
+`.archive/`, `.internal/`, atau `.cache/` untuk menyimpan proyek atau pekerjaan sementara.
 `archives/` saat ini hanya berisi README penjelas. Jangan menaruh fixture atau pekerjaan sementara di sana; gunakan direktori sementara test. Penambahan arsip historis memerlukan keputusan dan dokumentasi pemilik repository.
 
 ## 2. Direktori tersembunyi di dalam proyek
@@ -86,8 +87,11 @@ terpusat repository induk.
 
 Folder tambahan boleh ditambahkan sesuai kebutuhan stack, misalnya `public/`,
 `config/`, `migrations/`, atau `scripts/`. Jangan menambahkan folder hanya sebagai
-placeholder. Folder `node_modules/`, `.venv/`, `vendor/`, cache, hasil build, dan
-secret lokal tidak boleh di-commit kecuali ada alasan teknis yang terdokumentasi.
+placeholder. Dependency terpasang (`node_modules/`, `vendor/`, `.venv/`, `venv/`),
+cache (`__pycache__/`, `.pytest_cache/`, `.mypy_cache/`, `.ruff_cache/`), log,
+file sementara, hasil build (`dist/`, `build/`), coverage, dan artefak tidak boleh
+disimpan di repository. Simpan output yang dapat dibuat ulang di direktori sementara
+sistem/CI. Discovery CI menolak pola artefak umum tersebut agar pelanggaran terdeteksi.
 
 ## 4. Manifest dan stack
 
@@ -110,13 +114,14 @@ teruji otomatis.
 ## 5. Aturan perubahan
 
 1. Gunakan bootstrap resmi untuk membuat folder baru.
-2. Jangan membuat proyek di subfolder proyek lain atau di direktori tersembunyi.
-3. Jangan menaruh arsip, backup, fixture, dependency terpasang, cache, atau output build
-   di root `projects/`.
-4. Jangan membuat workflow CI atau Dependabot lokal untuk proyek monorepo.
-5. Lengkapi README dan brief; tambahkan manifest serta lockfile yang sesuai.
-6. Tambahkan proyek yang diterima ke `docs/PROJECT_INDEX.md`.
-7. Jalankan discovery dan seluruh test repository sebelum membuka PR.
+2. Selain `projects/README.md`, jangan menyimpan file langsung di root `projects/`.
+3. Jangan membuat proyek di subfolder proyek lain atau di direktori tersembunyi.
+4. Jangan menaruh arsip, backup, fixture, dependency terpasang, cache, log, file sementara,
+   coverage, atau output build di mana pun di dalam proyek.
+5. Jangan membuat workflow CI atau Dependabot lokal untuk proyek monorepo.
+6. Lengkapi README dan brief; tambahkan manifest serta lockfile yang sesuai.
+7. Tambahkan proyek yang diterima ke `docs/PROJECT_INDEX.md`.
+8. Jalankan discovery dan seluruh test repository sebelum membuka PR.
 
 Perilaku ini ditegakkan oleh `scripts/discover_projects.py` dan test
 `scripts/tests/test_discover_projects.py`. Dokumentasi CI terkait berada di

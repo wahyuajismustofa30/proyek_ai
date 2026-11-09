@@ -94,7 +94,14 @@ FIXTURES: dict[str, dict[str, str]] = {
 
 
 def create_fixture(stack: str, output_root: Path) -> Path:
-    """Run the actual bootstrap CLI, then add a minimal runnable app for stack."""
+    """Create an isolated fixture outside the repository, then add a runnable app."""
+    output_root = output_root.expanduser().resolve()
+    repository_root = REPOSITORY_ROOT.resolve()
+    if output_root == repository_root or repository_root in output_root.parents:
+        raise ValueError(
+            "Lokasi fixture harus berada di luar repository agar tidak mengotori source."
+        )
+
     fixture = FIXTURES[stack]
     completed = subprocess.run(
         [
@@ -127,7 +134,11 @@ def main() -> int:
     parser.add_argument("--stack", choices=sorted(FIXTURES), required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    project = create_fixture(args.stack, args.output)
+    try:
+        project = create_fixture(args.stack, args.output)
+    except (ValueError, RuntimeError, OSError) as error:
+        print(f"ERROR: {error}", file=sys.stderr)
+        return 2
     print(f"BOOTSTRAP_PROJECT={project}")
     return 0
 

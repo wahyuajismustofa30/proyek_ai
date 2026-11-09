@@ -47,6 +47,10 @@ Lalu buka `http://127.0.0.1:8000`.
 - [ ] Ikon, aria-label, title, dan status aksesibel berubah sesuai kondisi Play, mute, dan unmute.
 - [ ] Setelah musik berhasil dimulai atau tombol musik ditekan, listener fallback dilepas; klik/swipe konten berikutnya tidak mengubah audio.
 - [ ] Jika file audio tidak tersedia/gagal dimuat, status kegagalan diumumkan secara aksesibel dan JavaScript halaman tetap berjalan.
+- [ ] `NotAllowedError` saat autoplay menampilkan petunjuk fallback; `NotSupportedError`/`NotFoundError` menampilkan masalah sumber/format dan tidak memasang fallback.
+- [ ] `AbortError` dan error lain tidak dilaporkan sebagai pembatasan autoplay.
+- [ ] Error media (`MEDIA_ERR_ABORTED`, `MEDIA_ERR_NETWORK`, `MEDIA_ERR_DECODE`, `MEDIA_ERR_SRC_NOT_SUPPORTED`) menghasilkan pesan yang sesuai.
+- [ ] Pause lifecycle mempertahankan alasan tab/halaman tidak aktif setelah event `pause`; event pause tertunda tidak menimpa playback yang sudah berjalan kembali.
 - [ ] Tombol tunggal: saat musik berjalan klik membisukan; saat mute klik mengaktifkan suara; saat berhenti klik memulai ulang. Mute bukan pause.
 - [ ] Pause event non-lifecycle dianggap pause manual; fallback tidak boleh menyalakan musik kembali.
 - [ ] Tab yang ditinggalkan menghentikan pemutaran tanpa resume saat tab/fokus kembali.

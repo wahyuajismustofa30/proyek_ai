@@ -1,6 +1,6 @@
 # Landing Page Kampanye Slamet
 
-Landing page statis untuk **SLAMET — Calon Kepala Desa Tlagayasa, Periode 2027–2035**. Dibuat memakai HTML5, CSS3, dan JavaScript murni; siap dipublikasikan melalui GitHub Pages.
+Landing page statis untuk **Slamet Purwanto (nama kampanye: SLAMET) — Calon Kepala Desa Tlagayasa, Periode 2027–2035**. Dibuat memakai HTML5, CSS3, dan JavaScript murni; siap dipublikasikan melalui GitHub Pages.
 
 ## Menjalankan
 
@@ -8,7 +8,7 @@ Buka `index.html` langsung di browser, atau gunakan ekstensi server lokal (misal
 
 ## Pengelolaan konten
 
-- Seluruh data profil sementara, visi, tujuh misi, program, potensi, dan judul galeri berada di `js/data.js`. Ubah objek `profile` untuk memperbarui informasi calon tanpa menyentuh markup halaman.
+- Data identitas calon, profil, visi, tujuh misi, program, potensi, dan judul galeri berada di `js/data.js`. Nama lengkap diatur melalui `candidate.fullName`; nama kampanye/brand tetap melalui `candidate.name`. Perbarui keduanya secara konsisten bila identitas publik berubah.
 - Foto kandidat tersimpan di `assets/images/slamet-profile.png`. Ganti file itu bila tersedia foto potret terpisah dengan nama yang sama.
 - Delapan gambar placeholder lokal berada di `assets/images/gallery/`. Ganti berkas `gallery-01.jpg` hingga `gallery-08.jpg` dengan dokumentasi asli ketika tersedia; nama file dipertahankan agar galeri otomatis memperbarui tampilannya.
 - Paket ikon kampanye berada di `assets/icons/color/` dan `assets/icons/monochrome/`. Ikon konten memakai varian berwarna; ikon aksi memakai varian monokrom agar mengikuti warna tombol melalui CSS.

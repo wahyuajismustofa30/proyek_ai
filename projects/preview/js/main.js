@@ -134,7 +134,7 @@
   };
   let audioInitialized = false, audioAutoplayAttempted = false, audioUserPaused = false;
   let audioFallbackActive = false, audioLifecyclePause = false, audioLifecycleMessage = '', audioLifecycleAttemptId = 0, audioPlayAttemptId = 0;
-  let audioPendingAttemptId = null;
+  let audioPendingAttemptId = null, audioLatestPlaybackAttemptId = 0;
   let audioFallbackEvents = [];
 
   function updateAudioState(message) {
@@ -190,6 +190,7 @@
   }
   function attemptAudioPlayback(source) {
     const attemptId = ++audioPlayAttemptId;
+    audioLatestPlaybackAttemptId = attemptId;
     audioPendingAttemptId = attemptId;
     let playPromise;
     try { playPromise = backgroundAudio.play(); } catch (error) { playPromise = Promise.reject(error); }
@@ -197,7 +198,7 @@
       // Percobaan lama tidak boleh mengubah playback yang dimulai oleh keputusan lebih baru.
       if (attemptId !== audioPlayAttemptId || audioUserPaused) {
         // Beberapa browser dapat menyelesaikan play() setelah pause() membatalkan percobaan.
-        if (audioLifecycleAttemptId === attemptId && audioPlayAttemptId === attemptId + 1) {
+        if (audioLifecycleAttemptId === attemptId && audioLatestPlaybackAttemptId === attemptId) {
           audioLifecyclePause = true;
           backgroundAudio.pause();
         }
@@ -276,11 +277,8 @@
   backgroundAudio.addEventListener('pause', () => {
     if (audioLifecyclePause) {
       const message = audioLifecycleMessage || 'Musik dihentikan karena halaman tidak aktif';
-      const lifecycleStillCurrent = audioPlayAttemptId === audioLifecycleAttemptId + 1;
-      // Jangan mengonsumsi event pause lama selama percobaan playback yang lebih baru masih tertunda.
-      if (!lifecycleStillCurrent && audioPendingAttemptId !== null) return;
-      audioLifecyclePause = false;
-      // Event lifecycle yang terlambat tidak boleh menimpa keputusan playback lebih baru.
+      const lifecycleStillCurrent = audioLatestPlaybackAttemptId === audioLifecycleAttemptId;
+      // Pertahankan penanda lifecycle sampai ada percobaan playback baru yang benar-benar selesai.
       if (backgroundAudio.paused && lifecycleStillCurrent) updateAudioState(message);
       return;
     }
@@ -301,7 +299,7 @@
     if (!playbackPending && !playbackActive) return;
     audioLifecyclePause = true;
     audioLifecycleMessage = message;
-    audioLifecycleAttemptId = playbackPending ? audioPendingAttemptId : audioPlayAttemptId;
+    audioLifecycleAttemptId = playbackPending ? audioPendingAttemptId : audioLatestPlaybackAttemptId;
     ++audioPlayAttemptId;
     audioPendingAttemptId = null;
     // pause() juga harus dipanggil saat paused=true untuk membatalkan play() yang masih tertunda.

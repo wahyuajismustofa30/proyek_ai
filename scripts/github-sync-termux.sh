@@ -25,7 +25,7 @@ git_cmd diff --cached --quiet || fail "Ada perubahan yang sudah di-stage. Commit
 info "${GREEN}DEKEKU — GITHUB SYNC (TERMUX)${RESET}"
 info "Repository : $REPO"
 info "Branch     : $BRANCH"
-info "Remote     : $(git_cmd remote get-url "$REMOTE")"
+info "Remote     : $REMOTE (URL disembunyikan untuk menghindari kebocoran credential)"
 info ""
 
 # Refuse ambiguous repository state; never stash, reset, clean, or force-push.

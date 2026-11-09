@@ -33,7 +33,7 @@ test("semua referensi aset lokal dapat dilayani dari document root src", () => {
     const requestUrl = new URL(reference, "http://localhost/");
     assert.equal(requestUrl.origin, "http://localhost", `Referensi bukan aset lokal: ${reference}`);
     const pathname = decodeURIComponent(requestUrl.pathname);
-    const assetPath = resolve(sourceRoot, `. ${pathname}`.replace("/.", "/"));
+    const assetPath = resolve(sourceRoot, `.${pathname}`);
     assert.ok(assetPath.startsWith(sourceRoot + sep), `Path keluar dari document root: ${reference}`);
     assert.equal(existsSync(assetPath), true, `HTTP 404 untuk referensi: ${reference} -> ${pathname}`);
   }

@@ -58,16 +58,19 @@ def bootstrap_project(
 
     if not source.is_dir():
         raise FileNotFoundError(f"Template tidak ditemukan: {source}")
-    if destination == source or source in destination.parents:
-        raise ValueError("Lokasi tujuan tidak boleh berada di dalam folder template.")
+    if destination == source or source in destination.parents or destination in source.parents:
+        raise ValueError("Lokasi tujuan dan folder template tidak boleh saling memuat.")
     if destination.exists():
         raise FileExistsError(f"Folder tujuan sudah ada: {destination}")
     if dry_run:
         return destination
 
     destination_root.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(source, destination)
+    # Claim the destination atomically so concurrent bootstraps cannot be
+    # mistaken for our partial output and removed during rollback.
+    destination.mkdir()
     try:
+        shutil.copytree(source, destination, dirs_exist_ok=True)
         for path in destination.rglob("*"):
             if not path.is_file() or path.is_symlink():
                 continue

@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -145,6 +146,39 @@ class BootstrapProjectTests(unittest.TestCase):
     def test_rejects_slug_longer_than_63_characters(self) -> None:
         with self.assertRaisesRegex(ValueError, "Slug proyek maksimal 63 karakter"):
             bootstrap.project_slug("A" * 64)
+
+
+    def test_rolls_back_partial_destination_when_template_copy_fails(self) -> None:
+        destination = self.output / "interrupted-copy"
+
+        def fail_after_partial_copy(source: Path, target: Path, **kwargs: object) -> None:
+            target = Path(target)
+            (target / "partial.txt").write_text("partial", encoding="utf-8")
+            raise OSError("simulated copy failure")
+
+        with patch.object(bootstrap.shutil, "copytree", side_effect=fail_after_partial_copy):
+            with self.assertRaisesRegex(OSError, "simulated copy failure"):
+                bootstrap.bootstrap_project("Interrupted Copy", self.output, self.template)
+
+        self.assertFalse(destination.exists(), "A failed bootstrap must not leave a partial project.")
+
+
+
+    def test_rolls_back_destination_when_placeholder_write_fails(self) -> None:
+        destination = self.output / "write-failure"
+        original_write_text = Path.write_text
+
+        def fail_on_project_readme(path: Path, data: str, *args: object, **kwargs: object) -> int:
+            if path == destination / "README.md":
+                raise OSError("simulated placeholder write failure")
+            return original_write_text(path, data, *args, **kwargs)
+
+        with patch.object(Path, "write_text", autospec=True, side_effect=fail_on_project_readme):
+            with self.assertRaisesRegex(OSError, "simulated placeholder write failure"):
+                bootstrap.bootstrap_project("Write Failure", self.output, self.template)
+
+        self.assertFalse(destination.exists(), "A failed placeholder write must roll back the project.")
+
 
 
 if __name__ == "__main__":

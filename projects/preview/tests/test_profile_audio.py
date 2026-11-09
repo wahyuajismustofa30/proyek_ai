@@ -78,6 +78,34 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertIn("backgroundAudio.volume = 0.30", self.main)
         self.assertLess(self.main.index("backgroundAudio.volume = 0.30"), self.main.index("attemptAudioPlayback(\'autoplay\')"))
 
+    def test_refresh_starts_with_fresh_page_local_audio_state(self):
+        self.assertIn("let audioAutoplayAttempted = false", self.main)
+        self.assertIn("let audioInitialized = false", self.main)
+        self.assertNotRegex(self.main, r"localStorage|sessionStorage|document\.cookie")
+        self.assertIn("activateAudioFallback();", self.main)
+        self.assertIn("attemptAudioPlayback('autoplay')", self.main)
+
+    def test_play_event_does_not_mark_audio_initialized_before_promise_success(self):
+        play_handler = self.main.split("backgroundAudio.addEventListener('play'", 1)[1].split(
+            "backgroundAudio.addEventListener('playing'", 1
+        )[0]
+        self.assertNotIn("audioInitialized = true", play_handler)
+        self.assertIn("audioPendingAttemptId = attemptId", self.main)
+
+    def test_refresh_starts_with_fresh_page_local_audio_state(self):
+        self.assertIn("let audioAutoplayAttempted = false", self.main)
+        self.assertIn("let audioInitialized = false", self.main)
+        self.assertNotRegex(self.main, r"localStorage|sessionStorage|document\.cookie")
+        self.assertIn("activateAudioFallback();", self.main)
+        self.assertIn("attemptAudioPlayback('autoplay')", self.main)
+
+    def test_play_event_does_not_initialize_audio_before_promise_success(self):
+        play_handler = self.main.split("backgroundAudio.addEventListener('play'", 1)[1].split(
+            "backgroundAudio.addEventListener('playing'", 1
+        )[0]
+        self.assertNotIn("audioInitialized = true", play_handler)
+        self.assertIn("audioPendingAttemptId = attemptId", self.main)
+
     def test_autoplay_is_attempted_once_and_rejection_activates_fallback(self):
         self.assertIn("let audioAutoplayAttempted = false", self.main)
         self.assertLess(self.main.index("activateAudioFallback();", self.main.index("// Pasang listener gesture")), self.main.index("attemptAudioPlayback('autoplay')"))
@@ -137,13 +165,15 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         lifecycle = self.main.split("function pauseAudioForLifecycle(message)", 1)[1].split(
             "document.addEventListener('visibilitychange'", 1
         )[0]
-        self.assertIn("if (!backgroundAudio.paused) return", pause_handler)
+        self.assertIn("if (!backgroundAudio.paused || audioPendingAttemptId !== null) return", pause_handler)
         self.assertIn("const message = audioLifecycleMessage", pause_handler)
         self.assertIn("updateAudioState(message)", pause_handler)
         self.assertNotIn("updateAudioState('Musik dijeda')", pause_handler.split("if (audioLifecyclePause)", 1)[1].split("return;", 1)[0])
         self.assertIn("audioLifecycleMessage = message", lifecycle)
-        self.assertIn("audioLifecycleAttemptId = audioPlayAttemptId", lifecycle)
-        self.assertIn("audioPlayAttemptId === audioLifecycleAttemptId", pause_handler)
+        self.assertIn("const playbackPending = audioPendingAttemptId !== null", lifecycle)
+        self.assertIn("backgroundAudio.pause()", lifecycle)
+        self.assertIn("audioLifecycleAttemptId = playbackPending ? audioPendingAttemptId : audioLatestPlaybackAttemptId", lifecycle)
+        self.assertIn("audioLatestPlaybackAttemptId === audioLifecycleAttemptId", pause_handler)
         self.assertLess(lifecycle.index("audioLifecycleMessage = message"), lifecycle.index("backgroundAudio.pause()"))
 
     def test_pause_event_only_marks_manual_pause_outside_lifecycle(self):

@@ -75,6 +75,7 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertIn("updateAudioState()", handler)
         self.assertNotIn("backgroundAudio.pause()", handler)
         self.assertIn("backgroundAudio.volume = 0.30", self.main)
+        self.assertLess(self.main.index("backgroundAudio.volume = 0.30"), self.main.index("attemptAudioPlayback(\'autoplay\')"))
 
     def test_autoplay_is_attempted_once_and_rejection_activates_fallback(self):
         self.assertIn("let audioAutoplayAttempted = false", self.main)
@@ -161,7 +162,7 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertIn("document.removeEventListener(type, listener, options)", self.main)
         self.assertIn("['pointerdown', 'touchstart']", self.main)
         self.assertIn("['touchstart', 'click']", self.main)
-        self.assertIn("#audio-toggle, [contenteditable=\\\"true\\\"]", self.main)
+        self.assertIn('#audio-toggle, [contenteditable="true"]', self.main)
         self.assertIn("attemptAudioPlayback('fallback')", self.main)
         handler = self.main.split("function handleAudioFallbackInteraction(event)", 1)[1].split(
             "function activateAudioFallback()", 1

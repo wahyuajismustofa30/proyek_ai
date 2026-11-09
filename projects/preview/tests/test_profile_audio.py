@@ -137,13 +137,15 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         lifecycle = self.main.split("function pauseAudioForLifecycle(message)", 1)[1].split(
             "document.addEventListener('visibilitychange'", 1
         )[0]
-        self.assertIn("if (!backgroundAudio.paused) return", pause_handler)
+        self.assertIn("if (!backgroundAudio.paused || audioPendingAttemptId !== null) return", pause_handler)
         self.assertIn("const message = audioLifecycleMessage", pause_handler)
         self.assertIn("updateAudioState(message)", pause_handler)
         self.assertNotIn("updateAudioState('Musik dijeda')", pause_handler.split("if (audioLifecyclePause)", 1)[1].split("return;", 1)[0])
         self.assertIn("audioLifecycleMessage = message", lifecycle)
-        self.assertIn("audioLifecycleAttemptId = audioPlayAttemptId", lifecycle)
-        self.assertIn("audioPlayAttemptId === audioLifecycleAttemptId", pause_handler)
+        self.assertIn("const playbackPending = audioPendingAttemptId !== null", lifecycle)
+        self.assertIn("backgroundAudio.pause()", lifecycle)
+        self.assertIn("audioLifecycleAttemptId = playbackPending ? audioPendingAttemptId : audioPlayAttemptId", lifecycle)
+        self.assertIn("audioPlayAttemptId === audioLifecycleAttemptId + 1", pause_handler)
         self.assertLess(lifecycle.index("audioLifecycleMessage = message"), lifecycle.index("backgroundAudio.pause()"))
 
     def test_pause_event_only_marks_manual_pause_outside_lifecycle(self):

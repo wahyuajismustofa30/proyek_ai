@@ -133,7 +133,7 @@
     muted: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10v4h4l5 4V6l-5 4H3Z" fill="currentColor"></path><path d="m16 9 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>'
   };
   let audioInitialized = false, audioAutoplayAttempted = false, audioUserPaused = false;
-  let audioFallbackActive = false, audioLifecyclePause = false, audioLifecycleMessage = '', audioPlayAttemptId = 0;
+  let audioFallbackActive = false, audioLifecyclePause = false, audioLifecycleMessage = '', audioLifecycleAttemptId = 0, audioPlayAttemptId = 0;
   let audioFallbackEvents = [];
 
   function updateAudioState(message) {
@@ -189,9 +189,6 @@
   }
   function attemptAudioPlayback(source) {
     const attemptId = ++audioPlayAttemptId;
-    // Keputusan play yang baru membatalkan alasan pause lifecycle yang sudah tidak relevan.
-    audioLifecyclePause = false;
-    audioLifecycleMessage = '';
     let playPromise;
     try { playPromise = backgroundAudio.play(); } catch (error) { playPromise = Promise.reject(error); }
     return Promise.resolve(playPromise).then(() => {
@@ -259,15 +256,17 @@
     updateAudioState();
   });
   backgroundAudio.addEventListener('pause', () => {
-    // Abaikan event pause tertunda jika playback baru sudah berjalan kembali.
-    if (!backgroundAudio.paused) return;
     if (audioLifecyclePause) {
       const message = audioLifecycleMessage || 'Musik dihentikan karena halaman tidak aktif';
+      const lifecycleStillCurrent = audioPlayAttemptId === audioLifecycleAttemptId;
       audioLifecyclePause = false;
       audioLifecycleMessage = '';
-      updateAudioState(message);
+      // Event lifecycle yang terlambat tidak boleh menimpa keputusan playback lebih baru.
+      if (backgroundAudio.paused && lifecycleStillCurrent) updateAudioState(message);
       return;
     }
+    // Abaikan event pause tertunda jika playback baru sudah berjalan kembali.
+    if (!backgroundAudio.paused) return;
     if (audioInitialized) {
       audioUserPaused = true;
       removeAudioFallback();
@@ -282,6 +281,7 @@
     audioLifecyclePause = true;
     audioLifecycleMessage = message;
     ++audioPlayAttemptId;
+    audioLifecycleAttemptId = audioPlayAttemptId;
     backgroundAudio.pause();
     updateAudioState(message);
   }

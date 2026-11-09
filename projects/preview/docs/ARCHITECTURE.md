@@ -25,7 +25,8 @@ Website statis tanpa framework/build pipeline yang dinyatakan. Browser membuka `
 4. Pengguna berinteraksi dengan navigasi, panel visi, kartu misi/program, galeri/lightbox, dan kontrol scroll progress/sticky header.
 5. Inisialisasi audio mencoba autoplay satu kali. Jika Promise ditolak, listener fallback sementara menunggu interaksi awal pada area konten (pointerdown, atau touchstart/click pada browser tanpa Pointer Events). Kontrol interaktif dikecualikan; tombol musik tetap dapat memulai musik secara langsung.
 6. Setelah playback berhasil atau pengguna mengambil tindakan manual, fallback dilepas. Satu tombol mengelola Play saat berhenti dan mute/unmute saat berjalan. Sumber lokal `assets/mp3/music.mp3`, volume awal 18%.
-7. Pause akibat tab tersembunyi/halaman ditinggalkan dibedakan dari pause manual; audio tidak otomatis dilanjutkan saat tab/fokus kembali.
+7. Error `play()` diklasifikasikan berdasarkan nama DOMException (`NotAllowedError`, `NotSupportedError`, `NotFoundError`, `AbortError`, dan error lain); hanya penolakan autoplay `NotAllowedError` yang mengaktifkan fallback interaksi. Error media juga dipetakan dari kode `HTMLMediaElement.error`.
+8. Alasan pause lifecycle disimpan sebelum `pause()` dan dipakai kembali oleh event `pause`; event pause tertunda diabaikan jika playback sudah berjalan lagi. Pause lifecycle tetap dibedakan dari pause manual; audio tidak otomatis dilanjutkan saat tab/fokus kembali.
 
 ## Pola penting
 

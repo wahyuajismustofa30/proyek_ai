@@ -23,7 +23,9 @@ Website statis tanpa framework/build pipeline yang dinyatakan. Browser membuka `
 2. Script data menyediakan objek konten.
 3. Script utama mengisi/menginisialisasi komponen dinamis dan listener.
 4. Pengguna berinteraksi dengan navigasi, panel visi, kartu misi/program, galeri/lightbox, dan kontrol scroll progress/sticky header.
-5. Kontrol audio menggunakan satu tombol: klik pertama memulai pemutaran, klik saat berjalan membisukan, dan klik saat mute mengaktifkan suara kembali. Sumber lokal `assets/mp3/music.mp3` tidak autoplay; volume awal 18%.
+5. Inisialisasi audio mencoba autoplay satu kali. Jika Promise ditolak, listener fallback sementara menunggu interaksi awal pada area konten (pointerdown, atau touchstart/click pada browser tanpa Pointer Events). Kontrol interaktif dikecualikan; tombol musik tetap dapat memulai musik secara langsung.
+6. Setelah playback berhasil atau pengguna mengambil tindakan manual, fallback dilepas. Satu tombol mengelola Play saat berhenti dan mute/unmute saat berjalan. Sumber lokal `assets/mp3/music.mp3`, volume awal 18%.
+7. Pause akibat tab tersembunyi/halaman ditinggalkan dibedakan dari pause manual; audio tidak otomatis dilanjutkan saat tab/fokus kembali.
 
 ## Pola penting
 

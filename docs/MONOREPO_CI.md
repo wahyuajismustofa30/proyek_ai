@@ -30,7 +30,10 @@ di dalam proyek diperbolehkan; folder tersembunyi langsung di bawah
 | `package.json` | Node.js | `package-lock.json`, script `test`; lint/build jika tersedia |
 | `pyproject.toml` atau `requirements.txt` | Python | dependency proyek, test ditemukan oleh pytest; CI memakai requirements-test/dev jika tersedia, atau pytest terpin |
 | `composer.json` | PHP | `composer.lock`, `composer validate --strict`, script Composer `test` |
+| `index.html` di root proyek | Static website | HTTP smoke test untuk memastikan halaman root disajikan dengan status 200 dan konten HTML yang benar; validasi HTML/CSS/aset lokal tetap dijalankan oleh job web-validation |
 | Tidak didukung | — | Job proyek gagal; tambahkan adapter sebelum mengandalkan stack tersebut |
+
+Setiap proyek static dikenali melalui `index.html` tepat di root proyek; file HTML di subfolder saja tidak otomatis menjadikan proyek static. Proyek dapat menghasilkan entri static sekaligus stack aplikasi bila memiliki `index.html` dan manifest aplikasi. Static website tidak memerlukan package manager atau test runner tambahan; CI melakukan HTTP smoke test dan tetap menjalankan validasi HTML/CSS/aset lokal secara terpusat.
 
 Beberapa manifest dalam satu proyek menghasilkan job per stack. Matriks
 membatasi paralelisme hingga empat. Jika `projects/` kosong, discovery
@@ -43,6 +46,8 @@ Bootstrap E2E membuat fixture Node.js, Python, dan PHP di direktori sementara,
 bukan menyimpan proyek contoh di `projects/`.
 
 ## Validasi web dan dokumentasi
+
+`scripts/check_static_site.py` memverifikasi bahwa `index.html` root dapat disajikan melalui HTTP lokal dan mengembalikan konten HTML yang diharapkan. Test unitnya berada di `scripts/tests/test_check_static_site.py`.
 
 `scripts/validate_web_projects.py` memeriksa HTML dengan parser HTML5 strict,
 sintaks CSS menggunakan tinycss2, keberadaan referensi aset lokal, batas path

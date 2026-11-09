@@ -1,35 +1,32 @@
-# Instruksi AI — Testing Web Page Lab
+# Konteks Khusus Proyek — Testing Web Page Lab
 
-## Urutan membaca
+Berlaku sebagai tambahan terhadap instruksi induk di `/AGENTS.md`. Aturan umum tentang alur kerja, Git, pull request, keamanan, pengujian, dan pelaporan diwarisi dari instruksi induk; jangan menyalinnya ke sini.
 
-1. README.md
-2. docs/PROJECT_BRIEF.md
-3. docs/ARCHITECTURE.md
-4. docs/TASKS.md
-5. docs/TESTING.md
-6. docs/DECISIONS.md dan docs/CHANGELOG.md bila relevan
+## Stack dan batas teknis
 
-## Aturan utama
+- Proyek ini adalah demo website statis menggunakan HTML, CSS, dan JavaScript vanilla.
+- Pertahankan stack tanpa framework kecuali ada keputusan baru yang disetujui dan didokumentasikan.
+- Node.js 22+ dan test runner bawaan Node digunakan untuk pengujian; jalankan `npm test`.
+- Document root website adalah direktori `src/`; untuk pemeriksaan lokal gunakan:
+  `python -m http.server 8080 --directory src`.
+- Tidak ada backend, API, database, autentikasi, atau pengiriman form ke server. Jangan menambahkan perilaku tersebut tanpa perubahan brief dan persetujuan.
+- Form hanya boleh melakukan simulasi/validasi sisi klien. Jangan mengirim atau menyimpan data pengguna.
+- Jangan menambahkan dependency bila fitur bawaan Node.js/browser sudah cukup.
 
-- Pahami brief dan acceptance criteria sebelum mengubah source.
-- Pertahankan stack HTML, CSS, dan JavaScript vanilla kecuali ada keputusan baru.
-- Jangan mengarang requirement, data bisnis, harga, testimoni, kontak, atau klaim.
-- Pisahkan demo dari implementasi produksi dan beri label placeholder dengan jelas.
-- Jangan menambahkan dependency jika Node.js built-in atau solusi sederhana sudah cukup.
-- Jangan commit secret, file environment asli, credential, atau data pengguna.
-- Jangan mengirim data form ke server; proyek ini tidak memiliki backend.
-- Jangan mengubah konfigurasi deployment/produksi.
+## Dokumentasi proyek
 
-## Alur setiap task
+Untuk memahami kebutuhan dan keputusan proyek, gunakan dokumen berikut sesuai relevansi:
 
-1. Nyatakan pemahaman dan file yang terdampak.
-2. Periksa implementasi, dependensi, dan risiko.
-3. Implementasikan perubahan terfokus.
-4. Tambahkan atau perbarui regression test.
-5. Jalankan `npm test` dan validasi web root repository bila tersedia.
-6. Tinjau diff, aksesibilitas dasar, referensi aset, dan responsive behavior.
-7. Perbarui TASKS, CHANGELOG, atau dokumentasi.
+- `README.md`
+- `docs/PROJECT_BRIEF.md`
+- `docs/ARCHITECTURE.md`
+- `docs/TASKS.md`
+- `docs/TESTING.md`
+- `docs/DECISIONS.md`
+- `docs/CHANGELOG.md`
 
-## Laporan
+## Batas verifikasi
 
-Laporkan ringkasan perubahan, file yang diubah, perintah pemeriksaan dan hasilnya, risiko/asumsi, serta pekerjaan yang belum selesai.
+- Tes DOM berbasis stub bukan pengganti browser automation, visual regression, atau audit aksesibilitas penuh.
+- Pemeriksaan manual keyboard, screen reader, dan tampilan desktop/mobile tetap perlu dicatat sebagai belum dilakukan sampai benar-benar dijalankan.
+- Jangan mengklaim website siap produksi atau telah diaudit aksesibilitas hanya berdasarkan `npm test`.

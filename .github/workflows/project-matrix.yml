@@ -120,6 +120,10 @@ jobs:
           }
           composer run-script test --no-interaction
 
+      - name: Smoke-test static website
+        if: ${{ matrix.stack == 'static' }}
+        run: python scripts/check_static_site.py "${{ matrix.project }}"
+
       - name: Reject unsupported or unconfigured project stack
         if: ${{ matrix.stack == 'none' && matrix.slug != '__no_projects__' }}
         env:

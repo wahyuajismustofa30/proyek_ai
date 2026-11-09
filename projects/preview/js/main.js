@@ -121,49 +121,63 @@
   document.addEventListener('keydown', event => { if (!lightbox.open) return; if (event.key === 'ArrowLeft') displayGallery(galleryIndex - 1); if (event.key === 'ArrowRight') displayGallery(galleryIndex + 1); });
 
 
-  // Isi hanya dengan path file lokal yang original atau berlisensi setelah aset tersedia.
+  // Satu tombol mengelola mulai putar dan mute/unmute musik latar.
   const BACKGROUND_AUDIO_SOURCE = 'assets/mp3/music.mp3';
   const backgroundAudio = $('#background-audio');
   const audioToggle = $('#audio-toggle');
-  const audioMute = $('#audio-mute');
-  const audioVolume = $('#audio-volume');
   const audioStatus = $('#audio-status');
   backgroundAudio.volume = 0.18;
+
+  const audioIcons = {
+    play: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m8 5 12 7-12 7z" fill="currentColor"></path></svg>',
+    playing: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10v4h4l5 4V6l-5 4H3Z" fill="currentColor"></path><path d="M16 9a5 5 0 0 1 0 6M18.5 6.5a9 9 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>',
+    muted: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10v4h4l5 4V6l-5 4H3Z" fill="currentColor"></path><path d="m16 9 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>'
+  };
+
   function updateAudioState(message) {
     const playing = !backgroundAudio.paused && !backgroundAudio.ended;
-    audioToggle.textContent = playing ? 'Jeda' : 'Putar';
-    audioToggle.setAttribute('aria-label', playing ? 'Jeda musik latar' : 'Putar musik latar');
-    audioStatus.textContent = message || (playing ? 'Sedang diputar' : 'Dijeda');
+    const muted = backgroundAudio.muted;
+    const label = playing
+      ? (muted ? 'Aktifkan suara musik latar' : 'Bisukan musik latar')
+      : 'Putar musik latar';
+
+    audioToggle.innerHTML = playing ? (muted ? audioIcons.muted : audioIcons.playing) : audioIcons.play;
+    audioToggle.setAttribute('aria-label', label);
+    audioToggle.setAttribute('title', label);
+    audioToggle.setAttribute('aria-pressed', String(playing && muted));
+    audioStatus.textContent = message || (playing
+      ? (muted ? 'Musik sedang dibisukan' : 'Musik sedang diputar')
+      : 'Musik siap diputar');
   }
-  if (BACKGROUND_AUDIO_SOURCE) {
-    backgroundAudio.src = BACKGROUND_AUDIO_SOURCE;
-    audioStatus.textContent = 'Siap diputar';
-  }
+
+  backgroundAudio.src = BACKGROUND_AUDIO_SOURCE;
+  updateAudioState('Musik siap diputar');
+
   audioToggle.addEventListener('click', async () => {
-    if (!backgroundAudio.currentSrc && !backgroundAudio.src) { updateAudioState('Audio belum tersedia'); return; }
-    if (!backgroundAudio.paused) { backgroundAudio.pause(); updateAudioState(); return; }
-    try { await backgroundAudio.play(); updateAudioState(); }
-    catch { updateAudioState('Musik tidak dapat diputar. Periksa file audio.'); }
-  });
-  backgroundAudio.addEventListener('play', () => updateAudioState());
-  backgroundAudio.addEventListener('pause', () => updateAudioState());
-  backgroundAudio.addEventListener('ended', () => updateAudioState('Pemutaran selesai'));
-  backgroundAudio.addEventListener('error', () => updateAudioState('Audio gagal dimuat. Periksa file audio.'));
-  audioMute.addEventListener('click', () => {
-    backgroundAudio.muted = !backgroundAudio.muted;
-    audioMute.textContent = backgroundAudio.muted ? 'Suara mati' : 'Mute';
-    audioMute.setAttribute('aria-label', backgroundAudio.muted ? 'Aktifkan suara' : 'Matikan suara');
-    audioMute.setAttribute('aria-pressed', String(backgroundAudio.muted));
-  });
-  audioVolume.addEventListener('input', () => {
-    backgroundAudio.volume = Number(audioVolume.value) / 100;
-    if (backgroundAudio.volume > 0 && backgroundAudio.muted) {
-      backgroundAudio.muted = false; audioMute.textContent = 'Mute';
-      audioMute.setAttribute('aria-label', 'Matikan suara'); audioMute.setAttribute('aria-pressed', 'false');
+    if (!backgroundAudio.paused && !backgroundAudio.ended) {
+      backgroundAudio.muted = !backgroundAudio.muted;
+      updateAudioState();
+      return;
+    }
+
+    try {
+      await backgroundAudio.play();
+      updateAudioState();
+    } catch {
+      updateAudioState('Musik gagal diputar. Periksa ketersediaan file audio.');
     }
   });
+
+  backgroundAudio.addEventListener('play', () => updateAudioState());
+  backgroundAudio.addEventListener('pause', () => updateAudioState('Musik dijeda'));
+  backgroundAudio.addEventListener('ended', () => updateAudioState('Pemutaran selesai'));
+  backgroundAudio.addEventListener('error', () => updateAudioState('Musik gagal dimuat. File audio tidak tersedia.'));
+
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && !backgroundAudio.paused) { backgroundAudio.pause(); updateAudioState('Dijeda saat tab tidak aktif'); }
+    if (document.hidden && !backgroundAudio.paused) {
+      backgroundAudio.pause();
+      updateAudioState('Musik dihentikan saat tab tidak aktif');
+    }
   });
   window.addEventListener('pagehide', () => backgroundAudio.pause());
 
@@ -173,9 +187,9 @@
   const navToggle = $('.nav-toggle'), navLinks = $('.nav-links');
   navToggle.addEventListener('click', () => { const open = navLinks.classList.toggle('open'); navToggle.setAttribute('aria-expanded', String(open)); });
   $$('.nav-links a').forEach(link => link.addEventListener('click', () => { navLinks.classList.remove('open'); navToggle.setAttribute('aria-expanded', 'false'); }));
-  const header = $('.site-header'), topButton = $('.back-to-top'), progress = $('.scroll-progress span');
-  function onScroll() { const y = window.scrollY; header.classList.toggle('sticky', y > 25); topButton.classList.toggle('show', y > 600); progress.style.width = `${(y / (document.documentElement.scrollHeight - innerHeight)) * 100}%`; }
-  addEventListener('scroll', onScroll, { passive: true }); onScroll(); topButton.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
+  const header = $('.site-header'), progress = $('.scroll-progress span');
+  function onScroll() { const y = window.scrollY; header.classList.toggle('sticky', y > 25); progress.style.width = `${(y / (document.documentElement.scrollHeight - innerHeight)) * 100}%`; }
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
   const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } }), { threshold: .12 });
   const observeReveals = () => $$('.reveal:not(.visible)').forEach(item => observer.observe(item));
   renderProfile(); renderMissions(); renderPrograms(); renderPotentials(); renderGallery(); observeReveals();

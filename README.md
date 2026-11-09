@@ -26,7 +26,7 @@ hanya mendeteksi direktori proyek tingkat pertama di `projects/<slug>/` dengan n
 slug huruf kecil, angka, dan tanda hubung. Direktori tersembunyi pada tingkat tersebut
 ditolak; direktori konfigurasi tersembunyi di dalam proyek diperbolehkan. Baca
 [aturan struktur proyek](docs/PROJECT_STRUCTURE.md) sebelum menambah proyek.
-Workflow menjalankan adapter Node.js, Python, atau PHP. OSV-Scanner memindai dependency
+Workflow menjalankan adapter Node.js, Python, PHP, dan static website (terdeteksi melalui `index.html` di root proyek). Static website mendapat HTTP smoke test serta validasi HTML/CSS/aset lokal. OSV-Scanner memindai dependency
 secara rekursif.
 
 Baca [arsitektur CI monorepo](docs/MONOREPO_CI.md) untuk aturan penambahan stack,

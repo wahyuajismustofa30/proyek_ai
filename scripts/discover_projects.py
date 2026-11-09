@@ -14,6 +14,7 @@ STACK_MANIFESTS = {
     "node": ("package.json",),
     "python": ("pyproject.toml", "requirements.txt"),
     "php": ("composer.json",),
+    "static": ("index.html",),
 }
 PROJECT_SLUG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 

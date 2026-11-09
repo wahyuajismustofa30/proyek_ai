@@ -133,7 +133,7 @@
     muted: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10v4h4l5 4V6l-5 4H3Z" fill="currentColor"></path><path d="m16 9 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>'
   };
   let audioInitialized = false, audioAutoplayAttempted = false, audioUserPaused = false;
-  let audioFallbackActive = false, audioLifecyclePause = false, audioPlayAttemptId = 0;
+  let audioFallbackActive = false, audioLifecyclePause = false, audioLifecycleMessage = '', audioPlayAttemptId = 0;
   let audioFallbackEvents = [];
 
   function updateAudioState(message) {
@@ -152,8 +152,46 @@
     audioFallbackEvents = [];
     audioFallbackActive = false;
   }
+  function classifyAudioPlaybackError(error) {
+    const name = error && typeof error.name === 'string' ? error.name : '';
+    if (name === 'NotAllowedError') {
+      return {
+        type: 'autoplay-blocked',
+        message: 'Browser membatasi pemutaran otomatis. Sentuh atau klik area halaman untuk memulai musik.'
+      };
+    }
+    if (name === 'NotSupportedError' || name === 'NotFoundError') {
+      return {
+        type: 'source-error',
+        message: 'File atau format musik tidak dapat diputar.'
+      };
+    }
+    if (name === 'AbortError') {
+      return {
+        type: 'aborted',
+        message: 'Pemutaran musik dibatalkan sebelum dimulai. Coba putar kembali.'
+      };
+    }
+    return {
+      type: 'unknown',
+      message: 'Musik gagal diputar. Periksa file audio atau coba lagi.'
+    };
+  }
+  function getAudioMediaErrorMessage() {
+    const mediaError = backgroundAudio.error;
+    if (!mediaError) return 'Musik gagal dimuat. Periksa ketersediaan file audio.';
+    if (mediaError.code === 3 || mediaError.code === 4) {
+      return 'File atau format musik tidak dapat diputar.';
+    }
+    if (mediaError.code === 2) return 'Musik gagal dimuat karena masalah jaringan atau sumber file.';
+    if (mediaError.code === 1) return 'Pemuatan musik dibatalkan.';
+    return 'Musik gagal dimuat. Periksa ketersediaan file audio.';
+  }
   function attemptAudioPlayback(source) {
     const attemptId = ++audioPlayAttemptId;
+    // Keputusan play yang baru membatalkan alasan pause lifecycle yang sudah tidak relevan.
+    audioLifecyclePause = false;
+    audioLifecycleMessage = '';
     let playPromise;
     try { playPromise = backgroundAudio.play(); } catch (error) { playPromise = Promise.reject(error); }
     return Promise.resolve(playPromise).then(() => {
@@ -164,12 +202,17 @@
       removeAudioFallback();
       updateAudioState();
       return true;
-    }).catch(() => {
+    }).catch(error => {
       if (attemptId !== audioPlayAttemptId) return false;
-      if (source === 'autoplay' && !audioInitialized && !audioUserPaused) {
+      const failure = classifyAudioPlaybackError(error);
+      if (failure.type === 'autoplay-blocked' && source === 'autoplay' && !audioInitialized && !audioUserPaused) {
         activateAudioFallback();
-        updateAudioState('Autoplay dibatasi browser. Sentuh atau klik area halaman untuk memulai musik.');
-      } else updateAudioState('Musik gagal diputar. Periksa ketersediaan file audio.');
+        updateAudioState(failure.message);
+      } else {
+        updateAudioState(failure.type === 'unknown' && backgroundAudio.error
+          ? getAudioMediaErrorMessage()
+          : failure.message);
+      }
       return false;
     });
   }
@@ -213,19 +256,28 @@
     updateAudioState();
   });
   backgroundAudio.addEventListener('pause', () => {
-    if (audioLifecyclePause) audioLifecyclePause = false;
-    else if (audioInitialized) {
+    // Abaikan event pause tertunda jika playback baru sudah berjalan kembali.
+    if (!backgroundAudio.paused) return;
+    if (audioLifecyclePause) {
+      const message = audioLifecycleMessage || 'Musik dihentikan karena halaman tidak aktif';
+      audioLifecyclePause = false;
+      audioLifecycleMessage = '';
+      updateAudioState(message);
+      return;
+    }
+    if (audioInitialized) {
       audioUserPaused = true;
       removeAudioFallback();
       ++audioPlayAttemptId;
+      updateAudioState('Musik dijeda');
     }
-    updateAudioState('Musik dijeda');
   });
   backgroundAudio.addEventListener('ended', () => updateAudioState('Pemutaran selesai'));
-  backgroundAudio.addEventListener('error', () => updateAudioState('Musik gagal dimuat. File audio tidak tersedia.'));
+  backgroundAudio.addEventListener('error', () => updateAudioState(getAudioMediaErrorMessage()));
   function pauseAudioForLifecycle(message) {
     if (backgroundAudio.paused) return;
     audioLifecyclePause = true;
+    audioLifecycleMessage = message;
     ++audioPlayAttemptId;
     backgroundAudio.pause();
     updateAudioState(message);

@@ -9,6 +9,9 @@
 
 ## Konvensi
 
+- URL SVG monokrom pada CSS mask diselesaikan dari direktori stylesheet `css/`; referensi dinamis di `js/main.js` menggunakan `../assets/icons/monochrome/` agar menuju aset pada root Preview.
+- Validasi path ikon dijalankan melalui `python3 projects/preview/tests/test_asset_paths.py`.
+
 - Pertahankan nama file slot galeri agar data dan renderer tetap kompatibel.
 - Jangan mengganti aset dengan gambar generatif/stock seolah dokumentasi faktual kandidat atau desa.
 - Gunakan aset yang disediakan/diotorisasi pemilik dan pastikan hak penggunaan.

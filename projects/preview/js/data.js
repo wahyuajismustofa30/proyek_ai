@@ -12,11 +12,12 @@ const campaignData = {
       { icon: 'map-pin', label: 'Wilayah', value: 'Desa Tlagayasa' },
       { icon: 'calendar-days', label: 'Periode', value: '2027–2035' }
     ],
-    facts: [
-      { icon: 'graduation-cap', title: 'Riwayat Pendidikan', value: 'Informasi sementara — akan diperbarui.' },
-      { icon: 'users-round', title: 'Pengalaman Organisasi', value: 'Informasi sementara — akan diperbarui.' },
-      { icon: 'briefcase-business', title: 'Pengalaman Pekerjaan', value: 'Informasi sementara — akan diperbarui.' },
-      { icon: 'heart-handshake', title: 'Kegiatan Kemasyarakatan', value: 'Informasi sementara — akan diperbarui.' }
+    education: ['SD Negeri 1 Tlagayasa', 'SMP Negeri 1 Karangreja', "SMK Ma'arif NU Bobotsari"],
+    workExperience: [
+      { period: '2010–2016', organization: 'CV Kompo Motor' },
+      { period: '2016–2020', organization: 'PT Yamaha Mataram Sakti' },
+      { period: '2020–2024', organization: 'Bengkel Asta Jaya Motor', role: 'Owner' },
+      { period: '2024–Sekarang', organization: 'Bi One Net', role: 'Owner', description: 'Penyedia Layanan Internet Desa', current: true }
     ]
   },
   vision: { title: 'VISI', content: 'TLAGAYASA MAJU, SEJAHTERA DAN BERDAYA SAING' },

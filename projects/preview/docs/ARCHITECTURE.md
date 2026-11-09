@@ -28,6 +28,10 @@ Website statis tanpa framework/build pipeline yang dinyatakan. Browser membuka `
 7. Error `play()` diklasifikasikan berdasarkan nama DOMException (`NotAllowedError`, `NotSupportedError`, `NotFoundError`, `AbortError`, dan error lain); hanya penolakan autoplay `NotAllowedError` yang mengaktifkan fallback interaksi. Error media juga dipetakan dari kode `HTMLMediaElement.error`.
 8. Alasan pause lifecycle disimpan sebelum `pause()` dan dipakai kembali oleh event `pause`; event pause tertunda diabaikan jika playback sudah berjalan lagi. Pause lifecycle tetap dibedakan dari pause manual; audio tidak otomatis dilanjutkan saat tab/fokus kembali.
 
+## Audio dan lifecycle
+
+State audio hanya hidup di memori dokumen. Refresh membuat state JavaScript baru, mengulang satu percobaan autoplay, dan memasang fallback gesture sebelum percobaan tersebut; tidak ada status audio yang disimpan di storage atau cookie. Saat tab tersembunyi atau halaman ditinggalkan, percobaan `play()` yang tertunda diinvalidasi dan `pause()` tetap dipanggil meskipun `HTMLMediaElement.paused` masih `true`. Promise lama tidak boleh menimpa keputusan lifecycle atau playback baru. Event `play` hanya menyinkronkan UI; inisialisasi sukses ditetapkan setelah Promise playback yang masih berlaku selesai. Halaman yang kembali aktif tidak otomatis melanjutkan musik.
+
 ## Pola penting
 
 - Konten dan logika dipisah sebagian melalui `js/data.js` dan `js/main.js`.

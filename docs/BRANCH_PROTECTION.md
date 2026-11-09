@@ -1,10 +1,15 @@
 # Perlindungan Branch `main`
 
-Dokumen ini mencatat konfigurasi ruleset **Protect main** yang diverifikasi saat audit terakhir. Ruleset dikelola di GitHub Settings → Rules → Rulesets; periksa kembali UI GitHub jika aturan diubah.
+Dokumen ini menyimpan snapshot konfigurasi ruleset **Protect main** yang pernah
+dicatat. Nilai di bawah **belum dapat diverifikasi ulang pada audit 2026-11-09**
+karena koneksi GitHub yang digunakan tidak memiliki izin untuk membaca endpoint
+ruleset/branch protection. Karena itu, jangan menganggap tabel ini sebagai
+konfigurasi GitHub yang dipastikan masih aktif. Verifikasi melalui GitHub
+Settings → Rules → Rulesets sebelum mengandalkannya sebagai merge gate.
 
-## Konfigurasi ruleset
+## Snapshot konfigurasi yang tercatat
 
-| Aturan | Nilai terverifikasi |
+| Aturan | Nilai dalam snapshot terdahulu |
 |---|---|
 | Target | `refs/heads/main` |
 | Enforcement | Active |
@@ -22,25 +27,35 @@ Dokumen ini mencatat konfigurasi ruleset **Protect main** yang diverifikasi saat
 | Allowed merge method | Squash saja |
 | Bypass actors | Tidak ada |
 
-## Kebijakan maintainer tunggal
+## Kebijakan maintainer tunggal (catatan kebijakan)
 
-GitHub tidak mengizinkan penulis PR menyetujui PR miliknya sendiri. Karena repository ini dikelola oleh satu maintainer, required approval dan Code Owner review tetap nonaktif agar PR pemilik repository tidak terkunci.
+Catatan sebelumnya menyebut required approval dan Code Owner review nonaktif
+karena repository dikelola oleh satu maintainer. Ini merupakan alasan kebijakan
+yang tercatat, bukan hasil verifikasi konfigurasi terkini.
 
-CODEOWNERS tetap mendokumentasikan kepemilikan area file. Jika reviewer tepercaya kedua bergabung, evaluasi kembali satu approval dan Code Owner review.
+## Peran required checks (berdasarkan workflow)
 
-## Peran required checks
+Workflow root saat ini mendefinisikan job bernama:
+- `Validate JSON, Python, Markdown, links, and whitespace` di
+  `.github/workflows/validate.yml`;
+- `Scan dependencies with OSV-Scanner` di
+  `.github/workflows/dependency-security.yml`;
+- `Project matrix tests` sebagai job agregat di
+  `.github/workflows/project-matrix.yml`.
 
-Ketiga check di atas adalah merge gate. `Project matrix tests` merupakan job agregat stabil yang menunggu pengujian proyek, validasi web, dan pengujian bootstrap Node.js/Python/PHP. Job agregat harus gagal jika salah satu pekerjaan wajib gagal.
-
-CI juga harus menolak proyek nyata yang tidak memiliki manifest stack yang didukung. Sentinel `__no_projects__` hanya digunakan ketika `projects/` benar-benar kosong dan tidak boleh dianggap sebagai proyek aplikasi.
+Keberadaan job dalam source workflow tidak membuktikan bahwa job tersebut
+terdaftar sebagai required status checks pada ruleset GitHub. Pastikan
+kecocokan nama dan status required melalui Settings → Rules → Rulesets.
 
 ## Cara memeriksa atau mengubah
 
 1. Buka repository → **Settings → Rules → Rulesets**.
-2. Pilih **Protect main**.
-3. Pastikan enforcement aktif dan target hanya `refs/heads/main`.
-4. Pastikan tiga required checks tercantum.
-5. Pertahankan bypass actors kosong, strict status checks, dan squash-only sesuai kebijakan.
-6. Simpan perubahan dan uji melalui PR.
+2. Pilih **Protect main** jika ruleset tersebut masih ada.
+3. Verifikasi enforcement, target `refs/heads/main`, aturan PR, required checks,
+   bypass actors, dan metode merge.
+4. Pastikan required checks merujuk nama job yang benar-benar diproduksi workflow.
+5. Perbarui snapshot ini setelah pemeriksaan langsung berhasil, termasuk tanggal
+   pemeriksaan dan sumber verifikasinya.
 
-Perbarui dokumen ini setiap kali konfigurasi GitHub berubah. Nilai di atas adalah snapshot hasil pemeriksaan, bukan sinkronisasi otomatis dari GitHub Settings.
+Perbarui dokumen ini setiap kali konfigurasi GitHub berubah. Dokumentasi ini
+bukan sinkronisasi otomatis dari GitHub Settings.

@@ -10,6 +10,10 @@ Repository pusat untuk dokumentasi, standar, template, dan pengembangan proyek d
 4. Baca instruksi template dan lengkapi brief sebelum implementasi.
 5. Periksa file dan riwayat terkait, jalankan pemeriksaan yang relevan, lalu ajukan perubahan melalui PR.
 
+## Sinkronisasi GitHub dari Termux
+
+Gunakan [GitHub Sync untuk Termux](docs/GITHUB_SYNC_TERMUX.md) untuk membuat branch fitur, meninjau perubahan, commit, dan push melalui alur aman. Tool tidak pernah push langsung ke `main` atau melakukan force-push.
+
 ## Membuat proyek baru
 
 Gunakan bootstrap otomatis (Python 3.12+):

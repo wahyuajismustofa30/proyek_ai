@@ -29,7 +29,6 @@
 - [ ] Alt text menjelaskan gambar secara relevan.
 - [ ] Ukuran file wajar dan tampilan responsif diperiksa.
 
-
 ## Audio latar
 
 - Pemutar disiapkan untuk file audio lokal yang hak penggunaannya telah diverifikasi.

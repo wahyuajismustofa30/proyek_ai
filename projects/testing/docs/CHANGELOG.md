@@ -17,7 +17,7 @@
 
 ## [0.1.0] — 2026-11-09
 
-### Added
+### Initial release
 
 - Inisialisasi proyek dari template standar repository.
 - Landing page demo responsif dan simulasi form lokal.

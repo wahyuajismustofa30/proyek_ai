@@ -1,0 +1,58 @@
+name: Laporan Bug
+description: Laporkan masalah pada sistem, tooling, dokumentasi, atau workflow repository.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gunakan formulir ini untuk melaporkan bug yang dapat direproduksi.
+        Jangan sertakan password, token, private key, atau data pribadi.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Ringkasan masalah
+      description: Jelaskan masalah secara singkat dan spesifik.
+      placeholder: Apa yang tidak berjalan sebagaimana mestinya?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Langkah reproduksi
+      description: Tuliskan langkah minimum agar masalah dapat diulang.
+      placeholder: |
+        1. Jalankan ...
+        2. Buka ...
+        3. Amati ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Hasil yang diharapkan
+      description: Apa yang seharusnya terjadi?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Hasil aktual
+      description: Apa yang benar-benar terjadi? Sertakan pesan error yang sudah disanitasi bila ada.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Lingkungan
+      description: Versi OS, runtime, tool, atau workflow yang relevan.
+      placeholder: "Contoh: Ubuntu, Python 3.x, GitHub Actions"
+    validations:
+      required: false
+  - type: textarea
+    id: additional
+    attributes:
+      label: Informasi tambahan
+      description: Tambahkan konteks, screenshot, atau log yang sudah disanitasi.
+    validations:
+      required: false

@@ -18,6 +18,35 @@ STACK_MANIFESTS = {
 }
 PROJECT_SLUG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 
+GENERATED_DIRECTORIES = {
+    "node_modules", ".venv", "venv", "__pycache__", ".pytest_cache",
+    ".mypy_cache", ".ruff_cache", ".tox", ".nox", ".cache", "htmlcov",
+}
+GENERATED_ROOT_DIRECTORIES = {"vendor", "dist", "build", "coverage", "artifacts"}
+GENERATED_FILE_NAMES = {".coverage", ".DS_Store", "Thumbs.db", "npm-debug.log", "yarn-error.log"}
+GENERATED_FILE_SUFFIXES = {".pyc", ".pyo", ".log", ".tmp", ".temp"}
+
+
+def validate_project_contents(project_dir: Path) -> None:
+    """Reject common dependency, cache, build, and temporary artifacts."""
+    for path in project_dir.rglob("*"):
+        relative = path.relative_to(project_dir)
+        if path.is_dir():
+            if path.name in GENERATED_DIRECTORIES or (
+                len(relative.parts) == 1 and path.name in GENERATED_ROOT_DIRECTORIES
+            ):
+                raise ValueError(
+                    f"Generated/dependency directory is not allowed in project "
+                    f"{project_dir.name!r}: {relative.as_posix()}. "
+                    "Use external temporary storage or keep generated output untracked."
+                )
+        elif path.is_file():
+            if path.name in GENERATED_FILE_NAMES or path.suffix.lower() in GENERATED_FILE_SUFFIXES:
+                raise ValueError(
+                    f"Generated/temporary file is not allowed in project "
+                    f"{project_dir.name!r}: {relative.as_posix()}."
+                )
+
 
 def validate_project_directory_name(name: str) -> None:
     """Reject names that could be hidden, ambiguous, or bypass project discovery."""
@@ -51,9 +80,14 @@ def discover_projects(repository_root: Path) -> dict[str, list[dict[str, str]]]:
                     f"Symlink entries are not allowed in projects/: {project_dir.name!r}"
                 )
             if not project_dir.is_dir():
+                if project_dir.name != "README.md":
+                    raise ValueError(
+                        f"Only README.md may be stored directly in projects/: {project_dir.name!r}"
+                    )
                 continue
 
             validate_project_directory_name(project_dir.name)
+            validate_project_contents(project_dir)
             project_path = project_dir.relative_to(repository_root).as_posix()
             detected = [
                 stack
@@ -106,7 +140,15 @@ def main() -> int:
     payload = json.dumps(matrix, ensure_ascii=False, separators=(",", ":"))
 
     if args.github_output:
-        with args.github_output.open("a", encoding="utf-8") as output:
+        output_path = args.github_output.expanduser().resolve()
+        projects_root = (args.root.resolve() / "projects").resolve()
+        if output_path == projects_root or projects_root in output_path.parents:
+            print(
+                "Project discovery output must not be written inside projects/.",
+                file=sys.stderr,
+            )
+            return 2
+        with output_path.open("a", encoding="utf-8") as output:
             output.write(f"matrix={payload}\n")
         count = len(
             {item["slug"] for item in matrix["include"] if item["slug"] != "__no_projects__"}

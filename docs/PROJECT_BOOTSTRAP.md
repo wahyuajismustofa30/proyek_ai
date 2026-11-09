@@ -19,7 +19,9 @@ Buat proyek langsung dengan nama:
 
     python scripts/bootstrap_project.py --name "Landing Page"
 
-Perintah di atas membuat folder projects/landing-page/. Untuk lokasi lain:
+Perintah di atas membuat folder projects/landing-page/. Bootstrap mengizinkan
+root `projects/` atau lokasi output di luar `projects/`, tetapi menolak lokasi
+yang bersarang di dalam proyek yang sudah ada. Untuk lokasi lain:
 
     python scripts/bootstrap_project.py --name "API Internal" --output ../workspace
 
@@ -85,7 +87,8 @@ Jalankan:
     python -m unittest discover -s scripts/tests -v
 
 Tes mencakup slug, penyalinan dan penggantian placeholder, pencegahan overwrite,
-mode dry-run, metadata template, serta discovery proyek dan stack CI. Tes end-to-end menjalankan CLI bootstrap pada direktori sementara, memeriksa
+mode dry-run, metadata template, serta discovery proyek dan stack CI. Tes end-to-end menjalankan CLI bootstrap dan fixture stack pada direktori sementara
+di luar repository; script fixture menolak output di dalam repository. Tes memeriksa
 kelengkapan scaffold, memastikan proyek ditemukan oleh matriks CI, lalu menjalankan
 validator web pada fixture HTML/CSS/SVG/aset dan membuktikan referensi aset yang
 rusak ditolak. Matriks bootstrap tambahan membuat proyek Node.js, Python, dan PHP

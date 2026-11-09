@@ -115,13 +115,43 @@ class DiscoverProjectsTests(unittest.TestCase):
             [{"project": "projects/web-app", "slug": "web-app", "stack": "node"}],
         )
 
-    def test_ignores_root_files_but_rejects_hidden_root_directories(self) -> None:
-        (self.root / "projects" / ".gitkeep").write_text("", encoding="utf-8")
-        (self.root / "projects" / "notes.txt").write_text("not a project", encoding="utf-8")
+    def test_allows_only_readme_at_projects_root(self) -> None:
+        (self.root / "projects" / "README.md").write_text("# Projects\\n", encoding="utf-8")
         self.assertEqual(
             discover_projects(self.root)["include"],
             [{"project": "projects", "slug": "__no_projects__", "stack": "none"}],
         )
+
+    def test_rejects_unexpected_file_at_projects_root(self) -> None:
+        (self.root / "projects" / "notes.txt").write_text("not a project", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Only README.md"):
+            discover_projects(self.root)
+
+    def test_rejects_generated_artifacts_inside_project(self) -> None:
+        project = self.make_project("web-app", "package.json")
+        (project / "node_modules").mkdir()
+        with self.assertRaisesRegex(ValueError, "Generated/dependency directory"):
+            discover_projects(self.root)
+
+    def test_rejects_temporary_files_inside_project(self) -> None:
+        project = self.make_project("web-app", "package.json")
+        (project / "debug.log").write_text("temporary", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Generated/temporary file"):
+            discover_projects(self.root)
+
+    def test_github_output_must_not_be_written_inside_projects(self) -> None:
+        output = self.root / "projects" / "matrix.txt"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).resolve().parents[1] / "discover_projects.py"),
+                "--root", str(self.root), "--github-output", str(output),
+            ],
+            check=False, capture_output=True, text=True,
+        )
+        self.assertEqual(completed.returncode, 2)
+        self.assertIn("must not be written inside projects", completed.stderr)
+        self.assertFalse(output.exists())
 
     def test_rejects_uppercase_spaces_and_special_characters(self) -> None:
         for name in ("MyProject", "my project", "my_project", "project..backup", "équipe"):

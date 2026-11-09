@@ -1,24 +1,27 @@
 # Ruang Kerja Proyek
 
-Folder ini sengaja tidak berisi proyek aktif.
+Folder ini hanya digunakan untuk proyek internal yang benar-benar dipelihara di repository.
+Saat ini terdapat dua proyek aktif: `preview/` dan `testing/`.
 
-`projects/` hanya berisi direktori proyek aktif tingkat pertama dengan nama slug
-huruf kecil, angka, dan tanda hubung (contoh: `web-app`). Jangan membuat direktori
-proyek tersembunyi seperti `.draft/`, `.archive/`, atau `.internal/` di sini; direktori
-tersebut ditolak oleh discovery CI. File biasa seperti `.gitkeep` bukan proyek dan
-diabaikan. Subdirektori konfigurasi tersembunyi di dalam proyek, seperti
-`projects/web-app/.github/` atau `projects/web-app/.config/`, diperbolehkan.
+Di tingkat root `projects/`, hanya README ini yang boleh disimpan selain direktori
+proyek. Jangan menaruh fixture, arsip, backup, file sementara, cache, dependency,
+log, hasil build, laporan, atau artefak pengujian di sini. Gunakan direktori
+sementara sistem/CI untuk kebutuhan pengujian dan output yang dapat dibuat ulang.
 
-Setiap proyek dimulai dari template resmi dan memiliki `README.md`, `AGENTS.md`,
-`.project-meta.json`, `docs/`, `src/`, `tests/`, dan `assets/`. Subfolder proyek tidak
-menjadi proyek CI tersendiri. Baca [aturan struktur proyek](../docs/PROJECT_STRUCTURE.md).
+Setiap proyek aktif berada tepat satu tingkat di bawah `projects/` dan memakai
+nama slug huruf kecil, angka, serta tanda hubung. Jangan membuat direktori proyek
+tersembunyi seperti `.draft/`, `.archive/`, atau `.internal/`. Direktori
+konfigurasi tersembunyi di dalam proyek, seperti `.github/` atau `.config/`,
+tetap diperbolehkan.
 
-Buat proyek baru setelah sistem inti repository dan brief proyek siap:
+Setiap proyek dimulai dari template resmi dan mengikuti [aturan struktur proyek](../docs/PROJECT_STRUCTURE.md).
+Buat proyek baru secara eksplisit melalui bootstrap:
 
 ```bash
 python scripts/bootstrap_project.py --name "Nama Proyek"
 ```
 
-Baca [panduan bootstrap](../docs/PROJECT_BOOTSTRAP.md) dan [indeks proyek](../docs/PROJECT_INDEX.md)
-sebelum memulai. Jangan menambahkan proyek secara manual atau menggunakan folder ini
-sebagai tempat arsip.
+Bootstrap menolak output yang bersarang di dalam proyek lain. Untuk fixture CI,
+gunakan direktori sementara di luar repository; script fixture juga menolak lokasi
+output di dalam repository. Baca [panduan bootstrap](../docs/PROJECT_BOOTSTRAP.md)
+dan [indeks proyek](../docs/PROJECT_INDEX.md) sebelum memulai.

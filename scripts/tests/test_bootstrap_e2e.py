@@ -28,6 +28,10 @@ class BootstrapEndToEndTests(unittest.TestCase):
         self.temp.cleanup()
 
 
+    def test_fixture_refuses_to_write_inside_repository(self) -> None:
+        with self.assertRaisesRegex(ValueError, "di luar repository"):
+            create_fixture("node", REPOSITORY_ROOT / "projects")
+
     def test_bootstrap_creates_discoverable_node_python_and_php_projects(self) -> None:
         expected_manifests = {
             "node": "package.json",

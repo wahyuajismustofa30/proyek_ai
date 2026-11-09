@@ -54,6 +54,12 @@ def bootstrap_project(
     slug = project_slug(clean_name)
     source = template_dir.resolve()
     destination_root = output_root.expanduser().resolve()
+    projects_root = (REPOSITORY_ROOT / "projects").resolve()
+    if destination_root != projects_root and projects_root in destination_root.parents:
+        raise ValueError(
+            "Output proyek tidak boleh berada di dalam proyek lain di projects/. "
+            "Gunakan projects/ sebagai folder induk atau pilih lokasi di luar projects/."
+        )
     destination = destination_root / slug
 
     if not source.is_dir():

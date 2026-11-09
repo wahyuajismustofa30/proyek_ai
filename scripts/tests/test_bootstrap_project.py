@@ -98,6 +98,13 @@ class BootstrapProjectTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             bootstrap.bootstrap_project("  ", self.output, self.template)
 
+    def test_rejects_output_nested_inside_an_existing_project(self) -> None:
+        nested_output = bootstrap.REPOSITORY_ROOT / "projects" / "preview" / "generated"
+        with self.assertRaisesRegex(ValueError, "inside proyek lain"):
+            bootstrap.bootstrap_project(
+                "Nested Project", nested_output, self.template, dry_run=True
+            )
+
     def test_dry_run_does_not_create_output(self) -> None:
         result = bootstrap.bootstrap_project(
             "Preview Project", self.output, self.template, dry_run=True

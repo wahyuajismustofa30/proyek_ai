@@ -74,6 +74,7 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertIn("backgroundAudio.muted = !backgroundAudio.muted", handler)
         self.assertIn("updateAudioState()", handler)
         self.assertNotIn("backgroundAudio.pause()", handler)
+        self.assertNotIn("audioInitialized = true", handler)
         self.assertIn("backgroundAudio.volume = 0.30", self.main)
         self.assertLess(self.main.index("backgroundAudio.volume = 0.30"), self.main.index("attemptAudioPlayback(\'autoplay\')"))
 
@@ -105,7 +106,7 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         )[0]
         self.assertIn("const failure = classifyAudioPlaybackError(error)", attempt)
         self.assertIn(
-            "failure.type === 'autoplay-blocked' && ['autoplay', 'fallback'].includes(source) && !audioInitialized && !audioUserPaused",
+            "failure.type === 'autoplay-blocked' && ['autoplay', 'fallback', 'manual'].includes(source) && !audioInitialized && !audioUserPaused",
             attempt,
         )
         self.assertEqual(attempt.count("activateAudioFallback()"), 1)
@@ -154,10 +155,10 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertIn("++audioPlayAttemptId", pause_handler)
         self.assertIn("updateAudioState('Musik dijeda')", pause_handler)
 
-    def test_fallback_is_one_shot_and_ignores_interactive_controls(self):
+    def test_fallback_is_one_shot_and_preserves_single_music_control(self):
         self.assertIn("let audioFallbackActive = false", self.main)
         self.assertIn("audioFallbackActive = true", self.main)
-        self.assertIn("failure.type === 'autoplay-blocked' && ['autoplay', 'fallback'].includes(source)", self.main)
+        self.assertIn("failure.type === 'autoplay-blocked' && ['autoplay', 'fallback', 'manual'].includes(source)", self.main)
         self.assertIn("removeAudioFallback()", self.main)
         self.assertIn("document.removeEventListener(type, listener, options)", self.main)
         self.assertIn("['pointerdown', 'touchstart']", self.main)

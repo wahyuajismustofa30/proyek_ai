@@ -158,8 +158,8 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertIn("audioLifecycleMessage = message", lifecycle)
         self.assertIn("const playbackPending = audioPendingAttemptId !== null", lifecycle)
         self.assertIn("backgroundAudio.pause()", lifecycle)
-        self.assertIn("audioLifecycleAttemptId = playbackPending ? audioPendingAttemptId : audioPlayAttemptId", lifecycle)
-        self.assertIn("audioPlayAttemptId === audioLifecycleAttemptId + 1", pause_handler)
+        self.assertIn("audioLifecycleAttemptId = playbackPending ? audioPendingAttemptId : audioLatestPlaybackAttemptId", lifecycle)
+        self.assertIn("audioLatestPlaybackAttemptId === audioLifecycleAttemptId", pause_handler)
         self.assertLess(lifecycle.index("audioLifecycleMessage = message"), lifecycle.index("backgroundAudio.pause()"))
 
     def test_pause_event_only_marks_manual_pause_outside_lifecycle(self):

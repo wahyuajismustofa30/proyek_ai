@@ -8,7 +8,7 @@ dijalankan sebagai CI monorepo.
 | Workflow | Tanggung jawab |
 |---|---|
 | `.github/workflows/validate.yml` | Dependabot YAML/schema, JSON, compile Python template dan scripts, unit test tooling, Markdown, link internal, secret, whitespace |
-| `.github/workflows/project-matrix.yml` | Discovery proyek, test per stack, validasi HTML/CSS/aset, bootstrap E2E Node/Python/PHP, job agregat required check |
+| `.github/workflows/project-matrix.yml` | Discovery proyek, test per stack, validasi HTML/CSS/aset, bootstrap E2E Node/Python/PHP, job agregat status validasi proyek |
 | `.github/workflows/dependency-security.yml` | OSV-Scanner rekursif untuk manifest dan lockfile |
 
 Nama job di atas merupakan nama yang didefinisikan oleh source workflow.

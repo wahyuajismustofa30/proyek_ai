@@ -148,6 +148,19 @@ class TermuxGitHubSyncTests(unittest.TestCase):
         self.git(None, "--git-dir", str(self.remote), "show-ref", "--verify",
                  "refs/heads/feat/diverged")
 
+    def test_untracked_dotenv_variant_is_rejected_before_staging(self) -> None:
+        self.git(self.repo, "switch", "-c", "feat/secret-guard")
+        secret = self.repo / ".env.local"
+        secret.write_text("TOKEN=do-not-commit\\n", encoding="utf-8")
+
+        result = self.run_sync()
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("berpotensi rahasia", result.stderr)
+        self.assertEqual(
+            self.git(self.repo, "diff", "--cached", "--name-only").stdout, ""
+        )
+        self.assertTrue(secret.exists())
+
     def test_declining_upstream_integration_leaves_branch_unchanged(self) -> None:
         self.git(self.repo, "switch", "-c", "feat/decline")
         before = self.git(self.repo, "rev-parse", "HEAD").stdout.strip()

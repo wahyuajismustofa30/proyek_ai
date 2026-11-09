@@ -72,7 +72,12 @@ if ! git_cmd diff --quiet || ! git_cmd diff --cached --quiet || [[ -n "$(git_cmd
   git_cmd commit -m "$MESSAGE" || fail "Commit gagal."
 fi
 
-AHEAD="$(git_cmd rev-list --count "$REMOTE/$BRANCH"..HEAD 2>/dev/null || printf '0')"
+if git_cmd show-ref --verify --quiet "refs/remotes/$REMOTE/$BRANCH"; then
+  PUSH_BASE="$REMOTE/$BRANCH"
+else
+  PUSH_BASE="$REMOTE/main"
+fi
+AHEAD="$(git_cmd rev-list --count "$PUSH_BASE"..HEAD)"
 if [[ "$AHEAD" == "0" ]]; then
   info "${GREEN}Tidak ada commit baru untuk dikirim.${RESET}"
   exit 0
@@ -80,7 +85,7 @@ fi
 
 info ""
 info "Commit yang akan dikirim:"
-git_cmd --no-pager log --oneline "$REMOTE/$BRANCH"..HEAD 2>/dev/null || git_cmd --no-pager log --oneline "$REMOTE/main"..HEAD
+git_cmd --no-pager log --oneline "$PUSH_BASE"..HEAD
 if ! confirm "Push branch '$BRANCH' ke origin?"; then
   info "Push dibatalkan. Commit lokal tetap tersimpan."
   exit 0

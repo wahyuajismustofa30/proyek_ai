@@ -16,6 +16,7 @@ Berlaku sebagai tambahan terhadap instruksi induk di `/AGENTS.md`. Aturan umum t
 ## Dokumentasi proyek
 
 Untuk memahami kebutuhan dan keputusan proyek, gunakan dokumen berikut sesuai relevansi:
+
 - `README.md`
 - `docs/PROJECT_BRIEF.md`
 - `docs/ARCHITECTURE.md`

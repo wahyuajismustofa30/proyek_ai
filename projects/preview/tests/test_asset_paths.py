@@ -24,7 +24,6 @@ class LocalIconAssetTests(unittest.TestCase):
         cls.html = (ROOT / "index.html").read_text(encoding="utf-8")
         cls.main = (ROOT / "js/main.js").read_text(encoding="utf-8")
         cls.data = (ROOT / "js/data.js").read_text(encoding="utf-8")
-        cls.icon_css = (ROOT / "css/icon-pack.css").read_text(encoding="utf-8")
         cls.parser = IconMarkupParser()
         cls.parser.feed(cls.html)
 
@@ -55,12 +54,9 @@ class LocalIconAssetTests(unittest.TestCase):
         monochrome_names = set(re.findall(r"'([a-z0-9-]+)'", registry.group(1)))
 
         data_names = set(re.findall(r"icon:\\s*'([a-z0-9-]+)'", self.data))
-        detail_icons = re.search(r"detailIcons:\s*\[([^]]+)\\]", self.data)
-        if detail_icons:
-            data_names.update(re.findall(r"'([a-z0-9-]+)'", detail_icons.group(1)))
-        potential_icons = re.search(r"potentials:\s*\[([^]]+)\\]", self.data)
-        if potential_icons:
-            data_names.update(re.findall(r"'([a-z0-9-]+)'", potential_icons.group(1)))
+        for detail_icons in re.findall(r"detailIcons:\s*\[([^\]]+)\]", self.data):
+            data_names.update(re.findall(r"'([a-z0-9-]+)'", detail_icons))
+        data_names.update(re.findall(r"\['[^']+',\s*'([a-z0-9-]+)'\]", self.data))
         data_names.update(self.parser.data_icons)
 
         missing = []

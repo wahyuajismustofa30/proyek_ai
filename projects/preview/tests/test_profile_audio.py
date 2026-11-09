@@ -78,6 +78,20 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertIn("backgroundAudio.volume = 0.30", self.main)
         self.assertLess(self.main.index("backgroundAudio.volume = 0.30"), self.main.index("attemptAudioPlayback(\'autoplay\')"))
 
+    def test_refresh_starts_with_fresh_page_local_audio_state(self):
+        self.assertIn("let audioAutoplayAttempted = false", self.main)
+        self.assertIn("let audioInitialized = false", self.main)
+        self.assertNotRegex(self.main, r"localStorage|sessionStorage|document\\.cookie")
+        self.assertIn("activateAudioFallback();", self.main)
+        self.assertIn("attemptAudioPlayback('autoplay')", self.main)
+
+    def test_play_event_does_not_mark_audio_initialized_before_promise_success(self):
+        play_handler = self.main.split("backgroundAudio.addEventListener('play'", 1)[1].split(
+            "backgroundAudio.addEventListener('playing'", 1
+        )[0]
+        self.assertNotIn("audioInitialized = true", play_handler)
+        self.assertIn("audioPendingAttemptId = attemptId", self.main)
+
     def test_autoplay_is_attempted_once_and_rejection_activates_fallback(self):
         self.assertIn("let audioAutoplayAttempted = false", self.main)
         self.assertLess(self.main.index("activateAudioFallback();", self.main.index("// Pasang listener gesture")), self.main.index("attemptAudioPlayback('autoplay')"))

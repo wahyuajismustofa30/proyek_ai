@@ -46,27 +46,38 @@ class LocalIconAssetTests(unittest.TestCase):
             "assets/icons/monochrome/${name}.svg",
         )
 
-    def test_all_referenced_monochrome_icons_exist(self):
-        names = set(re.findall(
-            r"const navigationIcons = new Set\(\[([^]]+)\]\)",
+    def test_all_referenced_icon_files_exist(self):
+        registry = re.search(
+            r"const navigationIcons = new Set\\(\\[([^]]+)\\]\\)",
             self.main,
-        ))
-        self.assertTrue(names, "Navigation icon registry was not found")
-        icon_names = set(re.findall(r"'([a-z0-9-]+)'", names[0]))
-        icon_names.update(self.parser.data_icons)
-        icon_names.update(re.findall(r"icon:\s*'([a-z0-9-]+)'", self.data))
-        missing = sorted(
-            name for name in icon_names
-            if not (ROOT / "assets/icons/monochrome" / f"{name}.svg").is_file()
         )
-        self.assertEqual(missing, [], f"Missing monochrome SVG assets: {missing}")
+        self.assertIsNotNone(registry, "Navigation icon registry was not found")
+        monochrome_names = set(re.findall(r"'([a-z0-9-]+)'", registry.group(1)))
 
-    def test_color_icon_template_resolves_to_existing_local_assets(self):
-        match = re.search(r"assets/icons/color/\$\{name\}\.svg", self.main)
+        data_names = set(re.findall(r"icon:\\s*'([a-z0-9-]+)'", self.data))
+        detail_icons = re.search(r"detailIcons:\\s*\\[([^]]+)\\]", self.data)
+        if detail_icons:
+            data_names.update(re.findall(r"'([a-z0-9-]+)'", detail_icons.group(1)))
+        potential_icons = re.search(r"potentials:\\s*\\[([^]]+)\\]", self.data)
+        if potential_icons:
+            data_names.update(re.findall(r"'([a-z0-9-]+)'", potential_icons.group(1)))
+        data_names.update(self.parser.data_icons)
+
+        missing = []
+        for name in sorted(data_names | monochrome_names):
+            variant = "monochrome" if name in monochrome_names else "color"
+            asset = ROOT / "assets/icons" / variant / f"{name}.svg"
+            if not asset.is_file():
+                missing.append(f"{variant}/{name}.svg")
+        self.assertEqual(missing, [], f"Missing referenced SVG assets: {missing}")
+
+    def test_color_icon_template_resolves_from_preview_root(self):
+        match = re.search(r"src=\"assets/icons/color/\\$\\{name\\}\\.svg\"", self.main)
         self.assertIsNotNone(match, "Dynamic color icon asset template is missing")
-        self.assertTrue((ROOT / "assets/icons/color").is_dir())
+        color_dir = ROOT / "assets/icons/color"
+        self.assertTrue(color_dir.is_dir())
         self.assertGreater(
-            len(list((ROOT / "assets/icons/color").glob("*.svg"))),
+            len(list(color_dir.glob("*.svg"))),
             0,
             "Color icon directory contains no SVG assets",
         )

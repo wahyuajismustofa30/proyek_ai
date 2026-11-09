@@ -20,7 +20,7 @@ Pengunjung publik yang ingin mengenal kandidat dan materi kampanye. Informasi pu
 ## Ruang lingkup saat ini
 
 - Profil kandidat, riwayat pendidikan, dan riwayat pekerjaan
-- Kontrol musik latar manual melalui satu tombol mengambang; file `assets/mp3/music.mp3`, tanpa autoplay
+- Kontrol musik latar melalui satu tombol mengambang; satu percobaan autoplay awal dengan fallback interaksi pertama bila ditolak browser; file `assets/mp3/music.mp3`
 - Tujuh misi interaktif
 - Program yang terhubung ke misi
 - Potensi desa

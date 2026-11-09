@@ -119,6 +119,25 @@ class SyncScriptSafetyTests(unittest.TestCase):
             ["unrelated-staged.txt"],
         )
 
+    def test_refuses_to_push_existing_unrelated_local_commits(self) -> None:
+        unrelated = self.repo / "unrelated-committed.txt"
+        unrelated.write_text("must remain local\\n", encoding="utf-8")
+        self.git(self.repo, "add", "unrelated-committed.txt")
+        self.git(self.repo, "commit", "-m", "unrelated local work")
+
+        (self.project / "index.html").write_text(
+            "<!doctype html><title>Preview update</title>\\n",
+            encoding="utf-8",
+        )
+        result = self.run_sync("y\\n\\n")
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn("Commit lokal yang belum terkirim mengubah file di luar", result.stderr)
+        self.assertIn("Push dibatalkan", result.stdout)
+        self.assertEqual(
+            self.git(None, "--git-dir", str(self.remote), "rev-parse", "refs/heads/main").stdout.strip(),
+            self.git(self.repo, "rev-parse", "HEAD~2").stdout.strip(),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

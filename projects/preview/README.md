@@ -26,3 +26,9 @@ Buka `index.html` langsung di browser, atau gunakan ekstensi server lokal (misal
 ## Publikasi GitHub Pages
 
 Unggah isi folder proyek ke repository GitHub. Pada **Settings → Pages**, pilih branch utama dan folder root (`/`). Setelah tersimpan, GitHub akan menampilkan alamat situs.
+
+## Sinkronisasi Git
+
+Skrip `SYNC - 26.11.03.sh` bekerja dari root repository dan hanya menambahkan perubahan dari `projects/preview/` ke staging. Jika ada perubahan yang sudah di-stage di luar folder tersebut, skrip berhenti agar tidak ikut ter-commit. Skrip juga menolak push bila commit lokal yang belum terkirim mengubah file di luar folder proyek.
+
+Sebelum push, skrip menampilkan daftar commit yang akan dikirim dan meminta konfirmasi. Sinkronisasi tetap ditujukan ke branch `main`; jalankan hanya setelah memeriksa daftar commit dan memastikan push langsung ke branch tersebut memang diinginkan.

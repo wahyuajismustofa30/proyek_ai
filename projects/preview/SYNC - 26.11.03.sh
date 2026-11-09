@@ -413,6 +413,21 @@ has_staged_changes_outside_scope() {
   return 1
 }
 
+# Mengembalikan 0 bila commit lokal yang belum terkirim mengubah file di luar scope.
+has_unpushed_changes_outside_scope() {
+  local f
+  while IFS= read -r -d '' f; do
+    case "$f" in
+      "$SYNC_SCOPE"/*) ;;
+      *)
+        log_error "PUSH SCOPE" "Commit lokal yang belum terkirim mengubah file di luar '$SYNC_SCOPE': $f"
+        return 0
+        ;;
+    esac
+  done < <(git diff --name-only -z "$REMOTE/$BRANCH..HEAD")
+  return 1
+}
+
 # ==========================================
 # COMMIT
 # ==========================================
@@ -492,6 +507,10 @@ push_changes() {
     if (( ahead == 0 )); then
       echo "✅ GitHub sudah sama dengan lokal; tidak ada yang perlu di-push."
       return 0
+    fi
+    if has_unpushed_changes_outside_scope; then
+      echo "⛔ Push dibatalkan. Pisahkan perubahan di luar '$SYNC_SCOPE' ke proses sinkronisasi tersendiri."
+      exit 1
     fi
     commits_to_push="$(git log --oneline "$REMOTE/$BRANCH..HEAD")"
     echo

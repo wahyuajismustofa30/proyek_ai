@@ -91,7 +91,7 @@
 - [x] Scope demo dan acceptance criteria ditetapkan.
 - [ ] Test otomatis dan validasi CI lulus.
 - [ ] Review manual pada viewport desktop dan mobile.
-- [ ] Dokumentasi diperbarui.
+- [x] Dokumentasi diperbarui.
 - [x] Tidak ada secret atau data nyata.
 
 ## 11. Pertanyaan terbuka

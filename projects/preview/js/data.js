@@ -1,5 +1,5 @@
 const campaignData = {
-  candidate: { name: 'SLAMET', village: 'TLAGAYASA', period: '2027–2035' },
+  candidate: { name: 'SLAMET', fullName: 'Slamet Purwanto', village: 'TLAGAYASA', period: '2027–2035' },
   profile: {
     label: 'CALON KEPALA DESA',
     headingPrefix: 'MENGENAL',
@@ -7,7 +7,7 @@ const campaignData = {
     role: 'Calon Kepala Desa Tlagayasa Periode 2027–2035.',
     summary: 'Komitmen untuk hadir, mendengar, dan bersama-sama membangun Desa Tlagayasa yang maju, sejahtera, dan berdaya saing.',
     image: 'assets/images/slamet-profile.png',
-    imageAlt: 'Potret Slamet, calon Kepala Desa Tlagayasa',
+    imageAlt: 'Potret Slamet Purwanto, calon Kepala Desa Tlagayasa',
     meta: [
       { icon: 'map-pin', label: 'Wilayah', value: 'Desa Tlagayasa' },
       { icon: 'calendar-days', label: 'Periode', value: '2027–2035' }

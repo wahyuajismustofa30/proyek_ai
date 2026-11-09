@@ -2,11 +2,11 @@
 
 ## Status ruang kerja
 
-Saat ini belum ada proyek aktif di `projects/`. Folder tersebut sengaja
-dipertahankan kosong sampai sistem inti repository dan kebutuhan proyek siap.
+Proyek aktif saat ini:
 
 | Komponen | Lokasi | Status | Konteks awal |
 |---|---|---|---|
+| Testing — Web Page Lab | `projects/testing/` | Active — test pembuatan halaman web | `projects/testing/README.md` dan `projects/testing/docs/PROJECT_BRIEF.md` |
 | AI Project Template | `templates/ai-project/` | Siap disalin untuk proyek baru | `templates/ai-project/README.md` |
 | Bootstrap Proyek | `scripts/bootstrap_project.py` | Tool otomatis untuk membuat proyek dari template | `docs/PROJECT_BOOTSTRAP.md` |
 | Arsip historis | `archives/README.md` | Hanya README dipertahankan; isi arsip sengaja kosong | `archives/README.md` |

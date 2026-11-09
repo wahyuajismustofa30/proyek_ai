@@ -31,7 +31,7 @@ Buka `index.html` langsung di browser, atau gunakan ekstensi server lokal (misal
 - Tujuh kartu misi interaktif dengan satu panel detail dinamis yang otomatis menjadi fokus layar
 - Kartu program yang menautkan ke detail misi
 - Galeri dengan lightbox, navigasi keyboard, dan tombol sebelumnya/berikutnya
-- Animasi saat masuk viewport, indikator progres gulir, tombol kembali ke atas, serta dukungan `prefers-reduced-motion`
+- Animasi saat masuk viewport, indikator progres gulir, satu tombol musik latar (Play/mute/unmute), serta dukungan `prefers-reduced-motion`
 
 ## Publikasi GitHub Pages
 

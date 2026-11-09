@@ -60,18 +60,4 @@
 .work-role { display:inline-block; margin-top:2px; color:var(--muted); font-size:.7rem; font-weight:700; }
 .work-entry p { margin:3px 0 0; color:var(--muted); font-size:.7rem; }
 .work-entry.current { border-left:2px solid var(--green); padding-left:9px; }
-.audio-player { position:fixed; z-index:7; left:20px; bottom:20px; width:min(340px,calc(100vw - 84px)); padding:12px 14px; border:1px solid #d8e4c8; border-radius:10px; background:#fffdf5; color:var(--ink); box-shadow:0 8px 28px #002a1026; }
-.audio-player-heading { display:flex; align-items:center; gap:9px; margin-bottom:9px; }
-.audio-player-icon { display:grid; width:32px; height:32px; place-items:center; border-radius:50%; background:var(--cream); color:var(--green); }
-.audio-player-icon img { width:18px; height:18px; }
-.audio-player-heading strong,.audio-player-heading span:not(.audio-player-icon) { display:block; }
-.audio-player-heading strong { font:700 .76rem var(--font-head); }
-.audio-player-heading #audio-status { color:var(--muted); font-size:.66rem; }
-.audio-player-controls { display:flex; flex-wrap:wrap; align-items:center; gap:7px; }
-.audio-player-controls button { min-height:32px; padding:5px 10px; border:1px solid var(--green); border-radius:5px; background:var(--green); color:#fff; font-size:.68rem; font-weight:700; }
-.audio-player-controls button:hover,.audio-player-controls button:focus-visible { background:var(--deep); }
-.audio-player-controls button:focus-visible,.audio-player-controls input:focus-visible { outline:3px solid #b58e00; outline-offset:2px; }
-.audio-volume-label { color:var(--muted); font-size:.66rem; }
-.audio-player-controls input[type="range"] { width:74px; min-width:54px; accent-color:var(--green); }
-@media(max-width:620px) { .audio-player { left:12px; bottom:12px; width:min(310px,calc(100vw - 76px)); padding:10px; } .audio-player-controls { gap:5px; } .work-entry { grid-template-columns:96px minmax(0,1fr); gap:8px; } }
-@media(prefers-reduced-motion:reduce) { .audio-player *, .audio-player *::before, .audio-player *::after { transition:none !important; animation:none !important; } }
+@media(max-width:620px) { .work-entry { grid-template-columns:96px minmax(0,1fr); gap:8px; } }

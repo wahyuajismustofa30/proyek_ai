@@ -1,4 +1,4 @@
-"""Safety tests for the repository-wide Termux GitHub sync helper."""
+"""Safety and upstream-integration tests for the Termux GitHub sync helper."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ class TermuxGitHubSyncTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.remote = self.root / "remote.git"
         self.repo = self.root / "working"
+        self.upstream = self.root / "upstream"
         self.env = os.environ.copy()
         self.env.update(
             {
@@ -51,6 +52,15 @@ class TermuxGitHubSyncTests(unittest.TestCase):
             capture_output=True,
             text=True,
         )
+
+    def advance_remote_main(self, filename: str = "upstream.txt") -> None:
+        self.git(None, "clone", str(self.remote), str(self.upstream))
+        self.git(self.upstream, "config", "user.name", "CI Test")
+        self.git(self.upstream, "config", "user.email", "ci-test@example.invalid")
+        (self.upstream / filename).write_text("upstream change\n", encoding="utf-8")
+        self.git(self.upstream, "add", filename)
+        self.git(self.upstream, "commit", "-m", "advance main")
+        self.git(self.upstream, "push", "origin", "main")
 
     def run_sync(self, answers: str = "") -> subprocess.CompletedProcess[str]:
         return subprocess.run(
@@ -97,6 +107,72 @@ class TermuxGitHubSyncTests(unittest.TestCase):
         self.assertEqual(after, before)
         self.assertEqual(
             self.git(self.repo, "branch", "--show-current").stdout.strip(), "main"
+        )
+
+    def test_behind_feature_branch_fast_forwards_after_confirmation(self) -> None:
+        self.git(self.repo, "switch", "-c", "feat/behind")
+        self.advance_remote_main()
+
+        result = self.run_sync("y\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Branch berhasil diperbarui", result.stdout)
+        self.assertEqual(
+            self.git(self.repo, "branch", "--show-current").stdout.strip(),
+            "feat/behind",
+        )
+        self.assertEqual(
+            self.git(self.repo, "rev-parse", "HEAD").stdout.strip(),
+            self.git(self.repo, "rev-parse", "origin/main").stdout.strip(),
+        )
+
+    def test_diverged_feature_branch_merges_main_and_pushes_without_rewriting(self) -> None:
+        self.git(self.repo, "switch", "-c", "feat/diverged")
+        (self.repo / "local.txt").write_text("local change\n", encoding="utf-8")
+        self.git(self.repo, "add", "local.txt")
+        self.git(self.repo, "commit", "-m", "feature work")
+        feature_commit = self.git(self.repo, "rev-parse", "HEAD").stdout.strip()
+        self.advance_remote_main()
+
+        result = self.run_sync("y\ny\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("memiliki commit masing-masing", result.stdout)
+        self.assertIn("Branch berhasil diperbarui", result.stdout)
+        self.assertIn("Push berhasil", result.stdout)
+        self.assertEqual(
+            self.git(self.repo, "rev-parse", "HEAD^1").stdout.strip(), feature_commit
+        )
+        self.assertEqual(
+            self.git(self.repo, "rev-parse", "HEAD^2").stdout.strip(),
+            self.git(self.repo, "rev-parse", "origin/main").stdout.strip(),
+        )
+        self.git(None, "--git-dir", str(self.remote), "show-ref", "--verify",
+                 "refs/heads/feat/diverged")
+
+    def test_untracked_dotenv_variant_is_rejected_before_staging(self) -> None:
+        self.git(self.repo, "switch", "-c", "feat/secret-guard")
+        secret = self.repo / ".env.local"
+        secret.write_text("TOKEN=do-not-commit\\n", encoding="utf-8")
+
+        result = self.run_sync()
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("berpotensi rahasia", result.stderr)
+        self.assertEqual(
+            self.git(self.repo, "diff", "--cached", "--name-only").stdout, ""
+        )
+        self.assertTrue(secret.exists())
+
+    def test_declining_upstream_integration_leaves_branch_unchanged(self) -> None:
+        self.git(self.repo, "switch", "-c", "feat/decline")
+        before = self.git(self.repo, "rev-parse", "HEAD").stdout.strip()
+        self.advance_remote_main()
+
+        result = self.run_sync("n\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Sinkronisasi dibatalkan", result.stdout)
+        self.assertEqual(self.git(self.repo, "rev-parse", "HEAD").stdout.strip(), before)
+        self.assertEqual(
+            self.git(self.repo, "branch", "--show-current").stdout.strip(),
+            "feat/decline",
         )
 
 

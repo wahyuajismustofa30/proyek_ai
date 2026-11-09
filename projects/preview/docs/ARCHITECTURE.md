@@ -10,7 +10,7 @@ Website statis tanpa framework/build pipeline yang dinyatakan. Browser membuka `
 |---|---|
 | `index.html` | Kerangka halaman, section, metadata, elemen awal, dan fallback markup |
 | `js/data.js` | Objek data profil, visi/misi, program, potensi, dan galeri |
-| `js/main.js` | Render data ke DOM, interaksi UI, dan kontrol pemutar audio HTML5 |
+| `js/main.js` | Render data ke DOM, interaksi UI, dan kontrol audio HTML5 melalui satu tombol mengambang |
 | `css/style.css` | Gaya utama, layout, warna, tipografi, responsivitas |
 | `css/improvements.css` | Lapisan peningkatan/penyesuaian tampilan |
 | `css/icon-pack.css` | Gaya penggunaan ikon |
@@ -22,8 +22,8 @@ Website statis tanpa framework/build pipeline yang dinyatakan. Browser membuka `
 1. Browser memuat HTML dan stylesheet.
 2. Script data menyediakan objek konten.
 3. Script utama mengisi/menginisialisasi komponen dinamis dan listener.
-4. Pengguna berinteraksi dengan navigasi, panel visi, kartu misi/program, galeri/lightbox, dan kontrol scroll.
-5. Kontrol audio hanya memulai pemutaran setelah klik eksplisit; sumber audio lokal dikonfigurasi terpisah dan tidak disertakan sampai aset dengan izin yang jelas tersedia.
+4. Pengguna berinteraksi dengan navigasi, panel visi, kartu misi/program, galeri/lightbox, dan kontrol scroll progress/sticky header.
+5. Kontrol audio menggunakan satu tombol: klik pertama memulai pemutaran, klik saat berjalan membisukan, dan klik saat mute mengaktifkan suara kembali. Sumber lokal `assets/mp3/music.mp3` tidak autoplay; volume awal 18%.
 
 ## Pola penting
 

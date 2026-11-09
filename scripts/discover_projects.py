@@ -19,10 +19,10 @@ STACK_MANIFESTS = {
 PROJECT_SLUG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 
 GENERATED_DIRECTORIES = {
-    "node_modules", ".venv", "venv", "__pycache__", ".pytest_cache",
+    "node_modules", "vendor", ".venv", "venv", "__pycache__", ".pytest_cache",
     ".mypy_cache", ".ruff_cache", ".tox", ".nox", ".cache", "htmlcov",
 }
-GENERATED_ROOT_DIRECTORIES = {"vendor", "dist", "build", "coverage", "artifacts"}
+GENERATED_ROOT_DIRECTORIES = {"dist", "build", "coverage", "artifacts"}
 GENERATED_FILE_NAMES = {".coverage", ".DS_Store", "Thumbs.db", "npm-debug.log", "yarn-error.log"}
 GENERATED_FILE_SUFFIXES = {".pyc", ".pyo", ".log", ".tmp", ".temp"}
 
@@ -65,10 +65,10 @@ def validate_project_directory_name(name: str) -> None:
 def discover_projects(repository_root: Path) -> dict[str, list[dict[str, str]]]:
     """Discover only visible, valid first-level project directories under projects/.
 
-    Hidden files at the projects root are ignored. Hidden directories at that
-    level are rejected to prevent silently hiding a project from CI. Nested
-    directories (including hidden tool/configuration directories) belong to
-    their parent project and are not independently discovered.
+    Only README.md is permitted as a file at the projects root. Hidden directories
+    at that level are rejected to prevent silently hiding a project from CI. Nested
+    directories (including hidden tool/configuration directories) belong to their
+    parent project and are not independently discovered.
     """
     projects_root = repository_root / "projects"
     entries: list[dict[str, str]] = []

@@ -47,7 +47,7 @@ class LocalIconAssetTests(unittest.TestCase):
 
     def test_all_referenced_icon_files_exist(self):
         registry = re.search(
-            r"const navigationIcons = new Set\(\[([^]]+)\\]\\)",
+            r"const navigationIcons = new Set\(\[([^]]+)\]\)",
             self.main,
         )
         self.assertIsNotNone(registry, "Navigation icon registry was not found")

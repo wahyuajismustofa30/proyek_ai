@@ -86,7 +86,6 @@ class SyncScriptSafetyTests(unittest.TestCase):
         # Confirm commit, accept the default commit message, then confirm push.
         result = self.run_sync("y\n\ny\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("Lanjutkan push ke 'origin/main'?", result.stderr)
 
         remote_files = self.git(
             None,
@@ -103,6 +102,23 @@ class SyncScriptSafetyTests(unittest.TestCase):
             self.git(self.repo, "status", "--porcelain").stdout.strip(),
             "?? unrelated-local-notes.txt",
         )
+
+    def test_push_is_denied_when_confirmation_is_missing(self) -> None:
+        (self.project / "index.html").write_text(
+            "<!doctype html><title>Unconfirmed</title>\n",
+            encoding="utf-8",
+        )
+        baseline = self.git(None, "--git-dir", str(self.remote), "rev-parse", "refs/heads/main").stdout.strip()
+
+        # Confirm commit, accept the default commit message, then provide no push approval.
+        result = self.run_sync("y\n\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Push dibatalkan. Commit lokal tetap tersimpan.", result.stdout)
+        self.assertEqual(
+            self.git(None, "--git-dir", str(self.remote), "rev-parse", "refs/heads/main").stdout.strip(),
+            baseline,
+        )
+        self.assertNotEqual(self.git(self.repo, "rev-parse", "HEAD").stdout.strip(), baseline)
 
     def test_aborts_when_unrelated_file_is_already_staged(self) -> None:
         unrelated = self.repo / "unrelated-staged.txt"

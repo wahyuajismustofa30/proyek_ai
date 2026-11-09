@@ -45,7 +45,7 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertEqual(block.count("role: 'Owner'"), 2)
         self.assertIn("Penyedia Layanan Internet Desa", block)
 
-    def test_audio_uses_existing_mp3_without_autoplay(self):
+    def test_audio_uses_existing_mp3_and_attempts_autoplay_in_javascript(self):
         self.assertEqual(len(self.parser.audio), 1)
         self.assertNotIn("autoplay", self.parser.audio[0])
         self.assertIn("preload", self.parser.audio[0])
@@ -65,16 +65,44 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertNotIn("audio-volume", self.main)
         self.assertNotIn("audio-player", self.css)
 
-    def test_single_handler_starts_then_toggles_mute_without_pausing(self):
+    def test_single_button_starts_then_toggles_mute_without_pausing(self):
         handler_start = self.main.index("audioToggle.addEventListener('click'")
         handler_end = self.main.index("backgroundAudio.addEventListener('play'", handler_start)
         handler = self.main[handler_start:handler_end]
         self.assertEqual(self.main.count("audioToggle.addEventListener('click'"), 1)
-        self.assertIn("await backgroundAudio.play()", handler)
+        self.assertIn("attemptAudioPlayback('manual')", handler)
         self.assertIn("backgroundAudio.muted = !backgroundAudio.muted", handler)
         self.assertIn("updateAudioState()", handler)
         self.assertNotIn("backgroundAudio.pause()", handler)
         self.assertIn("backgroundAudio.volume = 0.18", self.main)
+
+    def test_autoplay_is_attempted_once_and_rejection_activates_fallback(self):
+        self.assertIn("let audioAutoplayAttempted = false", self.main)
+        self.assertIn("if (!audioAutoplayAttempted)", self.main)
+        self.assertIn("audioAutoplayAttempted = true", self.main)
+        self.assertEqual(self.main.count("attemptAudioPlayback('autoplay')"), 1)
+        self.assertIn("source === 'autoplay'", self.main)
+        self.assertIn("activateAudioFallback()", self.main)
+        self.assertIn(".catch(() =>", self.main)
+
+    def test_fallback_is_one_shot_and_ignores_interactive_controls(self):
+        self.assertIn("let audioFallbackActive = false", self.main)
+        self.assertIn("audioFallbackActive = true", self.main)
+        self.assertIn("removeAudioFallback()", self.main)
+        self.assertIn("document.removeEventListener(type, listener, options)", self.main)
+        self.assertIn("['pointerdown']", self.main)
+        self.assertIn("['touchstart', 'click']", self.main)
+        self.assertIn("button, a, input, select, textarea, summary, dialog", self.main)
+        self.assertIn("attemptAudioPlayback('fallback')", self.main)
+
+    def test_manual_pause_is_distinct_from_lifecycle_pause(self):
+        self.assertIn("let audioUserPaused = false", self.main)
+        self.assertIn("let audioLifecyclePause = false", self.main)
+        self.assertIn("if (audioLifecyclePause)", self.main)
+        self.assertIn("audioUserPaused = true", self.main)
+        self.assertIn("if (audioUserPaused)", self.main)
+        self.assertIn("function pauseAudioForLifecycle(message)", self.main)
+        self.assertIn("++audioPlayAttemptId", self.main)
 
     def test_audio_button_state_and_failure_are_accessible(self):
         self.assertIn("aria-label", self.html)
@@ -91,11 +119,13 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertIn("Musik gagal diputar", self.main)
         self.assertIn("addEventListener('error'", self.main)
 
-    def test_audio_stops_when_tab_is_hidden_or_page_is_left(self):
+    def test_audio_stops_when_tab_is_hidden_or_page_is_left_without_resume(self):
         self.assertIn("visibilitychange", self.main)
         self.assertIn("document.hidden", self.main)
-        self.assertIn("backgroundAudio.pause()", self.main)
+        self.assertIn("pauseAudioForLifecycle('Musik dihentikan saat tab tidak aktif')", self.main)
         self.assertIn("addEventListener('pagehide'", self.main)
+        self.assertNotIn("document.addEventListener('visibilitychange', () => attemptAudioPlayback", self.main)
+        self.assertNotIn("window.addEventListener('focus', () => attemptAudioPlayback", self.main)
 
     def test_back_to_top_is_removed_but_scroll_features_remain(self):
         self.assertNotIn("back-to-top", self.html.lower())

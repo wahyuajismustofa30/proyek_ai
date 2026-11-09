@@ -74,6 +74,23 @@ class DiscoverProjectsTests(unittest.TestCase):
             "The matrix must contain three distinct project directories, not one multi-stack project.",
         )
 
+    def test_discovers_static_website_from_root_index_html(self) -> None:
+        self.make_project("static-site", "index.html", "README.md")
+        self.assertEqual(
+            discover_projects(self.root)["include"],
+            [{"project": "projects/static-site", "slug": "static-site", "stack": "static"}],
+        )
+
+    def test_discovers_static_website_alongside_an_application_stack(self) -> None:
+        self.make_project("hybrid-site", "index.html", "package.json")
+        self.assertEqual(
+            discover_projects(self.root)["include"],
+            [
+                {"project": "projects/hybrid-site", "slug": "hybrid-site", "stack": "node"},
+                {"project": "projects/hybrid-site", "slug": "hybrid-site", "stack": "static"},
+            ],
+        )
+
     def test_reports_project_without_supported_manifest(self) -> None:
         self.make_project("design-system", "README.md")
         self.assertEqual(

@@ -4,7 +4,7 @@
   const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
   const navigationIcons = new Set(['circle-check', 'chevron-down', 'arrow-right', 'arrow-up-right', 'arrow-up', 'chevron-left', 'chevron-right', 'x']);
   const icon = (name, extraClass = '') => navigationIcons.has(name)
-    ? `<span class="icon icon-mask icon-${name} ${extraClass}" style="--icon:url('assets/icons/monochrome/${name}.svg')" aria-hidden="true"></span>`
+    ? `<span class="icon icon-mask icon-${name} ${extraClass}" style="--icon:url('../assets/icons/monochrome/${name}.svg')" aria-hidden="true"></span>`
     : `<img class="icon icon-image icon-${name} ${extraClass}" src="assets/icons/color/${name}.svg" alt="" aria-hidden="true">`;
   const refreshIcons = () => $$('[data-icon]').forEach(element => { element.outerHTML = icon(element.dataset.icon, element.className || ''); });
 

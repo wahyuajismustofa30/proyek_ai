@@ -4,6 +4,7 @@ Perubahan dicatat ringkas dan kronologis. Gunakan tanggal ISO (`YYYY-MM-DD`) dan
 
 ## Unreleased
 
+- Memperbaiki URL ikon monokrom pada CSS mask agar diselesaikan dari direktori `css/` menuju aset SVG di `assets/icons/monochrome/`; menambahkan tes regresi validasi path aset.
 - Membedakan error autoplay yang ditolak browser dari kegagalan sumber/format, pembatalan, dan error media; fallback interaksi hanya aktif untuk `NotAllowedError` saat autoplay awal.
 - Mempertahankan alasan pause lifecycle melalui event `pause` dan mengabaikan event pause tertunda ketika playback baru sudah berjalan kembali.
 - Memperluas regression test untuk klasifikasi error, fallback, urutan percobaan playback, serta sinkronisasi alasan pause.

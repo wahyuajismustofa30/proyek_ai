@@ -2,6 +2,8 @@
 
 ## Pemeriksaan otomatis
 
+Jalankan validasi referensi ikon dan aset CSS lokal dengan `python3 projects/preview/tests/test_asset_paths.py`. Tes ini menyelesaikan URL mask ikon dari direktori stylesheet dan memastikan file SVG yang dirujuk tersedia.
+
 Jalankan pemeriksaan kontrak fitur profil dan audio dengan `python3 projects/preview/tests/test_profile_audio.py`.
 
 Workflow monorepo mendeteksi proyek sebagai static site melalui `index.html` di root proyek dan menjalankan validasi HTML/CSS/aset lokal serta HTTP smoke test. Pada commit main yang diaudit, check `projects/preview / static` berstatus sukses.

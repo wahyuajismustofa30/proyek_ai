@@ -16,7 +16,7 @@ Menyediakan proyek nyata di dalam monorepo untuk menguji alur pembuatan halaman 
 - Halaman landing responsif berbahasa Indonesia.
 - Struktur semantik HTML dan navigasi yang dapat digunakan dengan keyboard.
 - Menu navigasi mobile dengan status aksesibel.
-- Formulir interaktif yang hanya melakukan simulasi validasi di browser; tidak mengirim atau menyimpan data.
+- Formulir interaktif yang hanya melakukan simulasi validasi di browser; tombol submit baru aktif setelah JavaScript siap sehingga tidak ada pengiriman native saat JavaScript gagal dimuat.
 - Aset SVG lokal yang disajikan dari document root.
 
 ## Teknologi

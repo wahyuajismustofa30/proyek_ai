@@ -24,7 +24,7 @@ test("halaman menyediakan landmark dan skip link", () => {
   assert.match(html, /class="skip-link" href="#main-content"/);
 });
 
-test("semua referensi aset lokal dapat dilayani dari document root src", () => {
+test("URL aset lokal dipetakan ke file di bawah document root src", () => {
   const localReferences = [...html.matchAll(/(?:src|href)="([^"]+)"/g)]
     .map((match) => match[1])
     .filter((reference) => !reference.startsWith("#") && !/^[a-z]+:/i.test(reference));
@@ -35,7 +35,7 @@ test("semua referensi aset lokal dapat dilayani dari document root src", () => {
     const pathname = decodeURIComponent(requestUrl.pathname);
     const assetPath = resolve(sourceRoot, `.${pathname}`);
     assert.ok(assetPath.startsWith(sourceRoot + sep), `Path keluar dari document root: ${reference}`);
-    assert.equal(existsSync(assetPath), true, `HTTP 404 untuk referensi: ${reference} -> ${pathname}`);
+    assert.equal(existsSync(assetPath), true, `File tidak ditemukan pada document root: ${reference} -> ${pathname}`);
   }
 });
 
@@ -65,7 +65,11 @@ function makeElement() {
     focused: false,
     resetCalled: false,
     addEventListener(type, callback) { listeners.set(type, callback); },
-    dispatch(type, event = {}) { listeners.get(type)?.({ preventDefault() {}, ...event }); },
+    dispatch(type, event = {}) {
+      let defaultPrevented = false;
+      listeners.get(type)?.({ preventDefault() { defaultPrevented = true; }, ...event });
+      this.lastDefaultPrevented = defaultPrevented;
+    },
     getAttribute(name) { return attributes.get(name) ?? null; },
     setAttribute(name, value) { attributes.set(name, value); },
     focus() { this.focused = true; },
@@ -91,6 +95,9 @@ function makePage() {
   const navLink = makeElement();
   navigation.querySelectorAll = () => [navLink];
   const form = makeElement();
+  const submitButton = makeElement();
+  submitButton.disabled = true;
+  form.querySelector = () => submitButton;
   const emailInput = makeElement();
   const message = makeElement();
   const documentRef = {
@@ -106,7 +113,7 @@ function makePage() {
     },
   };
   initializePage(documentRef);
-  return { documentRef, menuButton, navigation, navLink, form, emailInput, message };
+  return { documentRef, menuButton, navigation, navLink, form, submitButton, emailInput, message };
 }
 
 test("menu mobile menyinkronkan aria-expanded dan status navigasi", () => {
@@ -127,6 +134,13 @@ test("memilih tautan navigasi menutup menu", () => {
   assert.equal(page.navigation.classList.contains("is-open"), false);
 });
 
+test("form hanya aktif setelah JavaScript memasang handler submit", () => {
+  assert.match(html, /<button[^>]*type="submit"[^>]*disabled/);
+  const page = makePage();
+  assert.equal(page.submitButton.disabled, false);
+  assert.equal(page.documentRef.documentElement.classList.contains("js"), true);
+});
+
 test("form menampilkan error dan mempertahankan input yang tidak valid", () => {
   const page = makePage();
   page.emailInput.value = "a@.com";
@@ -135,6 +149,7 @@ test("form menampilkan error dan mempertahankan input yang tidak valid", () => {
   assert.match(page.message.textContent, /Format email belum tepat/);
   assert.equal(page.emailInput.focused, true);
   assert.equal(page.form.resetCalled, false);
+  assert.equal(page.form.lastDefaultPrevented, true);
 });
 
 test("form menampilkan sukses dan reset hanya untuk email valid", () => {
@@ -144,4 +159,5 @@ test("form menampilkan sukses dan reset hanya untuk email valid", () => {
   assert.equal(page.message.dataset.state, "success");
   assert.match(page.message.textContent, /tidak ada data yang dikirim/);
   assert.equal(page.form.resetCalled, true);
+  assert.equal(page.form.lastDefaultPrevented, true);
 });

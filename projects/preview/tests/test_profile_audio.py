@@ -81,7 +81,7 @@ class ProfileAndAudioContractTests(unittest.TestCase):
     def test_refresh_starts_with_fresh_page_local_audio_state(self):
         self.assertIn("let audioAutoplayAttempted = false", self.main)
         self.assertIn("let audioInitialized = false", self.main)
-        self.assertNotRegex(self.main, r"localStorage|sessionStorage|document\\.cookie")
+        self.assertNotRegex(self.main, r"localStorage|sessionStorage|document\.cookie")
         self.assertIn("activateAudioFallback();", self.main)
         self.assertIn("attemptAudioPlayback('autoplay')", self.main)
 

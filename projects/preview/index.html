@@ -201,17 +201,15 @@
     <section class="closing section"><div class="closing-leaves" aria-hidden="true"></div><div class="container closing-content reveal"><p class="eyebrow"><span></span> BERSAMA UNTUK TLAGAYASA <span></span></p><h2>TLAGAYASA MAJU,<br><mark>SEJAHTERA</mark> DAN BERDAYA SAING.</h2><p class="tagline">“Siapapun Pilihannya, <strong>Sing Penting SLAMET.</strong>”</p><div class="closing-name">SLAMET <span>•</span> CALON KEPALA DESA TLAGAYASA <span>•</span> 2027–2035</div></div></section>
   </main>
   <footer><div class="container footer-grid"><a class="brand" href="#beranda"><span class="brand-mark">S</span><span>SLAMET<small>CALON KEPALA DESA TLAGAYASA</small></span></a><div class="footer-links"><a href="#profil">Profil</a><a href="#visi-misi">Visi &amp; Misi</a><a href="#program">Program</a><a href="#galeri">Galeri</a></div><p>© <span id="copyright-year"></span> SLAMET. Periode 2027–2035.</p></div></footer>
-  <section class="audio-player" aria-label="Pemutar musik latar">
-    <audio id="background-audio" preload="none" loop></audio>
-    <div class="audio-player-heading"><span class="audio-player-icon" aria-hidden="true"><img src="assets/icons/color/music-2.svg" alt=""></span><div><strong>Musik Latar</strong><span id="audio-status" role="status" aria-live="polite">Audio belum tersedia</span></div></div>
-    <div class="audio-player-controls">
-      <button id="audio-toggle" type="button" aria-label="Putar musik latar">Putar</button>
-      <button id="audio-mute" type="button" aria-label="Matikan suara" aria-pressed="false">Mute</button>
-      <label class="audio-volume-label" for="audio-volume">Volume</label>
-      <input id="audio-volume" type="range" min="0" max="100" value="18" aria-label="Volume musik latar">
-    </div>
-  </section>
-  <button class="back-to-top" aria-label="Kembali ke atas" title="Kembali ke atas"><i data-icon="arrow-up"></i></button>
+  <audio id="background-audio" preload="none" loop></audio>
+  <button class="audio-toggle" id="audio-toggle" type="button"
+    aria-label="Putar musik latar" title="Putar musik latar"
+    aria-pressed="false" aria-controls="background-audio">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="m8 5 12 7-12 7z" fill="currentColor"></path>
+    </svg>
+  </button>
+  <span id="audio-status" class="audio-status" role="status" aria-live="polite">Musik siap diputar</span>
   <dialog class="lightbox" id="lightbox" aria-label="Tampilan galeri"><button class="lightbox-close" aria-label="Tutup galeri"><i data-icon="x"></i></button><button class="lightbox-nav prev" aria-label="Gambar sebelumnya"><i data-icon="chevron-left"></i></button><figure><img src="" alt=""><figcaption></figcaption></figure><button class="lightbox-nav next" aria-label="Gambar berikutnya"><i data-icon="chevron-right"></i></button></dialog>
   <script src="js/data.js"></script><script src="js/main.js"></script>
 </body>

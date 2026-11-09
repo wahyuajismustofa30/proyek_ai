@@ -2,7 +2,7 @@
 
 ## Risiko dan cakupan
 
-- Risiko utama: markup rusak, aset lokal hilang, layout tidak responsif, atau interaksi form/menu tidak berjalan.
+- Risiko utama: markup rusak, aset lokal menghasilkan HTTP 404, layout tidak responsif, navigasi tidak dapat digunakan, atau interaksi form tidak berjalan.
 - Data test: sintetis; tidak menggunakan data produksi.
 - Dampak kegagalan: halaman demo tidak dapat digunakan atau tidak memenuhi kontrak web dasar.
 
@@ -15,23 +15,27 @@ python -m http.server 8080 --directory src
 
 ## Validasi otomatis
 
-- Node built-in test runner memeriksa struktur HTML, landmark, viewport, aset lokal, breakpoint CSS, dan fungsi validasi email.
-- CI root memvalidasi HTML, CSS, SVG, serta referensi aset lokal.
+- Node built-in test runner memeriksa struktur HTML, landmark, viewport, dan URL aset yang dihitung relatif terhadap document root `src/`.
+- Test CSS memeriksa breakpoint mobile dan aturan progressive enhancement agar navigasi tetap terlihat tanpa JavaScript.
+- Test perilaku menggunakan DOM stub untuk menu buka/tutup, pemilihan tautan navigasi, validasi form gagal, dan submit berhasil.
+- CI root memvalidasi HTML, CSS, dan aset lokal.
 - Project matrix menjalankan `npm test` untuk stack Node.js.
 
 ## Skenario minimum
 
 - [x] Kontrak halaman dan metadata dasar.
-- [x] Referensi aset lokal tersedia.
-- [x] CSS memiliki breakpoint mobile.
-- [x] Email valid dan tidak valid.
+- [x] Resolusi URL aset dari document root.
+- [x] CSS breakpoint dan fallback navigasi tanpa JavaScript.
+- [x] Perilaku menu dan penutupan melalui tautan.
+- [x] Email valid dan invalid, termasuk domain rusak.
+- [x] Form menampilkan pesan error/sukses tanpa mengirim data.
 - [ ] Review keyboard dan screen reader manual.
 - [ ] Review visual pada browser desktop dan mobile.
 - [ ] Browser-based end-to-end test bila kebutuhan bertambah.
 
 ## Batasan
 
-Test Node saat ini tidak merender DOM dan tidak menggantikan browser automation, visual regression, atau audit aksesibilitas penuh.
+DOM stub menguji handler JavaScript tanpa dependency, tetapi tidak merender halaman dan tidak menggantikan browser automation, visual regression, pengujian lintas-browser, atau audit aksesibilitas penuh.
 
 ## Keamanan
 
@@ -39,11 +43,6 @@ Test Node saat ini tidak merender DOM dan tidak menggantikan browser automation,
 - Form demo tidak mengirim data.
 - Tidak ada dependency runtime pihak ketiga.
 
-## Hasil verifikasi terakhir
+## Hasil verifikasi
 
-| Tanggal | Commit | Pemeriksaan | Status | Catatan |
-|---|---|---|---|---|
-| 2026-11-09 | 795b5db | `npm ci` + `npm test` | PASS | Job `projects/testing / node` berhasil. |
-| 2026-11-09 | 795b5db | Discovery + HTML/CSS/aset | PASS | Discovery dan web validation berhasil. |
-| 2026-11-09 | 795b5db | OSV-Scanner | PASS | Pemindaian dependency berhasil. |
-| 2026-11-09 | 795b5db | Markdown lint | FAIL | Run awal menemukan format Markdown; sudah diperbaiki di commit berikutnya, tetapi revisi akhir belum diuji ulang. |
+Hasil CI untuk revisi perbaikan dicatat setelah workflow PR terbaru selesai. Hasil run lama tidak dianggap sebagai verifikasi revisi ini.

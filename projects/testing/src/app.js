@@ -24,8 +24,6 @@ export function initializePage(documentRef) {
   const emailInput = documentRef.querySelector("#email");
   const message = documentRef.querySelector("#form-message");
 
-  documentRef.documentElement.classList.add("js");
-
   menuButton?.addEventListener("click", () => {
     const isExpanded = menuButton.getAttribute("aria-expanded") === "true";
     menuButton.setAttribute("aria-expanded", String(!isExpanded));
@@ -58,6 +56,10 @@ export function initializePage(documentRef) {
     }
     form.reset();
   });
+
+  const submitButton = form?.querySelector('button[type="submit"]');
+  if (submitButton) submitButton.disabled = false;
+  documentRef.documentElement.classList.add("js");
 }
 
 if (typeof document !== "undefined") initializePage(document);

@@ -501,7 +501,7 @@ push_changes() {
     echo
     echo "🚀 Commit yang akan dikirim untuk membuat branch '$BRANCH':"
   fi
-  printf '%s\\n' "$commits_to_push"
+  printf '%s\n' "$commits_to_push"
   if ! confirm "Lanjutkan push ke '$REMOTE/$BRANCH'?"; then
     echo "⏹️ Push dibatalkan. Commit lokal tetap tersimpan."
     return 0

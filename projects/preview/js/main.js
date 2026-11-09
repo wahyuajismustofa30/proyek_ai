@@ -202,7 +202,7 @@
     }).catch(error => {
       if (attemptId !== audioPlayAttemptId) return false;
       const failure = classifyAudioPlaybackError(error);
-      if (failure.type === 'autoplay-blocked' && ['autoplay', 'fallback'].includes(source) && !audioInitialized && !audioUserPaused) {
+      if (failure.type === 'autoplay-blocked' && ['autoplay', 'fallback', 'manual'].includes(source) && !audioInitialized && !audioUserPaused) {
         activateAudioFallback();
         updateAudioState(failure.message);
       } else {
@@ -241,7 +241,6 @@
   updateAudioState('Mencoba memutar musik latar');
   audioToggle.addEventListener('click', () => {
     removeAudioFallback();
-    audioInitialized = true;
     if (!backgroundAudio.paused && !backgroundAudio.ended) {
       backgroundAudio.muted = !backgroundAudio.muted;
       updateAudioState();

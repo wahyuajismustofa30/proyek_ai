@@ -42,7 +42,10 @@ Lalu buka `http://127.0.0.1:8000`.
 - [ ] Console browser bebas error.
 - [ ] Pendidikan menampilkan tiga sekolah sesuai data.
 - [ ] Pekerjaan menampilkan empat entri kronologis dan status 2024–Sekarang.
-- [ ] Hanya ada satu tombol musik mengambang di kanan bawah dan dapat dioperasikan dengan Tab, Enter, dan Space.\n- [ ] Klik pertama memulai musik; saat berjalan klik membisukan; klik berikutnya mengaktifkan suara tanpa mengulang dari awal.\n- [ ] Ikon, aria-label, title, dan status aksesibel berubah sesuai kondisi Play, mute, dan unmute.\n- [ ] Audio tidak autoplay dan volume awal tetap 18%; tidak ada kontrol volume atau tombol mute terpisah.
+- [ ] Hanya ada satu tombol musik mengambang di kanan bawah dan dapat dioperasikan dengan Tab, Enter, dan Space.
+- [ ] Klik pertama memulai musik; saat berjalan klik membisukan; klik berikutnya mengaktifkan suara tanpa mengulang dari awal.
+- [ ] Ikon, aria-label, title, dan status aksesibel berubah sesuai kondisi Play, mute, dan unmute.
+- [ ] Audio tidak autoplay dan volume awal tetap 18%; tidak ada kontrol volume atau tombol mute terpisah.
 - [ ] Jika file audio tidak tersedia/gagal dimuat, status kegagalan diumumkan secara aksesibel dan JavaScript halaman tetap berjalan.
 - [ ] Tab yang ditinggalkan menghentikan pemutaran tanpa memulai ulang otomatis.
 - [ ] Semua gambar dan ikon tampil; alt text tersedia.

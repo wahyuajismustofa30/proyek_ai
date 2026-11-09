@@ -1,6 +1,7 @@
 # Instruksi AI — Testing Web Page Lab
 
 ## Urutan membaca
+
 1. README.md
 2. docs/PROJECT_BRIEF.md
 3. docs/ARCHITECTURE.md
@@ -9,6 +10,7 @@
 6. docs/DECISIONS.md dan docs/CHANGELOG.md bila relevan
 
 ## Aturan utama
+
 - Pahami brief dan acceptance criteria sebelum mengubah source.
 - Pertahankan stack HTML, CSS, dan JavaScript vanilla kecuali ada keputusan baru.
 - Jangan mengarang requirement, data bisnis, harga, testimoni, kontak, atau klaim.
@@ -19,6 +21,7 @@
 - Jangan mengubah konfigurasi deployment/produksi.
 
 ## Alur setiap task
+
 1. Nyatakan pemahaman dan file yang terdampak.
 2. Periksa implementasi, dependensi, dan risiko.
 3. Implementasikan perubahan terfokus.
@@ -28,4 +31,5 @@
 7. Perbarui TASKS, CHANGELOG, atau dokumentasi.
 
 ## Laporan
+
 Laporkan ringkasan perubahan, file yang diubah, perintah pemeriksaan dan hasilnya, risiko/asumsi, serta pekerjaan yang belum selesai.

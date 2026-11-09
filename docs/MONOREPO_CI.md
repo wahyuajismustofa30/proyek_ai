@@ -30,10 +30,10 @@ di dalam proyek diperbolehkan; folder tersembunyi langsung di bawah
 | `package.json` | Node.js | `package-lock.json`, script `test`; lint/build jika tersedia |
 | `pyproject.toml` atau `requirements.txt` | Python | dependency proyek, test ditemukan oleh pytest; CI memakai requirements-test/dev jika tersedia, atau pytest terpin |
 | `composer.json` | PHP | `composer.lock`, `composer validate --strict`, script Composer `test` |
+| `index.html` di root proyek | Static website | HTTP smoke test untuk memastikan halaman root disajikan dengan status 200 dan konten HTML yang benar; validasi HTML/CSS/aset lokal tetap dijalankan oleh job web-validation |
 | Tidak didukung | — | Job proyek gagal; tambahkan adapter sebelum mengandalkan stack tersebut |
 
-Beberapa manifest dalam satu proyek menghasilkan job per stack. Matriks
-membatasi paralelisme hingga empat. Jika `projects/` kosong, discovery
+Setiap proyek static dikenali melalui `index.html` tepat di root proyek; file HTML di subfolder saja tidak otomatis menjadikan proyek static. Proyek dapat menghasilkan entri static sekaligus stack aplikasi bila memiliki `index.html` dan manifest aplikasi. Static website tidak memerlukan package manager atau test runner tambahan; CI melakukan HTTP smoke test dan tetap menjalankan validasi HTML/CSS/aset lokal secara terpusat.\n\nBeberapa manifest dalam satu proyek menghasilkan job per stack. Matriks\nmembatasi paralelisme hingga empat. Jika `projects/` kosong, discovery
 menghasilkan sentinel `__no_projects__`; sentinel bukan proyek aplikasi.
 Folder proyek nyata tanpa stack yang didukung tetap gagal.
 
@@ -44,7 +44,7 @@ bukan menyimpan proyek contoh di `projects/`.
 
 ## Validasi web dan dokumentasi
 
-`scripts/validate_web_projects.py` memeriksa HTML dengan parser HTML5 strict,
+`scripts/check_static_site.py` memverifikasi bahwa `index.html` root dapat disajikan melalui HTTP lokal dan mengembalikan konten HTML yang diharapkan. Test unitnya berada di `scripts/tests/test_check_static_site.py`.\n\n`scripts/validate_web_projects.py` memeriksa HTML dengan parser HTML5 strict,
 sintaks CSS menggunakan tinycss2, keberadaan referensi aset lokal, batas path
 agar tidak keluar dari proyek, serta parse SVG/XML. Pemindaian melewati direktori dependency dan output/cache berikut di dalam
 proyek: `node_modules/`, `.venv/`, `venv/`, `.git/`, dan `__pycache__/` pada

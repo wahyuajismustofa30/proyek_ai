@@ -86,7 +86,7 @@ class SyncScriptSafetyTests(unittest.TestCase):
         # Confirm commit, accept the default commit message, then confirm push.
         result = self.run_sync("y\n\ny\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("Lanjutkan push ke 'origin/main'?", result.stdout)
+        self.assertIn("Lanjutkan push ke 'origin/main'?", result.stderr)
 
         remote_files = self.git(
             None,

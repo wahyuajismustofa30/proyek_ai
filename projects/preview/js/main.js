@@ -280,7 +280,6 @@
       // Jangan mengonsumsi event pause lama selama percobaan playback yang lebih baru masih tertunda.
       if (!lifecycleStillCurrent && audioPendingAttemptId !== null) return;
       audioLifecyclePause = false;
-      audioLifecycleMessage = '';
       // Event lifecycle yang terlambat tidak boleh menimpa keputusan playback lebih baru.
       if (backgroundAudio.paused && lifecycleStillCurrent) updateAudioState(message);
       return;

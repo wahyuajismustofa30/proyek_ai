@@ -12,7 +12,7 @@ class Target {
 }
 class FakeAudio extends Target {
   constructor() { super(); this.paused = true; this.ended = false; this.muted = false; this.volume = 1; this.error = null; this.plays = []; this.pauseCalls = 0; }
-  play() { const attempt = deferred(); this.plays.push(attempt); return attempt.promise; }
+  play() { const attempt = deferred(); const resolve = attempt.resolve; attempt.resolve = () => { this.paused = false; resolve(); }; this.plays.push(attempt); return attempt.promise; }
   pause() { this.pauseCalls++; this.paused = true; this.dispatch('pause'); }
 }
 function deferred() {

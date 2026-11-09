@@ -19,7 +19,8 @@ Pengunjung publik yang ingin mengenal kandidat dan materi kampanye. Informasi pu
 
 ## Ruang lingkup saat ini
 
-- Profil kandidat dan ringkasan visi
+- Profil kandidat, riwayat pendidikan, dan riwayat pekerjaan
+- Kontrol musik latar manual (audio lokal opsional; file berlisensi belum disediakan)
 - Tujuh misi interaktif
 - Program yang terhubung ke misi
 - Potensi desa

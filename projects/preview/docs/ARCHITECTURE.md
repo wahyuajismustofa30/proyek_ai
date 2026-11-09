@@ -10,7 +10,7 @@ Website statis tanpa framework/build pipeline yang dinyatakan. Browser membuka `
 |---|---|
 | `index.html` | Kerangka halaman, section, metadata, elemen awal, dan fallback markup |
 | `js/data.js` | Objek data profil, visi/misi, program, potensi, dan galeri |
-| `js/main.js` | Render data ke DOM dan interaksi UI |
+| `js/main.js` | Render data ke DOM, interaksi UI, dan kontrol pemutar audio HTML5 |
 | `css/style.css` | Gaya utama, layout, warna, tipografi, responsivitas |
 | `css/improvements.css` | Lapisan peningkatan/penyesuaian tampilan |
 | `css/icon-pack.css` | Gaya penggunaan ikon |
@@ -23,6 +23,7 @@ Website statis tanpa framework/build pipeline yang dinyatakan. Browser membuka `
 2. Script data menyediakan objek konten.
 3. Script utama mengisi/menginisialisasi komponen dinamis dan listener.
 4. Pengguna berinteraksi dengan navigasi, panel visi, kartu misi/program, galeri/lightbox, dan kontrol scroll.
+5. Kontrol audio hanya memulai pemutaran setelah klik eksplisit; sumber audio lokal dikonfigurasi terpisah dan tidak disertakan sampai aset dengan izin yang jelas tersedia.
 
 ## Pola penting
 

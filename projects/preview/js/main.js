@@ -23,7 +23,24 @@
     $('#profile-image').src = profile.image;
     $('#profile-image').alt = profile.imageAlt;
     $('#profile-meta').innerHTML = profile.meta.map(item => `<span>${icon(item.icon)}<b>${item.label}</b>${item.value}</span>`).join('');
-    $('#profile-facts').innerHTML = profile.facts.map(item => `<article><span class="profile-fact-icon">${icon(item.icon)}</span><div><h3>${item.title}</h3><p>${item.value}</p></div></article>`).join('');
+    const educationItems = profile.education.map(school => `<li>${school}</li>`).join('');
+    const workItems = profile.workExperience.map(job => `
+      <li class="work-entry${job.current ? ' current' : ''}">
+        <span class="work-period">${job.period}</span>
+        <div><strong>${job.organization}</strong>
+          ${job.role ? `<span class="work-role">${job.role}</span>` : ''}
+          ${job.description ? `<p>${job.description}</p>` : ''}
+        </div>
+      </li>`).join('');
+    $('#profile-facts').innerHTML = `
+      <section class="profile-history-card" aria-labelledby="education-heading">
+        <div class="profile-history-title"><span class="profile-fact-icon">${icon('graduation-cap')}</span><h3 id="education-heading">Riwayat Pendidikan</h3></div>
+        <ol class="education-list">${educationItems}</ol>
+      </section>
+      <section class="profile-history-card" aria-labelledby="work-heading">
+        <div class="profile-history-title"><span class="profile-fact-icon">${icon('briefcase-business')}</span><h3 id="work-heading">Riwayat Pekerjaan</h3></div>
+        <ol class="work-list">${workItems}</ol>
+      </section>`;
   }
 
   function renderMissions() {
@@ -102,6 +119,53 @@
   $('.lightbox-nav.next').addEventListener('click', () => displayGallery(galleryIndex + 1));
   lightbox.addEventListener('click', event => { if (event.target === lightbox) lightbox.close(); });
   document.addEventListener('keydown', event => { if (!lightbox.open) return; if (event.key === 'ArrowLeft') displayGallery(galleryIndex - 1); if (event.key === 'ArrowRight') displayGallery(galleryIndex + 1); });
+
+
+  // Isi hanya dengan path file lokal yang original atau berlisensi setelah aset tersedia.
+  const BACKGROUND_AUDIO_SOURCE = '';
+  const backgroundAudio = $('#background-audio');
+  const audioToggle = $('#audio-toggle');
+  const audioMute = $('#audio-mute');
+  const audioVolume = $('#audio-volume');
+  const audioStatus = $('#audio-status');
+  backgroundAudio.volume = 0.18;
+  function updateAudioState(message) {
+    const playing = !backgroundAudio.paused && !backgroundAudio.ended;
+    audioToggle.textContent = playing ? 'Jeda' : 'Putar';
+    audioToggle.setAttribute('aria-label', playing ? 'Jeda musik latar' : 'Putar musik latar');
+    audioStatus.textContent = message || (playing ? 'Sedang diputar' : 'Dijeda');
+  }
+  if (BACKGROUND_AUDIO_SOURCE) {
+    backgroundAudio.src = BACKGROUND_AUDIO_SOURCE;
+    audioStatus.textContent = 'Siap diputar';
+  }
+  audioToggle.addEventListener('click', async () => {
+    if (!backgroundAudio.currentSrc && !backgroundAudio.src) { updateAudioState('Audio belum tersedia'); return; }
+    if (!backgroundAudio.paused) { backgroundAudio.pause(); updateAudioState(); return; }
+    try { await backgroundAudio.play(); updateAudioState(); }
+    catch { updateAudioState('Musik tidak dapat diputar. Periksa file audio.'); }
+  });
+  backgroundAudio.addEventListener('play', () => updateAudioState());
+  backgroundAudio.addEventListener('pause', () => updateAudioState());
+  backgroundAudio.addEventListener('ended', () => updateAudioState('Pemutaran selesai'));
+  backgroundAudio.addEventListener('error', () => updateAudioState('Audio gagal dimuat. Periksa file audio.'));
+  audioMute.addEventListener('click', () => {
+    backgroundAudio.muted = !backgroundAudio.muted;
+    audioMute.textContent = backgroundAudio.muted ? 'Suara mati' : 'Mute';
+    audioMute.setAttribute('aria-label', backgroundAudio.muted ? 'Aktifkan suara' : 'Matikan suara');
+    audioMute.setAttribute('aria-pressed', String(backgroundAudio.muted));
+  });
+  audioVolume.addEventListener('input', () => {
+    backgroundAudio.volume = Number(audioVolume.value) / 100;
+    if (backgroundAudio.volume > 0 && backgroundAudio.muted) {
+      backgroundAudio.muted = false; audioMute.textContent = 'Mute';
+      audioMute.setAttribute('aria-label', 'Matikan suara'); audioMute.setAttribute('aria-pressed', 'false');
+    }
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && !backgroundAudio.paused) { backgroundAudio.pause(); updateAudioState('Dijeda saat tab tidak aktif'); }
+  });
+  window.addEventListener('pagehide', () => backgroundAudio.pause());
 
   const visionTrigger = $('.vision-trigger');
   visionTrigger.addEventListener('click', () => { const expanded = visionTrigger.getAttribute('aria-expanded') === 'true'; visionTrigger.setAttribute('aria-expanded', String(!expanded)); $('#vision-detail').hidden = expanded; });

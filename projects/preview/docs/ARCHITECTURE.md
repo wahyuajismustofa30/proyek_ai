@@ -10,7 +10,8 @@ Website statis tanpa framework/build pipeline yang dinyatakan. Browser membuka `
 |---|---|
 | `index.html` | Kerangka halaman, section, metadata, elemen awal, dan fallback markup |
 | `js/data.js` | Objek data profil, visi/misi, program, potensi, dan galeri |
-| `js/main.js` | Render data ke DOM, interaksi UI, dan kontrol audio HTML5 melalui satu tombol mengambang |
+| `js/audio.js` | Pengelolaan playback HTML5, fallback gesture, sinkronisasi state, dan lifecycle melalui satu tombol |
+| `js/main.js` | Render data ke DOM dan menginisialisasi interaksi UI serta controller audio |
 | `css/style.css` | Gaya utama, layout, warna, tipografi, responsivitas |
 | `css/improvements.css` | Lapisan peningkatan/penyesuaian tampilan |
 | `css/icon-pack.css` | Gaya penggunaan ikon |

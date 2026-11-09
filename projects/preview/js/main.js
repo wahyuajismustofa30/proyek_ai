@@ -134,6 +134,7 @@
   };
   let audioInitialized = false, audioAutoplayAttempted = false, audioUserPaused = false;
   let audioFallbackActive = false, audioLifecyclePause = false, audioLifecycleMessage = '', audioLifecycleAttemptId = 0, audioPlayAttemptId = 0;
+  let audioPendingAttemptId = null, audioLatestPlaybackAttemptId = 0;
   let audioFallbackEvents = [];
 
   function updateAudioState(message) {
@@ -189,11 +190,23 @@
   }
   function attemptAudioPlayback(source) {
     const attemptId = ++audioPlayAttemptId;
+    audioLatestPlaybackAttemptId = attemptId;
+    audioPendingAttemptId = attemptId;
     let playPromise;
     try { playPromise = backgroundAudio.play(); } catch (error) { playPromise = Promise.reject(error); }
     return Promise.resolve(playPromise).then(() => {
       // Percobaan lama tidak boleh mengubah playback yang dimulai oleh keputusan lebih baru.
-      if (attemptId !== audioPlayAttemptId || audioUserPaused) return false;
+      if (attemptId !== audioPlayAttemptId || audioUserPaused) {
+        // Beberapa browser dapat menyelesaikan play() setelah pause() membatalkan percobaan.
+        if (audioLifecycleAttemptId === attemptId && audioLatestPlaybackAttemptId === attemptId) {
+          audioLifecyclePause = true;
+          backgroundAudio.pause();
+        }
+        return false;
+      }
+      audioPendingAttemptId = null;
+      audioLifecyclePause = false;
+      audioLifecycleMessage = '';
       audioInitialized = true;
       audioUserPaused = false;
       removeAudioFallback();
@@ -201,6 +214,9 @@
       return true;
     }).catch(error => {
       if (attemptId !== audioPlayAttemptId) return false;
+      audioPendingAttemptId = null;
+      audioLifecyclePause = false;
+      audioLifecycleMessage = '';
       const failure = classifyAudioPlaybackError(error);
       if (failure.type === 'autoplay-blocked' && ['autoplay', 'fallback', 'manual'].includes(source) && !audioInitialized && !audioUserPaused) {
         activateAudioFallback();
@@ -250,23 +266,24 @@
     attemptAudioPlayback('manual');
   });
   backgroundAudio.addEventListener('play', () => {
-    audioInitialized = true;
-    audioUserPaused = false;
-    removeAudioFallback();
-    updateAudioState();
+    // Event play dapat muncul sebelum Promise selesai; hanya Promise valid yang menginisialisasi audio.
+    if (document.hidden) pauseAudioForLifecycle('Musik dihentikan saat tab tidak aktif');
+    else updateAudioState();
+  });
+  backgroundAudio.addEventListener('playing', () => {
+    if (document.hidden) pauseAudioForLifecycle('Musik dihentikan saat tab tidak aktif');
+    else updateAudioState();
   });
   backgroundAudio.addEventListener('pause', () => {
     if (audioLifecyclePause) {
       const message = audioLifecycleMessage || 'Musik dihentikan karena halaman tidak aktif';
-      const lifecycleStillCurrent = audioPlayAttemptId === audioLifecycleAttemptId;
-      audioLifecyclePause = false;
-      audioLifecycleMessage = '';
-      // Event lifecycle yang terlambat tidak boleh menimpa keputusan playback lebih baru.
+      const lifecycleStillCurrent = audioLatestPlaybackAttemptId === audioLifecycleAttemptId;
+      // Pertahankan penanda lifecycle sampai ada percobaan playback baru yang benar-benar selesai.
       if (backgroundAudio.paused && lifecycleStillCurrent) updateAudioState(message);
       return;
     }
     // Abaikan event pause tertunda jika playback baru sudah berjalan kembali.
-    if (!backgroundAudio.paused) return;
+    if (!backgroundAudio.paused || audioPendingAttemptId !== null) return;
     if (audioInitialized) {
       audioUserPaused = true;
       removeAudioFallback();
@@ -277,11 +294,15 @@
   backgroundAudio.addEventListener('ended', () => updateAudioState('Pemutaran selesai'));
   backgroundAudio.addEventListener('error', () => updateAudioState(getAudioMediaErrorMessage()));
   function pauseAudioForLifecycle(message) {
-    if (backgroundAudio.paused) return;
+    const playbackPending = audioPendingAttemptId !== null;
+    const playbackActive = !backgroundAudio.paused && !backgroundAudio.ended;
+    if (!playbackPending && !playbackActive) return;
     audioLifecyclePause = true;
     audioLifecycleMessage = message;
+    audioLifecycleAttemptId = playbackPending ? audioPendingAttemptId : audioLatestPlaybackAttemptId;
     ++audioPlayAttemptId;
-    audioLifecycleAttemptId = audioPlayAttemptId;
+    audioPendingAttemptId = null;
+    // pause() juga harus dipanggil saat paused=true untuk membatalkan play() yang masih tertunda.
     backgroundAudio.pause();
     updateAudioState(message);
   }

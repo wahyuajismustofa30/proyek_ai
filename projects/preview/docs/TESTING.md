@@ -4,7 +4,7 @@
 
 Jalankan validasi referensi ikon dan aset CSS lokal dengan `python3 projects/preview/tests/test_asset_paths.py`. Tes ini menyelesaikan URL mask ikon dari direktori stylesheet dan memastikan file SVG yang dirujuk tersedia.
 
-Jalankan pemeriksaan kontrak fitur profil dan audio dengan `python3 projects/preview/tests/test_profile_audio.py`.
+Jalankan pemeriksaan kontrak fitur profil dan audio dengan `python3 projects/preview/tests/test_profile_audio.py`. Jalankan simulasi runtime audio (Node.js bawaan, tanpa dependency tambahan) dengan `node projects/preview/tests/test_audio_runtime.js`.
 
 Workflow monorepo mendeteksi proyek sebagai static site melalui `index.html` di root proyek dan menjalankan validasi HTML/CSS/aset lokal serta HTTP smoke test. Pada commit main yang diaudit, check `projects/preview / static` berstatus sukses.
 
@@ -45,6 +45,8 @@ Lalu buka `http://127.0.0.1:8000`.
 - [ ] Pendidikan menampilkan tiga sekolah sesuai data.
 - [ ] Pekerjaan menampilkan empat entri kronologis dan status 2024–Sekarang.
 - [ ] Hanya ada satu tombol musik mengambang di kanan bawah dan dapat dioperasikan dengan Tab, Enter, dan Space.
+- [ ] Refresh memulai state audio baru, mencoba autoplay satu kali, dan memasang fallback gesture kembali tanpa menyimpan state audio ke storage/cookie.
+- [ ] Lifecycle saat `play()` tertunda memanggil `pause()` walaupun `audio.paused` masih true; Promise lama tidak dapat mengaktifkan audio kembali.
 - [ ] Listener fallback sudah aktif sebelum autoplay dicoba; interaksi pertama (pointerdown/touchstart termasuk awal swipe) tidak terlewat meskipun Promise autoplay belum selesai.
 - [ ] Jika fallback gesture ditolak browser, listener dipasang kembali untuk kesempatan interaksi berikutnya; status audio tidak dianggap terinisialisasi sebelum playback berhasil.
 - [ ] Volume default audio adalah 0.30 (30%) sebelum playback dimulai.

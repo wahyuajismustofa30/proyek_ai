@@ -83,7 +83,74 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertEqual(self.main.count("attemptAudioPlayback('autoplay')"), 1)
         self.assertIn("source === 'autoplay'", self.main)
         self.assertIn("activateAudioFallback()", self.main)
-        self.assertIn(".catch(() =>", self.main)
+        self.assertIn(".catch(error =>", self.main)
+
+    def test_playback_errors_are_classified_by_dom_exception_name(self):
+        classifier = self.main.split("function classifyAudioPlaybackError(error)", 1)[1].split(
+            "function getAudioMediaErrorMessage()", 1
+        )[0]
+        self.assertIn("name === 'NotAllowedError'", classifier)
+        self.assertIn("type: 'autoplay-blocked'", classifier)
+        self.assertIn("name === 'NotSupportedError' || name === 'NotFoundError'", classifier)
+        self.assertIn("type: 'source-error'", classifier)
+        self.assertIn("name === 'AbortError'", classifier)
+        self.assertIn("type: 'aborted'", classifier)
+        self.assertIn("type: 'unknown'", classifier)
+
+    def test_only_not_allowed_autoplay_failure_activates_fallback(self):
+        attempt = self.main.split("function attemptAudioPlayback(source)", 1)[1].split(
+            "function handleAudioFallbackInteraction(event)", 1
+        )[0]
+        self.assertIn("const failure = classifyAudioPlaybackError(error)", attempt)
+        self.assertIn(
+            "failure.type === 'autoplay-blocked' && source === 'autoplay' && !audioInitialized && !audioUserPaused",
+            attempt,
+        )
+        self.assertEqual(attempt.count("activateAudioFallback()"), 1)
+        self.assertIn("Browser masih membatasi pemutaran musik", attempt)
+        self.assertNotIn(".catch(() =>", attempt)
+
+    def test_media_error_codes_have_distinct_user_facing_messages(self):
+        media_errors = self.main.split("function getAudioMediaErrorMessage()", 1)[1].split(
+            "function attemptAudioPlayback(source)", 1
+        )[0]
+        self.assertIn("mediaError.code === 3 || mediaError.code === 4", media_errors)
+        self.assertIn("mediaError.code === 2", media_errors)
+        self.assertIn("mediaError.code === 1", media_errors)
+        self.assertIn("File atau format musik tidak dapat diputar", media_errors)
+
+    def test_stale_play_attempts_cannot_overwrite_newer_audio_decisions(self):
+        attempt = self.main.split("function attemptAudioPlayback(source)", 1)[1].split(
+            "function handleAudioFallbackInteraction(event)", 1
+        )[0]
+        self.assertIn("const attemptId = ++audioPlayAttemptId", attempt)
+        self.assertGreaterEqual(attempt.count("attemptId !== audioPlayAttemptId"), 2)
+        self.assertIn("audioUserPaused", attempt)
+
+    def test_pause_lifecycle_reason_survives_pause_event(self):
+        pause_handler = self.main.split("backgroundAudio.addEventListener('pause'", 1)[1].split(
+            "backgroundAudio.addEventListener('ended'", 1
+        )[0]
+        lifecycle = self.main.split("function pauseAudioForLifecycle(message)", 1)[1].split(
+            "document.addEventListener('visibilitychange'", 1
+        )[0]
+        self.assertIn("if (!backgroundAudio.paused) return", pause_handler)
+        self.assertIn("const message = audioLifecycleMessage", pause_handler)
+        self.assertIn("updateAudioState(message)", pause_handler)
+        self.assertNotIn("updateAudioState('Musik dijeda')", pause_handler.split("if (audioLifecyclePause)", 1)[1].split("return;", 1)[0])
+        self.assertIn("audioLifecycleMessage = message", lifecycle)
+        self.assertIn("audioLifecycleAttemptId = audioPlayAttemptId", lifecycle)
+        self.assertIn("audioPlayAttemptId === audioLifecycleAttemptId", pause_handler)
+        self.assertLess(lifecycle.index("audioLifecycleMessage = message"), lifecycle.index("backgroundAudio.pause()"))
+
+    def test_pause_event_only_marks_manual_pause_outside_lifecycle(self):
+        pause_handler = self.main.split("backgroundAudio.addEventListener('pause'", 1)[1].split(
+            "backgroundAudio.addEventListener('ended'", 1
+        )[0]
+        self.assertIn("if (audioLifecyclePause)", pause_handler)
+        self.assertIn("audioUserPaused = true", pause_handler)
+        self.assertIn("++audioPlayAttemptId", pause_handler)
+        self.assertIn("updateAudioState('Musik dijeda')", pause_handler)
 
     def test_fallback_is_one_shot_and_ignores_interactive_controls(self):
         self.assertIn("let audioFallbackActive = false", self.main)

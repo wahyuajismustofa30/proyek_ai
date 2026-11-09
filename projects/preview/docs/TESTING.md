@@ -43,14 +43,17 @@ Lalu buka `http://127.0.0.1:8000`.
 - [ ] Pendidikan menampilkan tiga sekolah sesuai data.
 - [ ] Pekerjaan menampilkan empat entri kronologis dan status 2024–Sekarang.
 - [ ] Hanya ada satu tombol musik mengambang di kanan bawah dan dapat dioperasikan dengan Tab, Enter, dan Space.
-- [ ] Klik pertama memulai musik; saat berjalan klik membisukan; klik berikutnya mengaktifkan suara tanpa mengulang dari awal.
+- [ ] Autoplay dicoba satu kali saat halaman dibuka; jika ditolak, interaksi awal pada area konten (klik/sentuh/awal swipe) memulai musik.
 - [ ] Ikon, aria-label, title, dan status aksesibel berubah sesuai kondisi Play, mute, dan unmute.
-- [ ] Audio tidak autoplay dan volume awal tetap 18%; tidak ada kontrol volume atau tombol mute terpisah.
+- [ ] Setelah musik berhasil dimulai atau tombol musik ditekan, listener fallback dilepas; klik/swipe konten berikutnya tidak mengubah audio.
 - [ ] Jika file audio tidak tersedia/gagal dimuat, status kegagalan diumumkan secara aksesibel dan JavaScript halaman tetap berjalan.
-- [ ] Tab yang ditinggalkan menghentikan pemutaran tanpa memulai ulang otomatis.
+- [ ] Tombol tunggal: saat musik berjalan klik membisukan; saat mute klik mengaktifkan suara; saat berhenti klik memulai ulang. Mute bukan pause.
+- [ ] Pause event non-lifecycle dianggap pause manual; fallback tidak boleh menyalakan musik kembali.
+- [ ] Tab yang ditinggalkan menghentikan pemutaran tanpa resume saat tab/fokus kembali.
+- [ ] Uji autoplay bersuara dan fallback gesture secara manual pada Chrome, Firefox, Safari, dan browser mobile; catat hasil aktual.
 - [ ] Semua gambar dan ikon tampil; alt text tersedia.
 - [ ] Link internal dan canonical/domain diverifikasi bila deployment berubah.
 
 ## Batas bukti
 
-CI green bukan bukti penuh UX, aksesibilitas, konten faktual, atau kesesuaian lintas-browser. Browser E2E belum disiapkan/dijalankan pada audit awal.
+CI dan regression test kontrak tidak dapat membuktikan kebijakan autoplay browser. Autoplay bersuara dapat ditolak oleh kebijakan browser/perangkat; verifikasi fallback dan lifecycle tetap memerlukan pengujian manual pada browser nyata. Browser E2E belum disiapkan/dijalankan.

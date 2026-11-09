@@ -121,65 +121,123 @@
   document.addEventListener('keydown', event => { if (!lightbox.open) return; if (event.key === 'ArrowLeft') displayGallery(galleryIndex - 1); if (event.key === 'ArrowRight') displayGallery(galleryIndex + 1); });
 
 
-  // Satu tombol mengelola mulai putar dan mute/unmute musik latar.
+  // Satu tombol mengelola Play dan mute/unmute; autoplay hanya dicoba sekali saat inisialisasi.
   const BACKGROUND_AUDIO_SOURCE = 'assets/mp3/music.mp3';
   const backgroundAudio = $('#background-audio');
   const audioToggle = $('#audio-toggle');
   const audioStatus = $('#audio-status');
   backgroundAudio.volume = 0.18;
-
   const audioIcons = {
     play: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m8 5 12 7-12 7z" fill="currentColor"></path></svg>',
     playing: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10v4h4l5 4V6l-5 4H3Z" fill="currentColor"></path><path d="M16 9a5 5 0 0 1 0 6M18.5 6.5a9 9 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>',
     muted: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10v4h4l5 4V6l-5 4H3Z" fill="currentColor"></path><path d="m16 9 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>'
   };
+  let audioInitialized = false, audioAutoplayAttempted = false, audioUserPaused = false;
+  let audioFallbackActive = false, audioLifecyclePause = false, audioPlayAttemptId = 0;
+  let audioFallbackEvents = [];
 
   function updateAudioState(message) {
     const playing = !backgroundAudio.paused && !backgroundAudio.ended;
     const muted = backgroundAudio.muted;
-    const label = playing
-      ? (muted ? 'Aktifkan suara musik latar' : 'Bisukan musik latar')
-      : 'Putar musik latar';
-
+    const label = playing ? (muted ? 'Aktifkan suara musik latar' : 'Bisukan musik latar') : 'Putar musik latar';
     audioToggle.innerHTML = playing ? (muted ? audioIcons.muted : audioIcons.playing) : audioIcons.play;
     audioToggle.setAttribute('aria-label', label);
     audioToggle.setAttribute('title', label);
     audioToggle.setAttribute('aria-pressed', String(playing && muted));
-    audioStatus.textContent = message || (playing
-      ? (muted ? 'Musik sedang dibisukan' : 'Musik sedang diputar')
-      : 'Musik siap diputar');
+    audioStatus.textContent = message || (playing ? (muted ? 'Musik sedang dibisukan' : 'Musik sedang diputar') : (audioUserPaused ? 'Musik dijeda' : 'Musik siap diputar'));
   }
-
+  function removeAudioFallback() {
+    if (!audioFallbackActive) return;
+    audioFallbackEvents.forEach(({ type, listener, options }) => document.removeEventListener(type, listener, options));
+    audioFallbackEvents = [];
+    audioFallbackActive = false;
+  }
+  function attemptAudioPlayback(source) {
+    const attemptId = ++audioPlayAttemptId;
+    let playPromise;
+    try { playPromise = backgroundAudio.play(); } catch (error) { playPromise = Promise.reject(error); }
+    return Promise.resolve(playPromise).then(() => {
+      // Percobaan lama tidak boleh mengubah playback yang dimulai oleh keputusan lebih baru.
+      if (attemptId !== audioPlayAttemptId || audioUserPaused) return false;
+      audioInitialized = true;
+      audioUserPaused = false;
+      removeAudioFallback();
+      updateAudioState();
+      return true;
+    }).catch(() => {
+      if (attemptId !== audioPlayAttemptId) return false;
+      if (source === 'autoplay' && !audioInitialized && !audioUserPaused) {
+        activateAudioFallback();
+        updateAudioState('Autoplay dibatasi browser. Sentuh atau klik area halaman untuk memulai musik.');
+      } else updateAudioState('Musik gagal diputar. Periksa ketersediaan file audio.');
+      return false;
+    });
+  }
+  function handleAudioFallbackInteraction(event) {
+    if (!audioFallbackActive) return;
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target || target.closest('button, a, input, select, textarea, summary, dialog, [role="button"], [role="dialog"], [contenteditable="true"]')) return;
+    removeAudioFallback();
+    audioInitialized = true;
+    audioUserPaused = false;
+    attemptAudioPlayback('fallback');
+  }
+  function activateAudioFallback() {
+    if (audioFallbackActive || audioInitialized || audioUserPaused) return;
+    audioFallbackActive = true;
+    const options = { capture: true, passive: true };
+    const eventTypes = ('PointerEvent' in window) ? ['pointerdown'] : ['touchstart', 'click'];
+    audioFallbackEvents = eventTypes.map(type => {
+      const listener = handleAudioFallbackInteraction;
+      document.addEventListener(type, listener, options);
+      return { type, listener, options };
+    });
+  }
   backgroundAudio.src = BACKGROUND_AUDIO_SOURCE;
-  updateAudioState('Musik siap diputar');
-
-  audioToggle.addEventListener('click', async () => {
+  updateAudioState('Mencoba memutar musik latar');
+  audioToggle.addEventListener('click', () => {
+    removeAudioFallback();
+    audioInitialized = true;
     if (!backgroundAudio.paused && !backgroundAudio.ended) {
       backgroundAudio.muted = !backgroundAudio.muted;
       updateAudioState();
       return;
     }
-
-    try {
-      await backgroundAudio.play();
-      updateAudioState();
-    } catch {
-      updateAudioState('Musik gagal diputar. Periksa ketersediaan file audio.');
-    }
+    audioUserPaused = false;
+    attemptAudioPlayback('manual');
   });
-
-  backgroundAudio.addEventListener('play', () => updateAudioState());
-  backgroundAudio.addEventListener('pause', () => updateAudioState('Musik dijeda'));
+  backgroundAudio.addEventListener('play', () => {
+    audioInitialized = true;
+    audioUserPaused = false;
+    removeAudioFallback();
+    updateAudioState();
+  });
+  backgroundAudio.addEventListener('pause', () => {
+    if (audioLifecyclePause) audioLifecyclePause = false;
+    else if (audioInitialized) {
+      audioUserPaused = true;
+      removeAudioFallback();
+      ++audioPlayAttemptId;
+    }
+    updateAudioState('Musik dijeda');
+  });
   backgroundAudio.addEventListener('ended', () => updateAudioState('Pemutaran selesai'));
   backgroundAudio.addEventListener('error', () => updateAudioState('Musik gagal dimuat. File audio tidak tersedia.'));
-
+  function pauseAudioForLifecycle(message) {
+    if (backgroundAudio.paused) return;
+    audioLifecyclePause = true;
+    ++audioPlayAttemptId;
+    backgroundAudio.pause();
+    updateAudioState(message);
+  }
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && !backgroundAudio.paused) {
-      backgroundAudio.pause();
-      updateAudioState('Musik dihentikan saat tab tidak aktif');
-    }
+    if (document.hidden) pauseAudioForLifecycle('Musik dihentikan saat tab tidak aktif');
   });
-  window.addEventListener('pagehide', () => backgroundAudio.pause());
+  window.addEventListener('pagehide', () => pauseAudioForLifecycle('Musik dihentikan saat halaman ditinggalkan'));
+  if (!audioAutoplayAttempted) {
+    audioAutoplayAttempted = true;
+    attemptAudioPlayback('autoplay');
+  }
 
   const visionTrigger = $('.vision-trigger');
   visionTrigger.addEventListener('click', () => { const expanded = visionTrigger.getAttribute('aria-expanded') === 'true'; visionTrigger.setAttribute('aria-expanded', String(!expanded)); $('#vision-detail').hidden = expanded; });

@@ -15,9 +15,9 @@ Menyediakan proyek nyata di dalam monorepo untuk menguji alur pembuatan halaman 
 
 - Halaman landing responsif berbahasa Indonesia.
 - Struktur semantik HTML dan navigasi yang dapat digunakan dengan keyboard.
-- Menu navigasi mobile.
+- Menu navigasi mobile dengan status aksesibel.
 - Formulir interaktif yang hanya melakukan simulasi validasi di browser; tidak mengirim atau menyimpan data.
-- Aset SVG lokal tanpa ketergantungan CDN.
+- Aset SVG lokal yang disajikan dari document root.
 
 ## Teknologi
 
@@ -36,7 +36,7 @@ Jalankan server statis dari root proyek:
 python -m http.server 8080 --directory src
 ```
 
-Buka `http://localhost:8080` di browser.
+Buka `http://localhost:8080` di browser. Semua file yang diminta browser, termasuk ikon SVG, berada di bawah `src/` sebagai document root.
 
 ## Pengujian
 
@@ -44,17 +44,17 @@ Buka `http://localhost:8080` di browser.
 npm test
 ```
 
-CI monorepo juga menjalankan validasi HTML, CSS, SVG, dan referensi aset lokal. Pengujian Node memeriksa kontrak halaman, aset, responsivitas, dan helper validasi email. Pemeriksaan visual lintas-browser dan accessibility audit penuh belum termasuk.
+Test Node memeriksa metadata/landmark halaman, resolusi URL aset terhadap document root HTTP, breakpoint dan progressive enhancement CSS, validasi email, serta perilaku menu dan form melalui DOM stub tanpa dependency eksternal. CI monorepo juga menjalankan validasi HTML, CSS, dan aset lokal.
 
 ## Struktur
 
-- `src/`: halaman dan source browser.
-- `assets/`: aset SVG lokal.
+- `src/`: document root berisi halaman, source browser, stylesheet, dan `assets/`.
 - `tests/`: pengujian otomatis.
 - `docs/`: brief, arsitektur, keputusan, dan strategi testing.
 
 ## Batasan
 
 - Tidak ada backend, autentikasi, database, analytics, atau pengiriman formulir.
+- Test DOM stub tidak menggantikan browser automation, visual regression, atau audit aksesibilitas penuh.
 - Jangan memasukkan data pribadi, kredensial, atau konten bisnis nyata ke demo.
 - Jangan menambahkan framework atau dependency tanpa kebutuhan dan keputusan terdokumentasi.

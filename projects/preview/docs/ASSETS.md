@@ -31,6 +31,6 @@
 
 ## Audio latar
 
-- Pemutar disiapkan untuk file audio lokal yang hak penggunaannya telah diverifikasi.
-- Belum ada file audio yang disertakan. Jangan menambahkan audio sampai file original atau lisensi penggunaan website dapat dibuktikan.
-- Setelah aset legal tersedia, letakkan di `assets/audio/`, atur `BACKGROUND_AUDIO_SOURCE` pada `js/main.js`, dan catat sumber, pembuat, lisensi, serta bukti izinnya di sini.
+- File musik latar yang digunakan: `assets/mp3/music.mp3` (632.466 byte pada commit dasar yang diperiksa).
+- `js/main.js` merujuk file tersebut melalui `BACKGROUND_AUDIO_SOURCE`; jangan mengganti atau mengunduh aset lain sebagai bagian dari perubahan kontrol UI.
+- Sumber/pembuat/lisensi file harus tetap dicatat dan diverifikasi oleh pemilik aset sebelum distribusi publik.

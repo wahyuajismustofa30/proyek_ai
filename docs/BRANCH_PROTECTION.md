@@ -53,6 +53,7 @@ kebijakan yang tercatat, bukan bukti kondisi konfigurasi terkini.
 ## Required checks dan workflow
 
 Workflow root saat ini mendefinisikan job bernama:
+
 - `Validate JSON, Python, Markdown, links, and whitespace` di
   `.github/workflows/validate.yml`;
 - `Scan dependencies with OSV-Scanner` di

@@ -157,10 +157,8 @@
     let playPromise;
     try { playPromise = backgroundAudio.play(); } catch (error) { playPromise = Promise.reject(error); }
     return Promise.resolve(playPromise).then(() => {
-      if (attemptId !== audioPlayAttemptId || audioUserPaused) {
-        if (!audioUserPaused) backgroundAudio.pause();
-        return false;
-      }
+      // Percobaan lama tidak boleh mengubah playback yang dimulai oleh keputusan lebih baru.
+      if (attemptId !== audioPlayAttemptId || audioUserPaused) return false;
       audioInitialized = true;
       audioUserPaused = false;
       removeAudioFallback();

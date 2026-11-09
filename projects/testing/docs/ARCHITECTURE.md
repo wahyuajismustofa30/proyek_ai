@@ -2,7 +2,7 @@
 
 ## 1. Gambaran sistem
 
-Aplikasi adalah situs statis tanpa server aplikasi. Browser memuat HTML, CSS, JavaScript, dan SVG lokal dari direktori `src/` serta `assets/`.
+Aplikasi adalah situs statis tanpa server aplikasi. Browser memuat HTML, CSS, JavaScript, dan SVG lokal dari direktori `src/`, yang menjadi document root server statis.
 
 ## 2. Stack dan versi
 
@@ -17,9 +17,9 @@ Aplikasi adalah situs statis tanpa server aplikasi. Browser memuat HTML, CSS, Ja
 
 ```text
 projects/testing/
-├── assets/testing-mark.svg
 ├── docs/
 ├── src/
+│   ├── assets/testing-mark.svg
 │   ├── index.html
 │   ├── styles.css
 │   └── app.js
@@ -30,14 +30,15 @@ projects/testing/
 
 ## 4. Komponen
 
-- `index.html`: konten dan struktur semantik.
-- `styles.css`: layout, tipografi, warna, dan breakpoint.
-- `app.js`: navigasi mobile dan simulasi validasi form.
-- `web-page.test.js`: kontrak halaman dan helper email.
+- `src/index.html`: konten dan struktur semantik.
+- `src/styles.css`: layout, tipografi, warna, breakpoint, dan fallback navigasi tanpa JavaScript.
+- `src/app.js`: navigasi mobile dan simulasi validasi form.
+- `src/assets/`: aset SVG yang dapat diminta langsung dari document root.
+- `tests/web-page.test.js`: kontrak halaman, pemetaan URL aset, validasi email, dan perilaku interaksi melalui DOM stub.
 
 ## 5. Alur request
 
-Browser meminta `index.html`, kemudian memuat stylesheet, JavaScript module, dan SVG lokal. Form tidak melakukan request jaringan.
+Jalankan `python -m http.server 8080 --directory src`. Browser meminta `/` untuk `index.html`, kemudian `/styles.css`, `/app.js`, dan `/assets/testing-mark.svg`. Seluruh path relatif harus tetap berada di bawah document root `src/`. Form tidak melakukan request jaringan.
 
 ## 6. Data storage
 

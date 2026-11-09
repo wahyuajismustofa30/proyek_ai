@@ -26,11 +26,11 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertEqual(block.count("role: 'Owner'"), 2)
         self.assertIn("Penyedia Layanan Internet Desa", block)
 
-    def test_audio_has_no_autoplay_or_source_until_licensed_asset_exists(self):
+    def test_audio_uses_local_music_asset_without_autoplay(self):
         audio_tag = self.html.split("<audio", 1)[1].split(">", 1)[0]
         self.assertNotIn("autoplay", audio_tag.lower())
         self.assertNotIn("src=", audio_tag.lower())
-        self.assertIn("const BACKGROUND_AUDIO_SOURCE = '';", self.main)
+        self.assertIn("const BACKGROUND_AUDIO_SOURCE = 'assets/mp3/music.mp3';", self.main)
 
     def test_audio_controls_and_failure_handling_exist(self):
         for element_id in ("audio-toggle", "audio-mute", "audio-volume", "audio-status"):

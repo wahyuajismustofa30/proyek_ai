@@ -122,7 +122,7 @@
 
 
   // Isi hanya dengan path file lokal yang original atau berlisensi setelah aset tersedia.
-  const BACKGROUND_AUDIO_SOURCE = '';
+  const BACKGROUND_AUDIO_SOURCE = 'assets/mp3/music.mp3';
   const backgroundAudio = $('#background-audio');
   const audioToggle = $('#audio-toggle');
   const audioMute = $('#audio-mute');

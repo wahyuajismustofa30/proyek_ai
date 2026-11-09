@@ -19,7 +19,7 @@ git_cmd remote get-url "$REMOTE" >/dev/null 2>&1 || fail "Remote 'origin' tidak 
 BRANCH="$(git_cmd branch --show-current)"
 [[ -n "$BRANCH" ]] || fail "HEAD detached. Pindah ke branch terlebih dahulu."
 
-# Preserve the user's existing index; stage only when the index is empty.
+# Preserve the user's existing index; staging is never modified by this tool.
 git_cmd diff --cached --quiet || fail "Ada perubahan yang sudah di-stage. Commit atau unstage secara manual sebelum menjalankan github-sync; staging pengguna tidak akan disentuh."
 
 info "${GREEN}DEKEKU — GITHUB SYNC (TERMUX)${RESET}"
@@ -28,26 +28,50 @@ info "Branch     : $BRANCH"
 info "Remote     : $REMOTE (URL disembunyikan untuk menghindari kebocoran credential)"
 info ""
 
-# Refuse ambiguous repository state; never stash, reset, clean, or force-push.
+# Fetch updates, but never reset, clean, stash, or force-push.
 git_cmd fetch --prune "$REMOTE" || fail "Fetch gagal. Periksa koneksi dan autentikasi GitHub."
-git_cmd show-ref --verify --quiet refs/remotes/origin/main || fail "origin/main tidak ditemukan."
-REMOTE_MAIN="$(git_cmd rev-parse refs/remotes/origin/main)"
+git_cmd show-ref --verify --quiet "refs/remotes/$REMOTE/main" || fail "$REMOTE/main tidak ditemukan."
+REMOTE_MAIN="$(git_cmd rev-parse "refs/remotes/$REMOTE/main")"
 LOCAL_MAIN="$(git_cmd rev-parse refs/heads/main 2>/dev/null)" || fail "Branch lokal main tidak ditemukan."
 
 if [[ "$BRANCH" == "main" ]]; then
-  [[ "$LOCAL_MAIN" == "$REMOTE_MAIN" ]] || fail "main lokal tidak identik dengan origin/main. Sinkronkan main secara terpisah sebelum memakai tool ini."
+  [[ "$LOCAL_MAIN" == "$REMOTE_MAIN" ]] || fail "main lokal tidak identik dengan $REMOTE/main. Sinkronkan main secara terpisah sebelum memakai tool ini."
   NEW_BRANCH="feat/termux-sync-$(date '+%Y%m%d-%H%M%S')"
   git_cmd switch -c "$NEW_BRANCH" "$REMOTE/main" || fail "Tidak dapat membuat branch fitur. Periksa konflik atau perubahan lokal."
   BRANCH="$NEW_BRANCH"
   info "${GREEN}Branch fitur dibuat:${RESET} $BRANCH"
 else
-  [[ "$BRANCH" != "main" ]] || fail "Operasi langsung pada main ditolak."
-  git_cmd merge-base --is-ancestor "$REMOTE/main" HEAD || fail "Branch ini belum memuat origin/main terbaru. Perbarui branch secara aman terlebih dahulu; tidak ada perubahan yang dipaksakan."
+  # Bring an existing feature branch up to date safely. Fast-forward when
+  # possible; otherwise create a normal merge commit. No history is rewritten.
+  if ! git_cmd merge-base --is-ancestor "$REMOTE_MAIN" HEAD; then
+    if git_cmd merge-base --is-ancestor HEAD "$REMOTE_MAIN"; then
+      SYNC_MODE="fast-forward"
+      SYNC_DESCRIPTION="Branch lokal hanya tertinggal dari $REMOTE/main."
+    else
+      SYNC_MODE="merge"
+      SYNC_DESCRIPTION="Branch lokal dan $REMOTE/main memiliki commit masing-masing."
+    fi
+
+    info "${YELLOW}$SYNC_DESCRIPTION${RESET}"
+    if ! confirm "Integrasikan $REMOTE/main ke branch '$BRANCH' sekarang?"; then
+      info "Sinkronisasi dibatalkan. Working tree dan branch tetap dipertahankan."
+      exit 0
+    fi
+
+    if [[ "$SYNC_MODE" == "fast-forward" ]]; then
+      git_cmd merge --ff-only "$REMOTE_MAIN" || fail "Fast-forward gagal. Periksa git status; perubahan lokal tidak di-reset."
+    else
+      if ! git_cmd merge --no-edit "$REMOTE_MAIN"; then
+        fail "Merge $REMOTE/main gagal atau mengalami konflik. Selesaikan konflik secara manual, commit hasil merge, lalu jalankan github-sync kembali. Tidak ada reset/abort otomatis."
+      fi
+    fi
+    info "${GREEN}Branch berhasil diperbarui dari $REMOTE/main.${RESET}"
+  fi
 fi
 
 # Guard against common credential/private-key filenames before staging.
-if git_cmd status --porcelain | grep -Eiq '(^|/)(\.env|\.env\.[^e]|id_rsa|id_ed25519|credentials(\.json)?|secrets?)(/|$)|\.(pem|key|p12|pfx)$'; then
-  fail "Ada file berpotensi rahasia pada perubahan. Periksa .gitignore dan status; tidak ada file yang di-stage otomatis."
+if git_cmd status --porcelain | grep -Eiq '(^|[ MADRCU?!]{1,2} *)(\.env($|\.)|[^[:space:]]*/\.env($|\.)|id_rsa|id_ed25519|credentials(\.json)?|secrets?)(/|$)|\.(pem|key|p12|pfx)$'; then
+  fail "Ada file dengan nama yang berpotensi rahasia pada perubahan. Periksa .gitignore dan status; tidak ada file yang di-stage otomatis."
 fi
 
 info ""
@@ -74,9 +98,14 @@ fi
 
 if git_cmd show-ref --verify --quiet "refs/remotes/$REMOTE/$BRANCH"; then
   PUSH_BASE="$REMOTE/$BRANCH"
+  if ! git_cmd merge-base --is-ancestor "$PUSH_BASE" HEAD; then
+    fail "Branch remote $REMOTE/$BRANCH memiliki commit yang belum ada di lokal. Integrasikan branch remote tersebut secara manual; push dibatalkan tanpa force-push."
+  fi
 else
   PUSH_BASE="$REMOTE/main"
+  git_cmd merge-base --is-ancestor "$PUSH_BASE" HEAD || fail "HEAD belum memuat $REMOTE/main terbaru. Push dibatalkan."
 fi
+
 AHEAD="$(git_cmd rev-list --count "$PUSH_BASE"..HEAD)"
 if [[ "$AHEAD" == "0" ]]; then
   info "${GREEN}Tidak ada commit baru untuk dikirim.${RESET}"
@@ -92,13 +121,27 @@ if ! confirm "Push branch '$BRANCH' ke origin?"; then
 fi
 
 git_cmd push --set-upstream "$REMOTE" "$BRANCH" || fail "Push gagal. Tidak ada force-push yang dilakukan."
-URL="$(git_cmd remote get-url "$REMOTE")"
-URL="${URL%.git}"
-URL="${URL#git@github.com:}"
-URL="${URL#https://github.com/}"
-if [[ "$URL" == */* ]]; then
+
+# Build a PR URL only for recognized GitHub remote URL forms. Never print the
+# raw remote URL because it may contain an embedded username or token.
+REMOTE_URL="$(git_cmd remote get-url "$REMOTE")"
+REPO_SLUG=""
+case "$REMOTE_URL" in
+  git@github.com:*) REPO_SLUG="${REMOTE_URL#git@github.com:}" ;;
+  ssh://git@github.com/*) REPO_SLUG="${REMOTE_URL#ssh://git@github.com/}" ;;
+  https://*|http://*)
+    URL_PART="${REMOTE_URL#https://}"
+    URL_PART="${URL_PART#http://}"
+    URL_PART="${URL_PART#*@}"
+    if [[ "$URL_PART" == github.com/* ]]; then
+      REPO_SLUG="${URL_PART#github.com/}"
+    fi
+    ;;
+esac
+REPO_SLUG="${REPO_SLUG%.git}"
+if [[ "$REPO_SLUG" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
   info "${GREEN}Push berhasil.${RESET}"
-  info "Buat/periksa PR: https://github.com/$URL/compare/main...$BRANCH?expand=1"
+  info "Buat/periksa PR: https://github.com/$REPO_SLUG/compare/main...$BRANCH?expand=1"
 else
   info "${GREEN}Push berhasil.${RESET} Buat Pull Request dari branch $BRANCH ke main."
 fi

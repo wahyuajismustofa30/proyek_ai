@@ -74,10 +74,11 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertIn("backgroundAudio.muted = !backgroundAudio.muted", handler)
         self.assertIn("updateAudioState()", handler)
         self.assertNotIn("backgroundAudio.pause()", handler)
-        self.assertIn("backgroundAudio.volume = 0.18", self.main)
+        self.assertIn("backgroundAudio.volume = 0.30", self.main)
 
     def test_autoplay_is_attempted_once_and_rejection_activates_fallback(self):
         self.assertIn("let audioAutoplayAttempted = false", self.main)
+        self.assertLess(self.main.index("activateAudioFallback();", self.main.index("// Pasang listener gesture")), self.main.index("attemptAudioPlayback('autoplay')"))
         self.assertIn("if (!audioAutoplayAttempted)", self.main)
         self.assertIn("audioAutoplayAttempted = true", self.main)
         self.assertEqual(self.main.count("attemptAudioPlayback('autoplay')"), 1)
@@ -103,7 +104,7 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         )[0]
         self.assertIn("const failure = classifyAudioPlaybackError(error)", attempt)
         self.assertIn(
-            "failure.type === 'autoplay-blocked' && source === 'autoplay' && !audioInitialized && !audioUserPaused",
+            "failure.type === 'autoplay-blocked' && ['autoplay', 'fallback'].includes(source) && !audioInitialized && !audioUserPaused",
             attempt,
         )
         self.assertEqual(attempt.count("activateAudioFallback()"), 1)
@@ -155,12 +156,18 @@ class ProfileAndAudioContractTests(unittest.TestCase):
     def test_fallback_is_one_shot_and_ignores_interactive_controls(self):
         self.assertIn("let audioFallbackActive = false", self.main)
         self.assertIn("audioFallbackActive = true", self.main)
+        self.assertIn("failure.type === 'autoplay-blocked' && ['autoplay', 'fallback'].includes(source)", self.main)
         self.assertIn("removeAudioFallback()", self.main)
         self.assertIn("document.removeEventListener(type, listener, options)", self.main)
-        self.assertIn("['pointerdown']", self.main)
+        self.assertIn("['pointerdown', 'touchstart']", self.main)
         self.assertIn("['touchstart', 'click']", self.main)
-        self.assertIn("button, a, input, select, textarea, summary, dialog", self.main)
+        self.assertIn("#audio-toggle, [contenteditable=\\\"true\\\"]", self.main)
         self.assertIn("attemptAudioPlayback('fallback')", self.main)
+        handler = self.main.split("function handleAudioFallbackInteraction(event)", 1)[1].split(
+            "function activateAudioFallback()", 1
+        )[0]
+        self.assertNotIn("audioInitialized = true", handler)
+        self.assertIn("removeAudioFallback()", handler)
 
     def test_manual_pause_is_distinct_from_lifecycle_pause(self):
         self.assertIn("let audioUserPaused = false", self.main)

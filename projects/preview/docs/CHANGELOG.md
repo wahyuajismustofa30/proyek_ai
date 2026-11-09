@@ -4,6 +4,7 @@ Perubahan dicatat ringkas dan kronologis. Gunakan tanggal ISO (`YYYY-MM-DD`) dan
 
 ## Unreleased
 
+- Memperbaiki fallback gesture audio agar listener aktif sebelum percobaan autoplay, mendukung `pointerdown` dan `touchstart`, dapat mencoba kembali setelah penolakan gesture, serta hanya menandai audio terinisialisasi setelah playback berhasil; volume default dinaikkan dari 18% menjadi 30%.
 - Memperbaiki URL ikon monokrom pada CSS mask agar diselesaikan dari direktori `css/` menuju aset SVG di `assets/icons/monochrome/`; menambahkan tes regresi validasi path aset.
 - Membedakan error autoplay yang ditolak browser dari kegagalan sumber/format, pembatalan, dan error media; fallback interaksi hanya aktif untuk `NotAllowedError` saat autoplay awal.
 - Mempertahankan alasan pause lifecycle melalui event `pause` dan mengabaikan event pause tertunda ketika playback baru sudah berjalan kembali.

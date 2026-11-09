@@ -126,7 +126,7 @@
   const backgroundAudio = $('#background-audio');
   const audioToggle = $('#audio-toggle');
   const audioStatus = $('#audio-status');
-  backgroundAudio.volume = 0.18;
+  backgroundAudio.volume = 0.30;
   const audioIcons = {
     play: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m8 5 12 7-12 7z" fill="currentColor"></path></svg>',
     playing: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10v4h4l5 4V6l-5 4H3Z" fill="currentColor"></path><path d="M16 9a5 5 0 0 1 0 6M18.5 6.5a9 9 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>',
@@ -202,10 +202,11 @@
     }).catch(error => {
       if (attemptId !== audioPlayAttemptId) return false;
       const failure = classifyAudioPlaybackError(error);
-      if (failure.type === 'autoplay-blocked' && source === 'autoplay' && !audioInitialized && !audioUserPaused) {
+      if (failure.type === 'autoplay-blocked' && ['autoplay', 'fallback', 'manual'].includes(source) && !audioInitialized && !audioUserPaused) {
         activateAudioFallback();
         updateAudioState(failure.message);
       } else {
+        if (source === 'autoplay') removeAudioFallback();
         const message = failure.type === 'autoplay-blocked'
           ? 'Browser masih membatasi pemutaran musik. Coba tekan tombol musik untuk mencoba kembali.'
           : (failure.type === 'unknown' && backgroundAudio.error
@@ -219,9 +220,9 @@
   function handleAudioFallbackInteraction(event) {
     if (!audioFallbackActive) return;
     const target = event.target instanceof Element ? event.target : null;
-    if (!target || target.closest('button, a, input, select, textarea, summary, dialog, [role="button"], [role="dialog"], [contenteditable="true"]')) return;
+    if (!target || target.closest('#audio-toggle, [contenteditable="true"]')) return;
+    // Play dipanggil langsung dari gesture; fallback baru dilepas permanen setelah playback berhasil.
     removeAudioFallback();
-    audioInitialized = true;
     audioUserPaused = false;
     attemptAudioPlayback('fallback');
   }
@@ -229,7 +230,7 @@
     if (audioFallbackActive || audioInitialized || audioUserPaused) return;
     audioFallbackActive = true;
     const options = { capture: true, passive: true };
-    const eventTypes = ('PointerEvent' in window) ? ['pointerdown'] : ['touchstart', 'click'];
+    const eventTypes = ('PointerEvent' in window) ? ['pointerdown', 'touchstart'] : ['touchstart', 'click'];
     audioFallbackEvents = eventTypes.map(type => {
       const listener = handleAudioFallbackInteraction;
       document.addEventListener(type, listener, options);
@@ -240,7 +241,6 @@
   updateAudioState('Mencoba memutar musik latar');
   audioToggle.addEventListener('click', () => {
     removeAudioFallback();
-    audioInitialized = true;
     if (!backgroundAudio.paused && !backgroundAudio.ended) {
       backgroundAudio.muted = !backgroundAudio.muted;
       updateAudioState();
@@ -289,6 +289,8 @@
     if (document.hidden) pauseAudioForLifecycle('Musik dihentikan saat tab tidak aktif');
   });
   window.addEventListener('pagehide', () => pauseAudioForLifecycle('Musik dihentikan saat halaman ditinggalkan'));
+  // Pasang listener gesture sebelum autoplay agar swipe pertama tidak terlewat saat Promise autoplay ditolak.
+  activateAudioFallback();
   if (!audioAutoplayAttempted) {
     audioAutoplayAttempted = true;
     attemptAudioPlayback('autoplay');

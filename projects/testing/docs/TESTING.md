@@ -15,7 +15,7 @@ python -m http.server 8080 --directory src
 
 ## Validasi otomatis
 
-- Node built-in test runner memeriksa struktur HTML, landmark, viewport, dan URL aset yang dihitung relatif terhadap document root `src/`.
+- Node built-in test runner memeriksa struktur HTML, landmark, viewport, dan pemetaan URL aset ke file relatif terhadap document root `src/` (pemeriksaan filesystem, bukan HTTP smoke test).
 - Test CSS memeriksa breakpoint mobile dan aturan progressive enhancement agar navigasi tetap terlihat tanpa JavaScript.
 - Test perilaku menggunakan DOM stub untuk menu buka/tutup, pemilihan tautan navigasi, validasi form gagal, dan submit berhasil.
 - CI root memvalidasi HTML, CSS, dan aset lokal.
@@ -29,6 +29,7 @@ python -m http.server 8080 --directory src
 - [x] Perilaku menu dan penutupan melalui tautan.
 - [x] Email valid dan invalid, termasuk domain rusak.
 - [x] Form menampilkan pesan error/sukses tanpa mengirim data.
+- [x] Tombol submit tetap nonaktif tanpa JavaScript dan aktif setelah handler submit dipasang.
 - [ ] Review keyboard dan screen reader manual.
 - [ ] Review visual pada browser desktop dan mobile.
 - [ ] Browser-based end-to-end test bila kebutuhan bertambah.

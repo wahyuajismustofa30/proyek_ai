@@ -7,6 +7,8 @@
 - Jenis: static website
 - Teknologi: HTML5, CSS3, JavaScript vanilla
 - Target publikasi menurut README: GitHub Pages
+- Nama lengkap kandidat: Slamet Purwanto (informasi diberikan oleh pemilik proyek)
+- Nama kampanye/brand yang dipertahankan: SLAMET
 - Kandidat/periode yang tertulis di materi: SLAMET — calon Kepala Desa Tlagayasa, 2027–2035
 
 ## Tujuan

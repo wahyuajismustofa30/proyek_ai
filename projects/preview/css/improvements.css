@@ -62,7 +62,8 @@
 .work-entry.current { border-left:2px solid var(--green); padding-left:9px; }
 .audio-player { position:fixed; z-index:7; left:20px; bottom:20px; width:min(340px,calc(100vw - 84px)); padding:12px 14px; border:1px solid #d8e4c8; border-radius:10px; background:#fffdf5; color:var(--ink); box-shadow:0 8px 28px #002a1026; }
 .audio-player-heading { display:flex; align-items:center; gap:9px; margin-bottom:9px; }
-.audio-player-icon { display:grid; width:32px; height:32px; place-items:center; border-radius:50%; background:var(--cream); color:var(--green); font-size:1.2rem; }
+.audio-player-icon { display:grid; width:32px; height:32px; place-items:center; border-radius:50%; background:var(--cream); color:var(--green); }
+.audio-player-icon img { width:18px; height:18px; }
 .audio-player-heading strong,.audio-player-heading span:not(.audio-player-icon) { display:block; }
 .audio-player-heading strong { font:700 .76rem var(--font-head); }
 .audio-player-heading #audio-status { color:var(--muted); font-size:.66rem; }

@@ -4,6 +4,8 @@ Perubahan dicatat ringkas dan kronologis. Gunakan tanggal ISO (`YYYY-MM-DD`) dan
 
 ## Unreleased
 
+- Menambahkan nama lengkap **Slamet Purwanto** pada identitas profil, hero, penutup halaman, teks alternatif gambar, dan metadata SEO/social preview; nama kampanye **SLAMET** tetap dipertahankan sebagai brand.
+
 - Menginvalidasi percobaan `play()` yang masih tertunda saat tab/halaman tidak aktif, memanggil `pause()` untuk membatalkan pending playback, mencegah event media dan Promise lama mengubah keputusan terbaru, serta menambahkan simulasi runtime untuk refresh, lifecycle, dan retry gesture.
 
 - Memperbaiki fallback gesture audio agar listener aktif sebelum percobaan autoplay, mendukung `pointerdown` dan `touchstart`, dapat mencoba kembali setelah penolakan gesture, serta hanya menandai audio terinisialisasi setelah playback berhasil; volume default dinaikkan dari 18% menjadi 30%.

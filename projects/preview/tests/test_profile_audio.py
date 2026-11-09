@@ -100,7 +100,7 @@ class ProfileAndAudioContractTests(unittest.TestCase):
         self.assertIn("let audioLifecyclePause = false", self.main)
         self.assertIn("if (audioLifecyclePause)", self.main)
         self.assertIn("audioUserPaused = true", self.main)
-        self.assertIn("if (audioUserPaused)", self.main)
+        self.assertIn("|| audioUserPaused", self.main)
         self.assertIn("function pauseAudioForLifecycle(message)", self.main)
         self.assertIn("++audioPlayAttemptId", self.main)
 

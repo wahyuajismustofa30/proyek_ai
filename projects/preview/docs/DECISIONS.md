@@ -14,7 +14,6 @@
 - **Keputusan:** Jangan mengisi detail kandidat, klaim, statistik, atau foto dokumenter tanpa sumber/otorisasi.
 - **Konsekuensi:** Placeholder dapat tetap terlihat sampai data sah tersedia; dokumentasi tidak boleh dianggap sebagai verifikasi fakta.
 
-
 ## 2026-11-09 — Pisahkan nama lengkap dan nama kampanye
 
 - **Status:** Diterapkan berdasarkan informasi nama yang diberikan pemilik proyek.

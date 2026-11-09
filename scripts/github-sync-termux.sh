@@ -19,6 +19,9 @@ git_cmd remote get-url "$REMOTE" >/dev/null 2>&1 || fail "Remote 'origin' tidak 
 BRANCH="$(git_cmd branch --show-current)"
 [[ -n "$BRANCH" ]] || fail "HEAD detached. Pindah ke branch terlebih dahulu."
 
+# Preserve the user's existing index; stage only when the index is empty.
+git_cmd diff --cached --quiet || fail "Ada perubahan yang sudah di-stage. Commit atau unstage secara manual sebelum menjalankan github-sync; staging pengguna tidak akan disentuh."
+
 info "${GREEN}DEKEKU — GITHUB SYNC (TERMUX)${RESET}"
 info "Repository : $REPO"
 info "Branch     : $BRANCH"

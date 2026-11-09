@@ -13,3 +13,10 @@
 - **Konteks:** README mengidentifikasi bagian profil sebagai placeholder.
 - **Keputusan:** Jangan mengisi detail kandidat, klaim, statistik, atau foto dokumenter tanpa sumber/otorisasi.
 - **Konsekuensi:** Placeholder dapat tetap terlihat sampai data sah tersedia; dokumentasi tidak boleh dianggap sebagai verifikasi fakta.
+
+
+## 2026-11-09 — Pisahkan nama lengkap dan nama kampanye
+
+- **Status:** Diterapkan berdasarkan informasi nama yang diberikan pemilik proyek.
+- **Keputusan:** Gunakan **Slamet Purwanto** sebagai nama lengkap pada identitas profil dan metadata; pertahankan **SLAMET** sebagai nama kampanye/brand yang sudah digunakan pada logo teks, slogan, dan elemen visual utama.
+- **Konsekuensi:** Perubahan nama lengkap tidak menghapus identitas kampanye yang telah dikenal. Jika kelak ada koreksi ejaan atau nama resmi, perbarui `candidate.fullName` di `js/data.js` serta salinan metadata statis di `index.html`.

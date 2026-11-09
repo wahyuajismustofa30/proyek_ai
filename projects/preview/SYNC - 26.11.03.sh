@@ -4,8 +4,9 @@ set +H   # matikan history expansion: aman meski dijalankan dalam mode interakti
 # SINKRONISASI GIT: tarik → commit → push (HANYA branch main)
 # - Memastikan pekerjaan berada di branch main; bila tidak, menawarkan pindah / ganti nama.
 # - Menarik commit terbaru dari GitHub (rebase, perubahan lokal diamankan otomatis).
-# - Commit perubahan lokal setelah diperiksa dari file rahasia.
-# - Push ke main, termasuk commit lama yang belum terkirim.
+# - Hanya stage perubahan di projects/preview; staging di luar scope membuat proses berhenti.
+# - Periksa file staged dari rahasia sebelum commit.
+# - Minta konfirmasi terpisah sebelum push commit ke main.
 # Simpan file ini dengan akhir baris LF (bukan CRLF) agar bisa dijalankan Git Bash.
 # ==========================================
 set -Eeuo pipefail
@@ -393,24 +394,77 @@ check_staged_safety() {
 }
 
 # ==========================================
+# BATASI SCOPE STAGING
+# ==========================================
+readonly SYNC_SCOPE="projects/preview"
+
+# Mengembalikan 0 bila sudah ada file staged di luar folder proyek ini.
+has_staged_changes_outside_scope() {
+  local f
+  while IFS= read -r -d '' f; do
+    case "$f" in
+      "$SYNC_SCOPE"/*) ;;
+      *)
+        log_error "STAGING" "Ada perubahan staged di luar '$SYNC_SCOPE': $f"
+        return 0
+        ;;
+    esac
+  done < <(git diff --cached --name-only -z)
+  return 1
+}
+
+# Mengembalikan 0 bila commit lokal yang belum terkirim mengubah file di luar scope.
+has_unpushed_changes_outside_scope() {
+  local f
+  while IFS= read -r -d '' f; do
+    case "$f" in
+      "$SYNC_SCOPE"/*) ;;
+      *)
+        log_error "PUSH SCOPE" "Commit lokal yang belum terkirim mengubah file di luar '$SYNC_SCOPE': $f"
+        return 0
+        ;;
+    esac
+  done < <(git diff --name-only -z "$REMOTE/$BRANCH..HEAD")
+  return 1
+}
+
+# ==========================================
 # COMMIT
 # ==========================================
 commit_changes() {
   echo
-  if [[ -z "$(git status --porcelain)" ]]; then
-    echo "📦 Tidak ada perubahan file lokal."
+  if [[ ! -d "$SYNC_SCOPE" ]]; then
+    log_error "SCOPE" "Folder sinkronisasi '$SYNC_SCOPE' tidak ditemukan."
+    exit 1
+  fi
+
+  # Jangan pernah ikutkan perubahan yang sudah di-stage dari luar folder proyek.
+  if has_staged_changes_outside_scope; then
+    echo "⛔ Commit dibatalkan. Periksa atau commit perubahan di luar scope secara terpisah."
+    exit 1
+  fi
+
+  if [[ -z "$(git status --porcelain -- "$SYNC_SCOPE")" ]]; then
+    echo "📦 Tidak ada perubahan lokal di '$SYNC_SCOPE'."
     return 0
   fi
 
-  echo "📝 Perubahan lokal:"
-  git status --short
+  echo "📝 Perubahan lokal dalam '$SYNC_SCOPE':"
+  git status --short -- "$SYNC_SCOPE"
   echo
-  if ! confirm "Commit semua perubahan di atas?"; then
+  if ! confirm "Stage dan commit perubahan hanya di '$SYNC_SCOPE'?"; then
     echo "⏹️ Commit dilewati."
     return 0
   fi
 
-  git add -A
+  git add -A -- "$SYNC_SCOPE"
+
+  # Pemeriksaan ulang melindungi dari staged path di luar scope yang mungkin muncul.
+  if has_staged_changes_outside_scope; then
+    log_error "STAGING" "Commit dibatalkan; tidak ada file di luar scope yang akan ikut."
+    exit 1
+  fi
+
   if git diff --cached --quiet; then
     echo "ℹ️ Tidak ada perubahan yang dapat di-commit."
     return 0
@@ -447,17 +501,29 @@ push_changes() {
   fi
   handle_shallow
 
+  local commits_to_push
   if (( REMOTE_EXISTS )); then
     ahead="$(git rev-list --count "$REMOTE/$BRANCH..HEAD")"
     if (( ahead == 0 )); then
       echo "✅ GitHub sudah sama dengan lokal; tidak ada yang perlu di-push."
       return 0
     fi
+    if has_unpushed_changes_outside_scope; then
+      echo "⛔ Push dibatalkan. Pisahkan perubahan di luar '$SYNC_SCOPE' ke proses sinkronisasi tersendiri."
+      exit 1
+    fi
+    commits_to_push="$(git log --oneline "$REMOTE/$BRANCH..HEAD")"
     echo
-    echo "🚀 Mengirim $ahead commit ke GitHub..."
+    echo "🚀 Commit yang akan dikirim ke GitHub ($ahead):"
   else
+    commits_to_push="$(git log --oneline HEAD)"
     echo
-    echo "🚀 Membuat branch '$BRANCH' di GitHub dan mengirim commit..."
+    echo "🚀 Commit yang akan dikirim untuk membuat branch '$BRANCH':"
+  fi
+  printf '%s\n' "$commits_to_push"
+  if ! confirm "Lanjutkan push ke '$REMOTE/$BRANCH'?"; then
+    echo "⏹️ Push dibatalkan. Commit lokal tetap tersimpan."
+    return 0
   fi
 
   # -u: atur upstream agar 'git push' / 'git pull' biasa juga langsung bekerja.

@@ -15,6 +15,7 @@ import html5lib
 import tinycss2
 
 HTML_EXTENSIONS = {".html", ".htm"}
+HTML_FRAGMENT_FILENAMES = {"head-snippet.html"}
 CSS_EXTENSIONS = {".css"}
 EMPTY_CHECK_EXTENSIONS = HTML_EXTENSIONS | CSS_EXTENSIONS | {".svg"}
 ALLOWED_EMPTY_FILENAMES = {".gitkeep", "__init__.py", ".nojekyll"}
@@ -262,15 +263,20 @@ def validate_project(project: Path) -> list[str]:
         except UnicodeDecodeError:
             errors.append(f"{file}: HTML is not valid UTF-8")
             continue
+        is_fragment = file.name in HTML_FRAGMENT_FILENAMES
         try:
-            html5lib.HTMLParser(strict=True).parse(document)
+            strict_parser = html5lib.HTMLParser(strict=True)
+            if is_fragment:
+                strict_parser.parseFragment(document, container="head")
+            else:
+                strict_parser.parse(document)
         except (html5lib.html5parser.ParseError, ValueError) as exc:
             errors.append(f"{file}: invalid HTML: {exc}")
 
         # Parse attributes via the HTML parser, not a broad regex.
         from html5lib import HTMLParser
         parser = HTMLParser(strict=False)
-        tree = parser.parse(document)
+        tree = parser.parseFragment(document, container="head") if is_fragment else parser.parse(document)
         for element in tree.iter():
             for attribute, value in element.attrib.items():
                 name = attribute.rsplit("}", 1)[-1].lower()

@@ -36,6 +36,26 @@ class WebValidationTests(unittest.TestCase):
         (self.project / "assets" / "bg.png").write_bytes(b"image")
         self.assertEqual(validate_project(self.project), [])
 
+    def test_validates_head_snippet_as_html_fragment_and_checks_assets(self) -> None:
+        (self.project / "favicon.svg").write_text(
+            '<svg xmlns="http://www.w3.org/2000/svg"></svg>', encoding="utf-8"
+        )
+        (self.project / "head-snippet.html").write_text(
+            '<!-- Paste into the document head. -->\\n'
+            '<link rel="icon" href="/favicon.svg">\\n'
+            '<meta name="theme-color" content="#0C0C0C">',
+            encoding="utf-8",
+        )
+        self.assertEqual(validate_project(self.project), [])
+
+    def test_reports_missing_asset_in_head_snippet_fragment(self) -> None:
+        (self.project / "head-snippet.html").write_text(
+            '<link rel="icon" href="/missing-favicon.svg">', encoding="utf-8"
+        )
+        self.assertTrue(
+            any("missing-favicon.svg" in error for error in validate_project(self.project))
+        )
+
     def test_resolves_root_relative_html_and_css_assets(self) -> None:
         (self.project / "assets").mkdir()
         (self.project / "assets" / "logo.svg").write_text(

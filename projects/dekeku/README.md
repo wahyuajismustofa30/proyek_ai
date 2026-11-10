@@ -17,7 +17,7 @@ Repository ini menyimpan aset brand dan halaman referensi desain DEKEKU.
 ├── js/main.js
 ├── docs/head-snippet.html
 ├── manifest.webmanifest
-└── favicon.ico
+└── manifest.webmanifest
 ```
 
 ## Menjalankan lokal

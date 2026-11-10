@@ -40,7 +40,7 @@ class TermuxGitHubSyncTests(unittest.TestCase):
         (scripts_dir / "update_project_index.py").write_text((ROOT / "scripts" / "update_project_index.py").read_text(encoding="utf-8"), encoding="utf-8")
         docs_dir = self.repo / "docs"
         docs_dir.mkdir()
-        (docs_dir / "PROJECT_INDEX.md").write_text("# Indeks Proyek\\n\\n| Proyek | Direktori | README |\\n|---|---|---|\\n| — | — | — |\\n", encoding="utf-8")
+        (docs_dir / "PROJECT_INDEX.md").write_text("# Indeks Proyek\n\n| Proyek | Direktori | README |\n|---|---|---|\n| — | — | — |\n", encoding="utf-8")
         self.git(self.repo, "add", "README.md", "scripts", "docs")
         self.git(self.repo, "commit", "-m", "baseline")
         self.git(self.repo, "remote", "add", "origin", str(self.remote))
@@ -170,7 +170,7 @@ class TermuxGitHubSyncTests(unittest.TestCase):
     def test_untracked_dotenv_variant_is_rejected_before_staging(self) -> None:
         self.git(self.repo, "switch", "-c", "feat/secret-guard")
         secret = self.repo / ".env.local"
-        secret.write_text("TOKEN=do-not-commit\\n", encoding="utf-8")
+        secret.write_text("TOKEN=do-not-commit\n", encoding="utf-8")
 
         result = self.run_sync()
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)

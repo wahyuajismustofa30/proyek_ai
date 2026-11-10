@@ -4,7 +4,7 @@ Repository ini menyimpan aset brand dan halaman referensi desain DEKEKU.
 
 ## Struktur
 
-```
+```text
 .
 ├── index.html
 ├── pages/reference/index.html
@@ -16,13 +16,13 @@ Repository ini menyimpan aset brand dan halaman referensi desain DEKEKU.
 │   └── tokens.css
 ├── js/main.js
 ├── docs/head-snippet.html
-├── manifest.webmanifest
 └── manifest.webmanifest
 ```
 
 ## Menjalankan lokal
 
 Website ini statis dan tidak memerlukan build atau dependency:
+
 - buka `index.html` langsung, atau
 - jalankan server statis dari direktori ini (contoh: `python -m http.server 8000`).
 

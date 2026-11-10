@@ -20,15 +20,18 @@ class QuietHandler(SimpleHTTPRequestHandler):
         pass
 
 
-def check_static_site(project: Path) -> None:
+def check_static_site(project: Path, entrypoint: str = "index.html") -> None:
     """Require a regular root index.html and verify it is served over HTTP."""
     project = project.resolve()
     if not project.is_dir():
         raise ValueError(f"static website directory does not exist: {project}")
 
-    index = project / "index.html"
+    relative_entrypoint = Path(entrypoint)
+    if relative_entrypoint.is_absolute() or ".." in relative_entrypoint.parts:
+        raise ValueError("static website entrypoint must stay inside the project directory")
+    index = project / relative_entrypoint
     if index.is_symlink() or not index.is_file():
-        raise ValueError(f"{project}: static website requires a regular root index.html")
+        raise ValueError(f"{project}: static website entrypoint is missing or is not a regular file: {entrypoint}")
 
     expected = index.read_bytes()
     handler = functools.partial(QuietHandler, directory=str(project))
@@ -36,7 +39,7 @@ def check_static_site(project: Path) -> None:
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
-        url = f"http://127.0.0.1:{server.server_port}/"
+        url = f"http://127.0.0.1:{server.server_port}/{relative_entrypoint.as_posix()}"
         try:
             with urlopen(url, timeout=5) as response:
                 body = response.read()
@@ -57,9 +60,10 @@ def check_static_site(project: Path) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project", type=Path, help="Static website project directory")
+    parser.add_argument("--entrypoint", default="index.html", help="Root-relative HTML entrypoint (default: index.html)")
     args = parser.parse_args()
     try:
-        check_static_site(args.project)
+        check_static_site(args.project, args.entrypoint)
     except (OSError, ValueError) as exc:
         print(exc, file=sys.stderr)
         return 1

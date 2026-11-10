@@ -69,7 +69,11 @@ def python_project(project: Path) -> None:
     test_files = []
     for root, dirs, files in os.walk(project):
         dirs[:] = [name for name in dirs if name not in SKIP_DIRS]
-        test_files.extend(Path(root) / name for name in files if name.startswith("test_") and name.endswith(".py") or name.endswith("_test.py"))
+        test_files.extend(
+            Path(root) / name
+            for name in files
+            if (name.startswith("test_") and name.endswith(".py")) or name.endswith("_test.py")
+        )
     if not test_files:
         report("NOTICE", f"{project}: no Python test files found; application tests were not run.")
         return
@@ -92,11 +96,13 @@ def php_project(project: Path) -> None:
     if not isinstance(scripts, dict):
         raise ValueError("composer.json scripts must be a JSON object.")
     run(["composer", "validate", "--no-check-publish", "--no-check-lock"], project)
-    if scripts.get("test") and (project / "composer.lock").is_file():
-        run(["composer", "install", "--no-interaction", "--prefer-dist"], project)
-    elif scripts.get("test"):
-        report("NOTICE", f"{project}: composer.lock is absent; dependency resolution may not be reproducible.")
-        run(["composer", "install", "--no-interaction", "--prefer-dist"], project)
+    report("PASS", f"{project}: Composer manifest validation completed.")
+    if scripts.get("test"):
+        if (project / "composer.lock").is_file():
+            run(["composer", "install", "--no-interaction", "--prefer-dist"], project)
+        else:
+            report("NOTICE", f"{project}: composer.lock is absent; dependency resolution may not be reproducible.")
+            run(["composer", "install", "--no-interaction", "--prefer-dist"], project)
         run(["composer", "run-script", "test", "--no-interaction"], project)
         report("PASS", f"{project}: Composer test script completed.")
     else:

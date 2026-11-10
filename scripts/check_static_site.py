@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke-test a static website's root index.html over a local HTTP server."""
+"""Smoke-test a static website entrypoint over a local HTTP server."""
 
 from __future__ import annotations
 
@@ -40,14 +40,14 @@ def check_static_site(project: Path, entrypoint: str = "index.html") -> None:
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
-        url = f"http://127.0.0.1:{server.server_port}/{quote(relative_entrypoint.as_posix(), safe="/")}"
+        url = f"http://127.0.0.1:{server.server_port}/{quote(relative_entrypoint.as_posix(), safe='/')}"
         try:
             with urlopen(url, timeout=5) as response:
                 body = response.read()
                 if response.status != 200:
                     raise ValueError(f"{project}: static site returned HTTP {response.status}")
                 if body != expected:
-                    raise ValueError(f"{project}: HTTP root did not serve the project's index.html")
+                    raise ValueError(f"{project}: HTTP entrypoint did not serve the selected HTML file")
                 if "text/html" not in response.headers.get("Content-Type", ""):
                     raise ValueError(f"{project}: root response is not served as HTML")
         except (URLError, TimeoutError, OSError) as exc:

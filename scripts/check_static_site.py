@@ -10,6 +10,7 @@ import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.error import URLError
+from urllib.parse import quote
 from urllib.request import urlopen
 
 
@@ -39,7 +40,7 @@ def check_static_site(project: Path, entrypoint: str = "index.html") -> None:
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
-        url = f"http://127.0.0.1:{server.server_port}/{relative_entrypoint.as_posix()}"
+        url = f"http://127.0.0.1:{server.server_port}/{quote(relative_entrypoint.as_posix(), safe="/")}"
         try:
             with urlopen(url, timeout=5) as response:
                 body = response.read()
@@ -67,7 +68,7 @@ def main() -> int:
     except (OSError, ValueError) as exc:
         print(exc, file=sys.stderr)
         return 1
-    print(f"Static website smoke test passed: {args.project}")
+    print(f"PASS: static website smoke test passed: {args.project}")
     return 0
 
 

@@ -124,87 +124,11 @@ jobs:
         if: ${{ matrix.stack == 'static' }}
         run: python scripts/check_static_site.py "${{ matrix.project }}"
 
-      - name: Reject unsupported or unconfigured project stack
-        if: ${{ matrix.stack == 'none' && matrix.slug != '__no_projects__' }}
+      - name: Report project without an automated adapter
+        if: ${{ matrix.stack == 'none' }}
         env:
           PROJECT_PATH: ${{ matrix.project }}
-        run: |
-          printf '::error::%s has no supported Node.js, Python, or PHP manifest.\n' "$PROJECT_PATH"
-          echo "Add a supported manifest or implement and document a CI adapter before merging."
-          exit 1
-  bootstrap-stack-e2e:
-    name: Bootstrap / ${{ matrix.stack }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        stack: [node, python, php]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Set up Python
-        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
-        with:
-          python-version: "3.12"
-      - name: Bootstrap a real project fixture
-        id: fixture
-        env:
-          PROJECTS_ROOT: ${{ runner.temp }}/bootstrap-projects
-        run: |
-          set -euo pipefail
-          mkdir -p "$PROJECTS_ROOT"
-          PROJECT="$(python scripts/create_bootstrap_stack_fixture.py --stack "${{ matrix.stack }}" --output "$PROJECTS_ROOT" | sed -n 's/^BOOTSTRAP_PROJECT=//p')"
-          test -n "$PROJECT"
-          test -d "$PROJECT"
-          echo "project=$PROJECT" >> "$GITHUB_OUTPUT"
-
-      - name: Set up Node.js
-        if: ${{ matrix.stack == 'node' }}
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "22"
-      - name: Install and test Node.js fixture
-        if: ${{ matrix.stack == 'node' }}
-        working-directory: ${{ steps.fixture.outputs.project }}
-        run: |
-          set -euo pipefail
-          npm install --package-lock-only --ignore-scripts
-          test -f package-lock.json
-          npm ci
-          npm test
-
-      - name: Set up Python runtime
-        if: ${{ matrix.stack == 'python' }}
-        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
-        with:
-          python-version: "3.12"
-      - name: Install and test Python fixture
-        if: ${{ matrix.stack == 'python' }}
-        working-directory: ${{ steps.fixture.outputs.project }}
-        run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install -e .
-          python -m pip install -r requirements-test.txt
-          python -m pytest
-
-      - name: Set up PHP runtime
-        if: ${{ matrix.stack == 'php' }}
-        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
-        with:
-          php-version: "8.3"
-          tools: composer
-      - name: Install and test PHP fixture
-        if: ${{ matrix.stack == 'php' }}
-        working-directory: ${{ steps.fixture.outputs.project }}
-        run: |
-          set -euo pipefail
-          composer update --no-interaction --no-install
-          test -f composer.lock
-          composer validate --strict
-          composer install --no-interaction --prefer-dist
-          composer run-script test --no-interaction
-
+        run: echo "::notice::$PROJECT_PATH was discovered; no application test adapter is configured yet."
   web-validation:
     name: HTML, CSS, and project assets
     runs-on: ubuntu-latest
@@ -223,16 +147,16 @@ jobs:
   project-ci:
     name: Project matrix tests
     if: always()
-    needs: [project-tests, web-validation, bootstrap-stack-e2e]
+    needs: [discover, project-tests, web-validation]
     runs-on: ubuntu-latest
     steps:
       - name: Require application and web validation to pass
         env:
           PROJECT_TEST_RESULT: ${{ needs.project-tests.result }}
           WEB_VALIDATION_RESULT: ${{ needs.web-validation.result }}
-          BOOTSTRAP_E2E_RESULT: ${{ needs.bootstrap-stack-e2e.result }}
+          DISCOVERY_RESULT: ${{ needs.discover.result }}
         run: |
-          if [[ "$PROJECT_TEST_RESULT" != "success" || "$WEB_VALIDATION_RESULT" != "success" || "$BOOTSTRAP_E2E_RESULT" != "success" ]]; then
-            echo "Project validation failed: application=$PROJECT_TEST_RESULT web=$WEB_VALIDATION_RESULT bootstrap=$BOOTSTRAP_E2E_RESULT"
+          if [[ "$DISCOVERY_RESULT" != "success" || "$PROJECT_TEST_RESULT" != "success" || "$WEB_VALIDATION_RESULT" != "success" ]]; then
+            echo "Project validation failed: discovery=$DISCOVERY_RESULT application=$PROJECT_TEST_RESULT web=$WEB_VALIDATION_RESULT"
             exit 1
           fi

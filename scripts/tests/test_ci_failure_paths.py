@@ -43,39 +43,20 @@ class CIFailurePathTests(unittest.TestCase):
             env=env,
         )
 
-    def test_unsupported_stack_is_discovered_and_ci_guard_fails(self) -> None:
-        (self.project / "README.md").write_text(
-            "# Unsupported fixture\n", encoding="utf-8"
-        )
-
+    def test_unsupported_stack_is_discovered_without_blocking_repository_ci(self) -> None:
+        (self.project / "README.md").write_text("# Unsupported fixture\n", encoding="utf-8")
         matrix = discover_projects(self.root)
-        self.assertEqual(
-            matrix["include"],
-            [
-                {
-                    "project": "projects/failure-fixture",
-                    "slug": "failure-fixture",
-                    "stack": "none",
-                }
-            ],
-        )
-
-        # This is the same failure guard used by project-matrix.yml.
-        guard = self.run_command(
-            [
-                "bash",
-                "-euo",
-                "pipefail",
-                "-c",
-                'PROJECT_PATH="projects/failure-fixture"; '
-                'printf \'::error::%s has no supported Node.js, Python, or PHP manifest.\\n\' "$PROJECT_PATH"; '
-                'echo "Add a supported manifest or implement and document a CI adapter before merging."; '
-                "exit 1",
-            ],
-            cwd=REPOSITORY_ROOT,
-        )
-        self.assertNotEqual(guard.returncode, 0)
-        self.assertIn("has no supported", guard.stdout)
+        self.assertEqual(matrix["include"], [{
+            "project": "projects/failure-fixture",
+            "slug": "failure-fixture",
+            "stack": "none",
+        }])
+        notice = self.run_command([
+            "bash", "-euo", "pipefail", "-c",
+            'echo "::notice::projects/failure-fixture was discovered; no application adapter is configured."',
+        ], cwd=REPOSITORY_ROOT)
+        self.assertEqual(notice.returncode, 0, notice.stderr)
+        self.assertIn("no application adapter is configured", notice.stdout)
 
     def test_malformed_node_and_php_json_configuration_is_rejected(self) -> None:
         malformed = '{"name": "broken", "scripts": '

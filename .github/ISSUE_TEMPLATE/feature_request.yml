@@ -1,5 +1,5 @@
 name: Usulan Fitur
-description: Ajukan peningkatan untuk repository, tooling, template, atau proses CI.
+description: Ajukan peningkatan untuk repository, pengelolaan proyek, tooling, atau proses CI.
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
@@ -37,7 +37,7 @@ body:
         - Repository dan dokumentasi
         - CI dan GitHub Actions
         - Keamanan dan dependency
-        - Bootstrap dan template proyek
+        - Pengelolaan proyek
         - Tooling dan skrip
         - Lainnya
     validations:

@@ -35,7 +35,13 @@ class TermuxGitHubSyncTests(unittest.TestCase):
         self.git(self.repo, "config", "user.name", "CI Test")
         self.git(self.repo, "config", "user.email", "ci-test@example.invalid")
         (self.repo / "README.md").write_text("baseline\n", encoding="utf-8")
-        self.git(self.repo, "add", "README.md")
+        scripts_dir = self.repo / "scripts"
+        scripts_dir.mkdir()
+        (scripts_dir / "update_project_index.py").write_text((ROOT / "scripts" / "update_project_index.py").read_text(encoding="utf-8"), encoding="utf-8")
+        docs_dir = self.repo / "docs"
+        docs_dir.mkdir()
+        (docs_dir / "PROJECT_INDEX.md").write_text("# Indeks Proyek\\n\\n| Proyek | Direktori | README |\\n|---|---|---|\\n| — | — | — |\\n", encoding="utf-8")
+        self.git(self.repo, "add", "README.md", "scripts", "docs")
         self.git(self.repo, "commit", "-m", "baseline")
         self.git(self.repo, "remote", "add", "origin", str(self.remote))
         self.git(self.repo, "push", "-u", "origin", "main")
@@ -93,6 +99,19 @@ class TermuxGitHubSyncTests(unittest.TestCase):
         local_head = self.git(self.repo, "rev-parse", "HEAD").stdout.strip()
         self.assertEqual(remote_main, local_head)
         self.assertIn("Tidak ada commit baru", result.stdout)
+
+    def test_project_upload_regenerates_index_before_commit(self) -> None:
+        self.git(self.repo, "switch", "-c", "feat/project-upload")
+        project = self.repo / "projects" / "new-project"
+        project.mkdir(parents=True)
+        (project / "index.html").write_text("<!doctype html>\n", encoding="utf-8")
+        result = self.run_sync("y\n\ny\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Indeks proyek diperbarui otomatis", result.stdout)
+        index = (self.repo / "docs" / "PROJECT_INDEX.md").read_text(encoding="utf-8")
+        self.assertIn("New Project", index)
+        self.assertIn("../projects/new-project/", index)
+        self.assertIn("Push berhasil", result.stdout)
 
     def test_existing_staging_is_preserved_and_operation_aborts(self) -> None:
         note = self.repo / "note.txt"

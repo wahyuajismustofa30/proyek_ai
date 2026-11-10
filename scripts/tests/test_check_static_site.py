@@ -26,8 +26,20 @@ class CheckStaticSiteTests(unittest.TestCase):
         )
         check_static_site(self.project)
 
+
+    def test_serves_alternate_root_entrypoint_over_http(self) -> None:
+        (self.project / "home.html").write_text(
+            "<!doctype html><html><title>Alternate</title></html>",
+            encoding="utf-8",
+        )
+        check_static_site(self.project, "home.html")
+
+    def test_rejects_entrypoint_path_traversal(self) -> None:
+        with self.assertRaisesRegex(ValueError, "must stay inside"):
+            check_static_site(self.project, "../outside.html")
+
     def test_rejects_project_without_root_index_html(self) -> None:
-        with self.assertRaisesRegex(ValueError, "requires a regular root index.html"):
+        with self.assertRaisesRegex(ValueError, "entrypoint is missing or is not a regular file"):
             check_static_site(self.project)
 
     def test_rejects_index_html_directory(self) -> None:

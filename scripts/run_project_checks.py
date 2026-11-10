@@ -95,7 +95,10 @@ def php_project(project: Path) -> None:
     scripts = manifest.get("scripts", {})
     if not isinstance(scripts, dict):
         raise ValueError("composer.json scripts must be a JSON object.")
-    run(["composer", "validate", "--no-check-publish", "--no-check-lock"], project)
+    validate_command = ["composer", "validate", "--no-check-publish"]
+    if not (project / "composer.lock").is_file():
+        validate_command.append("--no-check-lock")
+    run(validate_command, project)
     report("PASS", f"{project}: Composer manifest validation completed.")
     if scripts.get("test"):
         if (project / "composer.lock").is_file():

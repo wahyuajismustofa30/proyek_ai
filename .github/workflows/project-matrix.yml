@@ -53,7 +53,9 @@ jobs:
           node-version: "22"
       - name: Run available Node.js checks
         if: ${{ matrix.stack == 'node' }}
-        run: python scripts/run_project_checks.py node "${{ matrix.project }}"
+        env:
+          PROJECT_PATH: ${{ matrix.project }}
+        run: python scripts/run_project_checks.py node "$PROJECT_PATH"
 
       - name: Set up Python
         if: ${{ matrix.stack == 'python' }}
@@ -62,7 +64,9 @@ jobs:
           python-version: "3.12"
       - name: Run available Python checks
         if: ${{ matrix.stack == 'python' }}
-        run: python scripts/run_project_checks.py python "${{ matrix.project }}"
+        env:
+          PROJECT_PATH: ${{ matrix.project }}
+        run: python scripts/run_project_checks.py python "$PROJECT_PATH"
 
       - name: Set up PHP
         if: ${{ matrix.stack == 'php' }}
@@ -72,11 +76,16 @@ jobs:
           tools: composer
       - name: Run available PHP checks
         if: ${{ matrix.stack == 'php' }}
-        run: python scripts/run_project_checks.py php "${{ matrix.project }}"
+        env:
+          PROJECT_PATH: ${{ matrix.project }}
+        run: python scripts/run_project_checks.py php "$PROJECT_PATH"
 
       - name: Smoke-test static website
         if: ${{ matrix.stack == 'static' }}
-        run: python scripts/check_static_site.py "${{ matrix.project }}" --entrypoint "${{ matrix.entrypoint }}"
+        env:
+          PROJECT_PATH: ${{ matrix.project }}
+          ENTRYPOINT: ${{ matrix.entrypoint }}
+        run: python scripts/check_static_site.py "$PROJECT_PATH" --entrypoint "$ENTRYPOINT"
 
       - name: Report project without an automated adapter
         if: ${{ matrix.stack == 'none' }}

@@ -1,50 +1,53 @@
 # proyek_ai
 
-Repository pusat untuk menerima, mengelola, dan mengembangkan proyek dengan bantuan AI. Source dapat disiapkan di luar repository, termasuk melalui Termux, lalu diunggah ke projects/<slug>/.
+Repository pusat untuk menerima, mengelola, dan mengembangkan proyek dengan bantuan AI. Source dapat disiapkan di luar repository, termasuk melalui Termux, lalu diunggah ke `projects/<slug>/`.
 
-## Mulai dari sini
+## Mulai
 
-1. Baca AGENTS.md sebelum mengubah repository.
-2. Lihat docs/PROJECT_INDEX.md untuk menemukan proyek yang tersedia.
-3. Siapkan atau unggah proyek ke projects/<slug>/. Tidak ada template atau bootstrap wajib.
-4. Minta AI mempelajari dokumentasi, konfigurasi, dan source yang benar-benar tersedia.
-5. Kembangkan pada branch terpisah, jalankan validasi relevan, lalu ajukan pull request.
+1. Baca [AGENTS.md](AGENTS.md).
+2. Lihat [indeks proyek](docs/PROJECT_INDEX.md).
+3. Tambahkan atau unggah source ke `projects/<slug>/`.
+4. Minta AI mempelajari file dan dokumentasi yang benar-benar tersedia.
+5. Kembangkan pada branch terpisah, jalankan validasi relevan, lalu ajukan Pull Request.
 
-## Sinkronisasi GitHub dari Termux
+Tidak ada template, bootstrap, README, manifest, lockfile, atau struktur internal proyek yang wajib.
 
-Gunakan docs/GITHUB_SYNC_TERMUX.md untuk alur branch, review, commit, dan push yang aman. Tool tidak push langsung ke main atau force-push. Jika isi projects/ berubah, indeks proyek diperbarui otomatis sebelum staging.
+## Sinkronisasi Termux
 
-## Struktur proyek
+Gunakan [panduan GitHub Sync](docs/GITHUB_SYNC_TERMUX.md). Tool membuat branch fitur bila diperlukan, mempertahankan perubahan pengguna, memperbarui indeks saat `projects/` berubah, dan tidak melakukan force-push atau push langsung ke `main`.
 
-Setiap proyek berada satu tingkat di bawah projects/ dengan nama slug huruf kecil, angka, dan tanda hubung. Struktur internal fleksibel; tidak ada README, metadata, manifest, atau susunan folder tertentu yang wajib.
+## Indeks proyek
 
-Indeks dibuat dari direktori aktual oleh scripts/update_project_index.py. Jalankan manual: python3 scripts/update_project_index.py --write. CI memeriksa kesesuaiannya dengan --check.
+Indeks dihasilkan dari direktori aktual oleh `scripts/update_project_index.py`.
 
-Proyek dengan stack yang dikenali mendapat adapter test Node.js, Python, PHP, atau static website. Proyek dengan teknologi lain tetap ditemukan, tetapi memerlukan pemeriksaan manual atau adapter CI sebelum test aplikasi dapat dinyatakan otomatis.
+```sh
+python3 scripts/update_project_index.py --write
+python3 scripts/update_project_index.py --check
+```
+
+Untuk upload melalui GitHub atau alur selain Termux, jalankan generator sebelum mengajukan PR. CI memeriksa kesegaran indeks.
 
 ## CI dan keamanan
 
-CI menjalankan validasi repository, adapter test yang tersedia, smoke test website statis, validasi HTML/CSS/aset, Gitleaks, dan OSV-Scanner. Baca docs/MONOREPO_CI.md dan docs/PROJECT_STRUCTURE.md.
+CI memvalidasi repository, mendeteksi proyek, menjalankan pemeriksaan yang tersedia, memeriksa HTML/CSS/aset lokal, serta memindai secret dan dependency. Pengujian aplikasi yang belum dikonfigurasi menghasilkan NOTICE, bukan dianggap lulus atau otomatis menggagalkan CI. Kesalahan manifest, instalasi yang dikonfigurasi, dan tes yang benar-benar gagal tetap menggagalkan CI.
+
+Baca [arsitektur CI](docs/MONOREPO_CI.md), [aturan struktur proyek](docs/PROJECT_STRUCTURE.md), dan [standar pengujian](docs/TESTING_STANDARDS.md).
 
 ## Struktur utama
 
-- .github/: workflow CI, Dependabot, template issue dan pull request.
-- docs/: standar, workflow, indeks, keputusan, checklist kualitas, dan panduan.
-- projects/: source proyek dengan struktur internal sesuai kebutuhan masing-masing.
-- scripts/: discovery, pembaruan indeks, validasi, dan GitHub Sync Termux.
-- archives/: arsip historis yang saat ini hanya berisi README penjelas.
+- `.github/`: workflow, Dependabot, template issue dan pull request.
+- `docs/`: aturan, panduan, indeks, dan keputusan.
+- `projects/`: source proyek; struktur internal fleksibel.
+- `scripts/`: discovery, indeks, validasi, dan sinkronisasi Termux.
+- `archives/`: arsip historis.
 
-## Referensi DEKEKU
-
-Arsip DEKEKU sebelumnya telah dikosongkan. Paket master tema, paket logo, dan salinan Brand System tidak lagi disimpan di repository ini. Lokasi sumber kanonis DEKEKU Master Theme belum ditetapkan.
-
-## Prinsip repository
+## Prinsip
 
 - Satu lokasi kanonis untuk setiap source aktif.
-- Arsip baseline tidak ditimpa atau diedit.
-- Jangan mengarang data bisnis, harga, testimoni, kontak, atau klaim produk.
+- Jangan mengubah proyek lain tanpa permintaan.
 - Jangan menyimpan secret atau kredensial di Git.
+- Jangan mengarang data bisnis, testimoni, kontak, statistik, atau klaim.
 
 ## Lisensi
 
-Repository ini dilisensikan berdasarkan GNU General Public License v3.0 only (GPL-3.0-only). Penggunaan, modifikasi, dan distribusi harus mematuhi ketentuan GPL-3.0. Komponen, model AI, dataset, dan aset pihak ketiga dapat memiliki ketentuan lisensi tersendiri.
+Repository ini menggunakan GNU General Public License v3.0 only (GPL-3.0-only). Komponen, model AI, dataset, dan aset pihak ketiga dapat memiliki ketentuan lisensi tersendiri.

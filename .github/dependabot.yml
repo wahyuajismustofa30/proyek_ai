@@ -35,13 +35,13 @@ updates:
       include: scope
 
 # Project adapters currently supported by project-matrix.yml:
-#   node   -> npm      -> package.json (requires package-lock.json in CI)
+#   node   -> npm      -> package.json (package-lock.json is recommended for reproducibility)
 #   python -> pip      -> pyproject.toml and/or requirements*.txt
-#   php    -> composer -> composer.json (requires composer.lock in CI)
+#   php    -> composer -> composer.json (composer.lock is recommended for reproducibility)
 #
 # First-project checklist (do not add speculative /projects/* entries):
 # 1. Add the project's real manifest and commit its reproducible lockfile
-#    (Node: package.json + package-lock.json; PHP: composer.json + composer.lock;
+#    (Node: package.json; PHP: composer.json; lockfiles are recommended for reproducibility;
 #    Python: pyproject.toml or requirements*.txt, plus the chosen lockfile when
 #    the project uses one and its CI contract requires it).
 # 2. Add one explicit update entry per ecosystem actually used, with

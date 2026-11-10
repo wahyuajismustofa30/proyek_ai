@@ -8,7 +8,6 @@ STACK_MANIFESTS = {
     "node": ("package.json",),
     "python": ("pyproject.toml", "requirements.txt"),
     "php": ("composer.json",),
-    "static": ("index.html",),
 }
 PROJECT_SLUG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 
@@ -36,10 +35,22 @@ def discover_projects(repository_root: Path) -> dict[str, list[dict[str, str]]]:
                 stack for stack, manifests in STACK_MANIFESTS.items()
                 if any((project_dir / manifest).is_file() for manifest in manifests)
             ]
-            if not detected:
+            html_entries = sorted(
+                item.name for item in project_dir.iterdir()
+                if item.is_file() and not item.is_symlink() and item.suffix.lower() in {".html", ".htm"}
+            )
+            if not detected and not html_entries:
                 entries.append({"project": project_path, "slug": project_dir.name, "stack": "none"})
             else:
                 entries.extend({"project": project_path, "slug": project_dir.name, "stack": stack} for stack in detected)
+            if html_entries:
+                entrypoint = "index.html" if "index.html" in html_entries else html_entries[0]
+                entries.append({
+                    "project": project_path,
+                    "slug": project_dir.name,
+                    "stack": "static",
+                    "entrypoint": entrypoint,
+                })
     if not entries:
         entries.append({"project": "projects", "slug": "__no_projects__", "stack": "none"})
     return {"include": entries}

@@ -69,6 +69,16 @@ else
   fi
 fi
 
+# Regenerate the project index whenever project source changes.
+if [[ -n "$(git_cmd status --porcelain -- projects/)" ]]; then
+  if ! git_cmd diff --quiet -- docs/PROJECT_INDEX.md; then
+    fail "docs/PROJECT_INDEX.md has local edits. Review or commit those edits before automatic regeneration."
+  fi
+  command -v python3 >/dev/null 2>&1 || fail "Python 3 is required to update docs/PROJECT_INDEX.md when projects/ changes."
+  python3 "$REPO/scripts/update_project_index.py" --write || fail "Automatic project-index update failed."
+  info "Indeks proyek diperbarui otomatis."
+fi
+
 # Guard common secret filenames in Git's porcelain status output.
 if git_cmd status --porcelain | grep -Eiq '(^|[[:space:]])([^[:space:]]*/)?(\.env(\.[^/]*)?|id_rsa|id_ed25519|credentials(\.json)?|secrets?)(/|$)|\.(pem|key|p12|pfx)$'; then
   fail "Ada file dengan nama yang berpotensi rahasia pada perubahan. Periksa .gitignore dan status; tidak ada file yang di-stage otomatis."

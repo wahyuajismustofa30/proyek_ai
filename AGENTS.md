@@ -27,7 +27,7 @@ Jika permintaan menyebut proyek tertentu, pastikan slug dan statusnya melalui in
 
 - Kerjakan hanya proyek dan file yang diperlukan untuk tugas.
 - Jangan mencampur source, aset, konfigurasi, atau data antarproyek.
-- Jangan mengubah proyek lain, template, bootstrap, workflow CI, Dependabot, standar global, indeks, atau konfigurasi root kecuali memang diperlukan.
+- Jangan mengubah proyek lain, Dependabot, atau konfigurasi root kecuali memang diperlukan untuk memenuhi permintaan.
 - Jika perubahan lintas proyek atau menyentuh aturan/konfigurasi global diperlukan, jelaskan alasan, dampak, file yang terdampak, dan alternatif yang lebih sempit; minta persetujuan sebelum melanjutkan.
 - Jangan melakukan refactor luas untuk permintaan yang dapat diselesaikan dengan perubahan terfokus.
 - Pertahankan kompatibilitas path, nama file, API, format, dan perilaku yang sudah digunakan kecuali perubahan tersebut merupakan tujuan tugas.
@@ -89,8 +89,8 @@ Bedakan fakta yang diverifikasi dari dugaan atau rekomendasi. Jangan mengklaim c
 
 ## 8. Aturan khusus repository
 
-- `projects/` adalah ruang kerja proyek aktif; lihat `docs/PROJECT_INDEX.md`.
-- Proyek baru wajib dibuat melalui bootstrap resmi dari `templates/ai-project/`; jangan membuat scaffold manual.
-- Ikuti `docs/PROJECT_STRUCTURE.md`, `docs/MONOREPO_CI.md`, dan `docs/TESTING_STANDARDS.md` untuk perubahan struktur, CI, stack, manifest, dan pengujian.
+- projects/ adalah ruang kerja source proyek; lihat indeks otomatis di docs/PROJECT_INDEX.md.
+- Setiap proyek berada di projects/<slug>/ dengan nama direktori yang valid; struktur internalnya fleksibel dan tidak memerlukan scaffold tertentu.
+- Jangan mengasumsikan README, metadata, manifest, source directory, atau tests directory tersedia. Pelajari file yang benar-benar ada. Ikuti docs/PROJECT_STRUCTURE.md, docs/MONOREPO_CI.md, dan docs/TESTING_STANDARDS.md untuk aturan monorepo dan pengujian.
 - Arsip historis tidak boleh diubah kecuali pengguna secara eksplisit meminta perubahan arsip.
 - Jika dokumentasi berbeda dari kondisi aktual repository, laporkan ketidaksesuaian dan jangan memperluas cakupan untuk memperbaikinya tanpa kebutuhan/persetujuan.

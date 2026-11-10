@@ -45,7 +45,10 @@ jobs:
           done < <(find . -type f -name '*.json' -not -path './.git/*' -print0)
 
       - name: Compile Python files
-        run: python -m compileall -q templates scripts
+        run: python -m compileall -q scripts
+
+      - name: Verify generated project index
+        run: python scripts/update_project_index.py --check
 
       - name: Run Markdown parser unit tests
         run: python -m unittest discover -s scripts/tests -v

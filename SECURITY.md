@@ -31,7 +31,7 @@ Reports are especially useful for:
 - authentication, authorization, or access-control bypasses;
 - unsafe file upload, path traversal, injection, or remote code execution;
 - vulnerable dependencies or GitHub Actions workflows;
-- supply-chain risks affecting project templates or generated projects.
+- supply-chain risks affecting repository tooling, project source, or dependencies.
 
 Automated scanner output without a demonstrated security impact may be triaged as a
 dependency or maintenance issue rather than a vulnerability.

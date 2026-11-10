@@ -41,7 +41,7 @@ manifest, lockfile, dan test.
 - .github/: workflow CI, konfigurasi Dependabot, serta template pull request dan issue.
 - .github/workflows/: validasi repository, orkestrasi test proyek, dan keamanan dependency.
 - docs/: standar, workflow, indeks, keputusan, checklist kualitas, dan panduan bootstrap.
-- projects/: ruang kerja proyek aktif; lihat [indeks proyek](docs/PROJECT_INDEX.md). Saat ini mencakup `projects/testing/`.
+- projects/: ruang kerja proyek internal yang dipelihara; saat ini mencakup `projects/preview/` dan `projects/testing/`. File root dibatasi pada README; fixture dan artefak pengujian harus berada di direktori sementara.
 - templates/ai-project/: template standar untuk memulai proyek AI baru.
 - archives/: direktori arsip historis yang saat ini hanya berisi README penjelas.
 

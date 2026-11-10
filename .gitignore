@@ -1,9 +1,17 @@
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
 .venv/
 venv/
+.tox/
+.nox/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
 
 # Environment files
 .env
@@ -27,6 +35,8 @@ credentials/
 dist/
 build/
 coverage/
+artifacts/
+vendor/
 
 # Logs
 *.log

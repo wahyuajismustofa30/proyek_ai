@@ -8,20 +8,22 @@ dijalankan sebagai CI monorepo.
 | Workflow | Tanggung jawab |
 |---|---|
 | `.github/workflows/validate.yml` | Dependabot YAML/schema, JSON, compile Python template dan scripts, unit test tooling, Markdown, link internal, secret, whitespace |
-| `.github/workflows/project-matrix.yml` | Discovery proyek, test per stack, validasi HTML/CSS/aset, bootstrap E2E Node/Python/PHP, job agregat required check |
+| `.github/workflows/project-matrix.yml` | Discovery proyek, test per stack, validasi HTML/CSS/aset, bootstrap E2E Node/Python/PHP, job agregat status validasi proyek |
 | `.github/workflows/dependency-security.yml` | OSV-Scanner rekursif untuk manifest dan lockfile |
 
-Required checks tercatat di [BRANCH_PROTECTION.md](BRANCH_PROTECTION.md):
-`Validate JSON, Python, Markdown, links, and whitespace`,
-`Scan dependencies with OSV-Scanner`, dan `Project matrix tests`.
-Jangan mengubah nama job agregat atau nama job pemindai/validator tanpa
-memeriksa ulang branch protection.
+Nama job di atas merupakan nama yang didefinisikan oleh source workflow.
+[BRANCH_PROTECTION.md](BRANCH_PROTECTION.md) menyimpan snapshot required checks
+dari ruleset yang pernah diverifikasi, tetapi status required checks pada
+GitHub Settings belum dapat dibaca ulang dalam audit 2026-11-09. Karena itu,
+jangan menyebutnya sebagai merge gate yang dipastikan aktif sampai ruleset
+diperiksa langsung. Sebelum mengubah nama job agregat atau job validator,
+verifikasi kembali konfigurasi ruleset dan sinkronkan nama check yang diwajibkan.
 
 ## Discovery dan kontrak stack
 
 `scripts/discover_projects.py` hanya membaca direktori satu tingkat di
 `projects/<slug>/`. Aturan nama, symlink, direktori tersembunyi, dan scaffold
-diatur dalam [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md). Folder tersembunyi
+diatur dalam [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md). Discovery juga menolak file root selain `README.md`, dependency/cache umum, file log/sementara, dan output build/coverage yang terdeteksi. Folder tersembunyi
 di dalam proyek diperbolehkan; folder tersembunyi langsung di bawah
 `projects/` ditolak.
 
@@ -41,9 +43,12 @@ menghasilkan sentinel `__no_projects__`; sentinel bukan proyek aplikasi.
 Folder proyek nyata tanpa stack yang didukung tetap gagal.
 
 Tes discovery mencakup multi-manifest dalam satu proyek, beberapa proyek
-independen lintas stack, aturan direktori tersembunyi, dan symlink.
-Bootstrap E2E membuat fixture Node.js, Python, dan PHP di direktori sementara,
-bukan menyimpan proyek contoh di `projects/`.
+independen lintas stack, aturan direktori tersembunyi, symlink, file root, serta
+penolakan artefak dependency/cache dan file sementara. Bootstrap E2E membuat
+fixture Node.js, Python, dan PHP di direktori sementara di luar repository.
+Script fixture menolak output yang berada di dalam repository, sedangkan bootstrap
+proyek tetap mengizinkan output default ke root `projects/` dan menolak output
+yang bersarang di dalam proyek lain.
 
 ## Validasi web dan dokumentasi
 
@@ -70,10 +75,11 @@ ketiga bukan syarat CI.
 
 ## Dependabot dan keamanan
 
-Konfigurasi Dependabot terpusat di `.github/dependabot.yml`. Saat ini hanya
-GitHub Actions dan pip root (`requirements-ci.txt`) yang dipantau karena
-`projects/` kosong. Tambahkan entri eksplisit per ecosystem hanya bersama
-manifest/lockfile proyek nyata. Lihat [DEPENDABOT.md](DEPENDABOT.md).
+Konfigurasi Dependabot terpusat di `.github/dependabot.yml`. Saat ini pemantauan
+mencakup GitHub Actions dan pip root (`requirements-ci.txt`). Manifest proyek tidak
+didaftarkan otomatis oleh konfigurasi tersebut; tambahkan entri ecosystem secara
+eksplisit ketika proyek nyata memakai manifest/lockfile yang perlu dipantau.
+Lihat [DEPENDABOT.md](DEPENDABOT.md).
 
 OSV-Scanner melengkapi Dependabot dengan pemeriksaan advisory; keduanya tidak
 menjamin dependency bebas seluruh risiko. Semua GitHub Actions dipatok ke full

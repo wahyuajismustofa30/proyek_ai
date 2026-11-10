@@ -1,0 +1,4 @@
+@import url("./tokens.css");
+
+/* Global styles untuk halaman baru. Halaman referensi lama tetap mandiri. */
+* { box-sizing: border-box; }

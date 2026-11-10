@@ -5,7 +5,7 @@ Gunakan checklist ini sebelum menyatakan pekerjaan selesai. Item yang tidak rele
 ## Sebelum perubahan
 
 - [ ] Proyek dan folder target sudah benar.
-- [ ] README dan instruksi lokal sudah dibaca.
+- [ ] README dan instruksi lokal yang tersedia sudah dibaca.
 - [ ] Source baseline dan arsip tidak akan tertimpa.
 - [ ] Dampak terhadap dependency, konfigurasi, dan kompatibilitas sudah dipahami.
 
@@ -19,8 +19,8 @@ Gunakan checklist ini sebelum menyatakan pekerjaan selesai. Item yang tidak rele
 
 ## Testing
 
-- [ ] Strategi proyek tersedia di `docs/TESTING.md` dan sesuai [standar testing](TESTING_STANDARDS.md).
-- [ ] Test untuk perilaku baru dan regresi bug ditambahkan.
+- [ ] Jika proyek memiliki strategi testing khusus, dokumentasi yang tersedia sudah dibaca; ikuti [standar testing repository](TESTING_STANDARDS.md).
+- [ ] Test untuk perilaku baru dan regresi bug ditambahkan bila relevan.
 - [ ] Data dan environment test terisolasi dari produksi.
 - [ ] Test/lint/build relevan dijalankan; hasil PASS/FAIL/BLOCKED/NOT RUN dilaporkan.
 - [ ] Pengecualian lapisan test dijelaskan beserta alternatifnya.

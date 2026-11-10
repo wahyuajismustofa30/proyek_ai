@@ -8,14 +8,16 @@ dijalankan sebagai CI monorepo.
 | Workflow | Tanggung jawab |
 |---|---|
 | `.github/workflows/validate.yml` | Dependabot YAML/schema, JSON, compile Python template dan scripts, unit test tooling, Markdown, link internal, secret, whitespace |
-| `.github/workflows/project-matrix.yml` | Discovery proyek, test per stack, validasi HTML/CSS/aset, bootstrap E2E Node/Python/PHP, job agregat required check |
+| `.github/workflows/project-matrix.yml` | Discovery proyek, test per stack, validasi HTML/CSS/aset, bootstrap E2E Node/Python/PHP, job agregat status validasi proyek |
 | `.github/workflows/dependency-security.yml` | OSV-Scanner rekursif untuk manifest dan lockfile |
 
-Required checks tercatat di [BRANCH_PROTECTION.md](BRANCH_PROTECTION.md):
-`Validate JSON, Python, Markdown, links, and whitespace`,
-`Scan dependencies with OSV-Scanner`, dan `Project matrix tests`.
-Jangan mengubah nama job agregat atau nama job pemindai/validator tanpa
-memeriksa ulang branch protection.
+Nama job di atas merupakan nama yang didefinisikan oleh source workflow.
+[BRANCH_PROTECTION.md](BRANCH_PROTECTION.md) menyimpan snapshot required checks
+dari ruleset yang pernah diverifikasi, tetapi status required checks pada
+GitHub Settings belum dapat dibaca ulang dalam audit 2026-11-09. Karena itu,
+jangan menyebutnya sebagai merge gate yang dipastikan aktif sampai ruleset
+diperiksa langsung. Sebelum mengubah nama job agregat atau job validator,
+verifikasi kembali konfigurasi ruleset dan sinkronkan nama check yang diwajibkan.
 
 ## Discovery dan kontrak stack
 

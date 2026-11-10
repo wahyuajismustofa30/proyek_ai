@@ -38,7 +38,12 @@ dependency or maintenance issue rather than a vulnerability.
 
 ## Repository safeguards
 
-The repository uses protected pull requests, required CI checks, secret scanning in CI,
-and dependency vulnerability scanning. These controls reduce risk but do not guarantee
-that every vulnerability is detected. Do not submit real secrets or production data in
-tests, fixtures, issues, or pull requests.
+The root CI workflows include Gitleaks secret scanning and OSV-Scanner dependency
+scanning. The workflow source also defines pull-request validation jobs. Whether pull
+requests and particular status checks are currently enforced as merge requirements is
+a GitHub ruleset setting and must be verified in repository Settings → Rules → Rulesets.
+The last recorded configuration snapshot and its verification limitation are documented
+in [docs/BRANCH_PROTECTION.md](docs/BRANCH_PROTECTION.md).
+
+These controls reduce risk but do not guarantee that every vulnerability is detected.
+Do not submit real secrets or production data in tests, fixtures, issues, or pull requests.

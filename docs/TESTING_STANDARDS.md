@@ -9,7 +9,7 @@ Dokumen ini memberi panduan memilih pemeriksaan sesuai risiko dan teknologi proy
 - Test harus deterministik, terisolasi, dan dapat dijalankan dari instruksi tertulis.
 - Gunakan fixture sintetis; jangan gunakan data, akun, credential, atau layanan produksi.
 - Hindari ketergantungan jaringan eksternal, waktu, urutan test, dan state bersama.
-- Laporkan hasil jujur: PASS, FAIL, BLOCKED, atau NOT RUN.
+- Laporkan hasil jujur: PASS, NOTICE, FAIL, BLOCKED, atau NOT RUN. NOTICE berarti tes belum tersedia/dikonfigurasi dan tidak boleh dilaporkan sebagai tes lulus.
 - Perketat test untuk autentikasi, pembayaran, data pribadi, upload, otorisasi, dan operasi destruktif.
 
 ## Pilihan lapisan test

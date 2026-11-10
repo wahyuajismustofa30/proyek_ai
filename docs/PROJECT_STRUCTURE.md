@@ -27,6 +27,7 @@ Validasi HTML, CSS, aset lokal, secret, dan dependency tetap dijalankan workflow
 ## Indeks proyek
 
 docs/PROJECT_INDEX.md dihasilkan dari direktori aktual oleh scripts/update_project_index.py. Jangan mengedit tabel indeks secara manual.
+
 - Sinkronisasi Termux memperbarui indeks otomatis saat ada perubahan di projects/.
 - Untuk alur lain, jalankan python3 scripts/update_project_index.py --write.
 - CI menjalankan --check untuk mendeteksi indeks yang belum diperbarui.

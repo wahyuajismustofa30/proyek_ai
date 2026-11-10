@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>DEKEKU: Halaman Referensi Tema v1.5</title>
-<meta name="description" content="Halaman referensi komponen DEKEKU Master Theme v1.5.">
+<title>DEKEKU: Master Theme v1.6</title>
+<meta name="description" content="Master Theme DEKEKU: referensi pola halaman, product themes, dan komponen UI.">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0C0C0C" media="(prefers-color-scheme: dark)">
 <!-- Aset menggunakan path relatif dari direktori proyek. -->
@@ -361,6 +361,73 @@ dialog::backdrop{background:var(--overlay)}
 .grid.c3{grid-template-columns:repeat(3,1fr)}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Master Theme v1.6 — page patterns and product theme previews */
+.pattern-intro{max-width:720px;margin-bottom:36px}
+.pattern-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.pattern-card{padding:14px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.pattern-preview{min-height:218px;padding:14px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);display:flex;flex-direction:column;gap:16px;overflow:hidden}
+.preview-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:9px;font-weight:800}
+.preview-mark{display:inline-flex;align-items:center;gap:5px;letter-spacing:.08em}
+.preview-mark:before{content:"";width:8px;height:8px;background:var(--text-primary);border-radius:2px;box-shadow:4px -4px 0 var(--accent)}
+.preview-nav{display:flex;gap:8px;color:var(--text-secondary);font-size:8px}
+.preview-nav span:last-child{padding:3px 7px;border-radius:4px;background:var(--text-primary);color:var(--background)}
+.preview-content{display:grid;gap:10px;flex:1;align-content:center}
+.preview-kicker{font-size:7px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary)}
+.preview-title{max-width:230px;font-size:clamp(15px,2vw,23px);font-weight:800;line-height:1.08;letter-spacing:-.04em}
+.preview-line{height:5px;width:82%;border-radius:8px;background:var(--border)}
+.preview-line.short{width:54%}
+.preview-actions{display:flex;gap:6px;margin-top:3px}
+.preview-button{width:58px;height:17px;border-radius:4px;background:var(--text-primary)}
+.preview-button.outline{background:transparent;border:1px solid var(--border)}
+.preview-layout{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center}
+.preview-art{min-height:90px;border-radius:7px;background:linear-gradient(145deg,var(--surface-muted),var(--border));position:relative;overflow:hidden}
+.preview-art:before,.preview-art:after{content:"";position:absolute;border-radius:50%;background:var(--surface);opacity:.8}
+.preview-art:before{width:55px;height:55px;right:-8px;top:8px}
+.preview-art:after{width:38px;height:38px;left:10px;bottom:-8px}
+.preview-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.preview-tiles span{height:38px;border-radius:5px;background:var(--surface-muted);border:1px solid var(--border)}
+.preview--center{text-align:center;align-items:center}
+.preview--center .preview-content{justify-items:center}
+.preview--center .preview-title{max-width:200px}
+.preview--center .preview-line{width:70%}
+.preview--portfolio .preview-content{align-content:start}
+.preview--portfolio .preview-tiles{grid-template-columns:repeat(2,1fr)}
+.preview--portfolio .preview-tiles span{height:57px}
+.preview--story .preview-layout{grid-template-columns:.8fr 1.2fr}
+.preview--contact .preview-layout{grid-template-columns:1fr 1fr}
+.preview-form{display:grid;gap:6px}
+.preview-form span{height:14px;border:1px solid var(--border);border-radius:3px}
+.preview-form span:last-child{height:23px;background:var(--text-primary)}
+.preview--article .preview-content{align-content:start}
+.preview--article .preview-art{min-height:58px}
+.pattern-meta{display:grid;gap:8px}
+.pattern-meta h3{font-size:18px}
+.pattern-meta p{font-size:13px;color:var(--text-secondary);line-height:1.55}
+.pattern-use{padding-top:10px;border-top:1px solid var(--border)}
+.theme-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.theme-card{padding:20px;display:grid;gap:14px}
+.theme-preview{min-height:108px;padding:14px;border-radius:var(--radius-md);display:grid;align-content:space-between;gap:12px}
+.theme-preview b{font-size:14px}
+.theme-preview small{font-size:10px;opacity:.75}
+.theme-preview--brand{background:#0C0C0C;color:#FFFFFF}
+.theme-preview--brand .theme-cta{background:#FFFFFF;color:#0C0C0C}
+.theme-preview--invitation{background:#F8F5F0;color:#2F2B26}
+.theme-preview--invitation .theme-cta{background:#6D7D6B;color:#FFFFFF}
+.theme-preview--product{background:var(--surface-muted);color:var(--text-primary);border:1px solid var(--border)}
+.theme-cta{display:inline-flex;width:max-content;padding:6px 10px;border-radius:5px;font-size:9px;font-weight:800}
+.theme-swatches{display:flex;gap:6px}
+.theme-swatches i{width:22px;height:22px;border-radius:50%;border:1px solid rgba(127,127,127,.25)}
+.theme-card h3{font-size:17px}
+.theme-card p{font-size:13px;color:var(--text-secondary);line-height:1.55}
+.block-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.block-card{padding:18px;display:grid;gap:8px}
+.block-card b{font-size:14px}
+.block-card p{font-size:13px;color:var(--text-secondary);line-height:1.5}
+.block-number{font-size:11px;font-weight:800;color:var(--text-secondary);letter-spacing:.1em}
+@media(max-width:900px){.pattern-grid,.theme-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.pattern-grid,.theme-grid,.block-grid{grid-template-columns:1fr}.pattern-preview{min-height:200px}.pattern-card{padding:12px}.theme-card{padding:16px}}
+
 </style>
 </head>
 <body>
@@ -395,14 +462,14 @@ dialog::backdrop{background:var(--overlay)}
 <header class="nav">
 <div class="container">
 <a href="#top" class="logo" aria-label="DEKEKU, ke beranda"><svg aria-hidden="true" focusable="false"><use href="#dk-logo-compact"/></svg></a>
-<nav class="links" aria-label="Utama"><a href="#layanan" aria-current="page">Layanan</a><a href="#paket">Paket</a><a href="#kontak">Kontak</a></nav>
+<nav class="links" aria-label="Utama"><a href="#layanan" aria-current="page">Layanan</a><a href="#pola-halaman">Pola halaman</a><a href="#tema-produk">Tema produk</a><a href="#paket">Paket</a><a href="#kontak">Kontak</a></nav>
 <div class="nav-actions">
 <button class="icon-btn" id="theme" type="button" aria-label="Ganti tema terang atau gelap"><svg class="i" aria-hidden="true"><use href="#i-moon"/></svg></button>
 <a class="button button-primary nav-cta" href="#kontak">Mulai konsultasi</a>
 <button class="icon-btn menu-btn" id="menu" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="drawer"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
 </div>
 </div>
-<div class="drawer" id="drawer"><a href="#layanan">Layanan</a><a href="#paket">Paket</a><a href="#kontak">Kontak</a></div>
+<div class="drawer" id="drawer"><a href="#layanan">Layanan</a><a href="#pola-halaman">Pola halaman</a><a href="#tema-produk">Tema produk</a><a href="#paket">Paket</a><a href="#kontak">Kontak</a></div>
 </header>
 
 <main id="top">
@@ -549,6 +616,108 @@ dialog::backdrop{background:var(--overlay)}
 <div class="card empty" style="max-width:420px"><div class="mascot-art"><svg class="brand-icon" role="img" aria-label="Maskot DEKEKU"><use href="#dk-maskot-mikir"/></svg></div><h4>Belum ada pesanan</h4><p style="color:var(--text-secondary)">Pesanan yang masuk akan tampil di sini.</p><a class="button button-primary" href="#kontak">Pesan layanan</a></div>
 <div class="row" style="margin-top:16px"><button class="button button-secondary" type="button" id="open-dlg">Buka modal</button></div>
 <dialog id="dlg" aria-labelledby="dt"><div class="dhead"><h4 id="dt">Hapus draf ini?</h4><button class="icon-btn" type="button" id="x-dlg" aria-label="Tutup"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div><p style="color:var(--text-secondary);margin-bottom:20px">Draf yang dihapus tidak bisa dikembalikan.</p><div class="row"><button class="button button-danger" type="button" id="ok-dlg">Hapus draf</button><button class="button button-secondary" type="button" id="no-dlg">Batal</button></div></dialog>
+</div>
+</section>
+
+
+<section class="section" id="pola-halaman">
+<div class="container">
+<div class="pattern-intro head">
+<span class="eyebrow">Page patterns</span>
+<h2>Pola halaman untuk setiap kebutuhan</h2>
+<p class="lead">Kumpulan arah layout yang bisa dijadikan titik awal. Pilih pola, lalu sesuaikan isi, urutan section, dan karakter visual dengan tujuan halaman.</p>
+</div>
+<div class="pattern-grid">
+<article class="card pattern-card">
+<div class="pattern-preview preview--split">
+<div class="preview-bar"><span class="preview-mark">DEKEKU</span><span class="preview-nav"><span>Layanan</span><span>Proyek</span><span>Kontak</span></span></div>
+<div class="preview-layout"><div class="preview-content"><span class="preview-kicker">Digital partner</span><strong class="preview-title">Bangun kehadiran digital yang kuat.</strong><span class="preview-line"></span><span class="preview-line short"></span><div class="preview-actions"><i class="preview-button"></i><i class="preview-button outline"></i></div></div><div class="preview-art"></div></div>
+</div>
+<div class="pattern-meta"><span class="badge">01 · Conversion</span><h3>Homepage bisnis</h3><p>Hero, layanan utama, keunggulan, portfolio, testimoni, proses, FAQ, dan CTA.</p><p class="pattern-use">Cocok untuk: website utama DEKEKU dan profil usaha.</p></div>
+</article>
+<article class="card pattern-card">
+<div class="pattern-preview preview--center">
+<div class="preview-bar"><span class="preview-mark">BRAND</span><span class="preview-nav"><span>Detail</span><span>Harga</span></span></div>
+<div class="preview-content"><span class="preview-kicker">Service / product</span><strong class="preview-title">Satu layanan, satu halaman yang fokus.</strong><span class="preview-line"></span><span class="preview-line short"></span><div class="preview-actions"><i class="preview-button"></i><i class="preview-button outline"></i></div></div>
+<div class="preview-tiles"><span></span><span></span><span></span></div>
+</div>
+<div class="pattern-meta"><span class="badge">02 · Focused</span><h3>Landing layanan</h3><p>Penjelasan manfaat, fitur, alur pengerjaan, paket, pertanyaan umum, dan ajakan bertindak.</p><p class="pattern-use">Cocok untuk: website bisnis dan penawaran jasa tertentu.</p></div>
+</article>
+<article class="card pattern-card">
+<div class="pattern-preview preview--portfolio">
+<div class="preview-bar"><span class="preview-mark">SELECTED WORK</span><span class="preview-nav"><span>Semua</span><span>Website</span></span></div>
+<div class="preview-content"><strong class="preview-title">Karya yang berbicara.</strong><span class="preview-line short"></span><div class="preview-tiles"><span></span><span></span><span></span><span></span></div></div>
+</div>
+<div class="pattern-meta"><span class="badge">03 · Visual showcase</span><h3>Portfolio / showcase</h3><p>Grid karya, kategori, ringkasan proyek, detail visual, dan tautan menuju studi kasus.</p><p class="pattern-use">Cocok untuk: menampilkan hasil website dan undangan digital.</p></div>
+</article>
+<article class="card pattern-card">
+<div class="pattern-preview preview--story">
+<div class="preview-bar"><span class="preview-mark">ABOUT US</span><span class="preview-nav"><span>Cerita</span><span>Nilai</span></span></div>
+<div class="preview-layout"><div class="preview-art"></div><div class="preview-content"><span class="preview-kicker">Our story</span><strong class="preview-title">Kenali orang di balik karya.</strong><span class="preview-line"></span><span class="preview-line short"></span></div></div>
+</div>
+<div class="pattern-meta"><span class="badge">04 · Storytelling</span><h3>About / brand story</h3><p>Pengantar brand, cerita, nilai, cara kerja, tim, dan alasan untuk percaya.</p><p class="pattern-use">Cocok untuk: halaman tentang DEKEKU atau profil klien.</p></div>
+</article>
+<article class="card pattern-card">
+<div class="pattern-preview preview--contact">
+<div class="preview-bar"><span class="preview-mark">LET'S TALK</span><span class="preview-nav"><span>Kontak</span></span></div>
+<div class="preview-layout"><div class="preview-content"><strong class="preview-title">Mari mulai percakapan.</strong><span class="preview-line"></span><span class="preview-line short"></span></div><div class="preview-form"><span></span><span></span><span></span><span></span></div></div>
+</div>
+<div class="pattern-meta"><span class="badge">05 · Lead capture</span><h3>Contact / inquiry</h3><p>Informasi kontak, kanal komunikasi, formulir, jam layanan, dan ekspektasi tindak lanjut.</p><p class="pattern-use">Cocok untuk: konsultasi, pemesanan, dan pertanyaan pelanggan.</p></div>
+</article>
+<article class="card pattern-card">
+<div class="pattern-preview preview--article">
+<div class="preview-bar"><span class="preview-mark">JOURNAL</span><span class="preview-nav"><span>Artikel</span><span>Insight</span></span></div>
+<div class="preview-content"><span class="preview-kicker">Panduan · 5 menit baca</span><strong class="preview-title">Judul artikel yang jelas dan menarik.</strong><span class="preview-line"></span><div class="preview-art"></div><span class="preview-line"></span><span class="preview-line short"></span></div>
+</div>
+<div class="pattern-meta"><span class="badge">06 · Editorial</span><h3>Article / editorial</h3><p>Judul, metadata, cover, isi terstruktur, kutipan, konten terkait, dan CTA penutup.</p><p class="pattern-use">Cocok untuk: blog, insight, dan halaman informasi.</p></div>
+</article>
+</div>
+</div>
+</section>
+
+<section class="section muted" id="tema-produk">
+<div class="container">
+<div class="head">
+<span class="eyebrow">Product themes</span>
+<h2>Satu identitas, beberapa suasana produk</h2>
+<p class="lead">Product theme mengubah nuansa visual tanpa mengganti identitas DEKEKU, keterbacaan, atau pola interaksi dasarnya.</p>
+</div>
+<div class="theme-grid">
+<article class="card theme-card">
+<div class="theme-preview theme-preview--brand"><small>DEKEKU · BUSINESS</small><b>Rapi. Tegas. Profesional.</b><span class="theme-cta">Mulai konsultasi</span></div>
+<div class="theme-swatches"><i style="background:#0C0C0C"></i><i style="background:#181818"></i><i style="background:#FFFFFF"></i><i style="background:#6366F1"></i></div>
+<div><h3>Business / Core</h3><p>Monokrom, kontras kuat, ruang lega, tipografi tegas, dan aksen seperlunya.</p></div>
+</article>
+<article class="card theme-card">
+<div class="theme-preview theme-preview--invitation"><small>DEKEKU · INVITATION</small><b>Hangat. Personal. Elegan.</b><span class="theme-cta">Lihat undangan</span></div>
+<div class="theme-swatches"><i style="background:#F8F5F0"></i><i style="background:#E7DCCF"></i><i style="background:#B89B7D"></i><i style="background:#6D7D6B"></i></div>
+<div><h3>Invitation / Editorial</h3><p>Ivory, beige, champagne, dan sage sebagai arah contoh untuk suasana yang lebih personal.</p></div>
+</article>
+<article class="card theme-card">
+<div class="theme-preview theme-preview--product"><small>DEKEKU · DIGITAL PRODUCT</small><b>Fokus. Jelas. Fungsional.</b><span class="theme-cta">Buka dashboard</span></div>
+<div class="theme-swatches"><i style="background:var(--background)"></i><i style="background:var(--surface-muted)"></i><i style="background:var(--text-primary)"></i><i style="background:var(--accent)"></i></div>
+<div><h3>Digital Product / Utility</h3><p>Permukaan netral, hierarki informasi yang jelas, status terbaca, dan navigasi efisien.</p></div>
+</article>
+</div>
+<p class="sub" style="margin-top:18px">Palet di atas adalah contoh arah visual dari identitas dan token yang sudah ada, bukan penetapan token final baru.</p>
+</div>
+</section>
+
+<section class="section" id="blok-layout">
+<div class="container">
+<div class="head">
+<span class="eyebrow">Section library</span>
+<h2>Blok visual yang bisa dirangkai</h2>
+<p class="lead">Halaman tidak harus memakai satu template utuh. Susun blok berikut sesuai kebutuhan konten dan perjalanan pengguna.</p>
+</div>
+<div class="block-grid">
+<article class="card block-card"><span class="block-number">BLOCK 01</span><b>Hero</b><p>Split, centered, image-led, atau typography-led.</p></article>
+<article class="card block-card"><span class="block-number">BLOCK 02</span><b>Feature & benefits</b><p>Grid fitur, daftar manfaat, atau perbandingan singkat.</p></article>
+<article class="card block-card"><span class="block-number">BLOCK 03</span><b>Proof & portfolio</b><p>Logo klien, hasil karya, angka terverifikasi, dan testimoni.</p></article>
+<article class="card block-card"><span class="block-number">BLOCK 04</span><b>Pricing & packages</b><p>Kartu paket, tabel perbandingan, dan catatan layanan.</p></article>
+<article class="card block-card"><span class="block-number">BLOCK 05</span><b>FAQ & process</b><p>Accordion, langkah kerja, timeline, dan penjelasan proses.</p></article>
+<article class="card block-card"><span class="block-number">BLOCK 06</span><b>CTA & footer</b><p>Ajakan yang jelas, kontak, navigasi sekunder, dan penutup.</p></article>
+</div>
 </div>
 </section>
 

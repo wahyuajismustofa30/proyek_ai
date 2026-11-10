@@ -77,7 +77,6 @@ def python_project(project: Path) -> None:
     if not test_files:
         report("NOTICE", f"{project}: no Python test files found; application tests were not run.")
         return
-    run([sys.executable, "-m", "pip", "install", "pytest==8.4.2"], project)
     for requirements in ("requirements.txt", "requirements-test.txt", "requirements-dev.txt"):
         path = project / requirements
         if path.is_file():
@@ -86,6 +85,7 @@ def python_project(project: Path) -> None:
         config = tomllib.loads(pyproject.read_text(encoding="utf-8"))
         if "build-system" in config:
             run([sys.executable, "-m", "pip", "install", "-e", "."], project)
+    run([sys.executable, "-m", "pip", "install", "pytest==8.4.2"], project)
     run([sys.executable, "-m", "pytest", "-q"], project)
     report("PASS", f"{project}: Python tests completed.")
 

@@ -7,7 +7,7 @@ Aturan ini berlaku untuk seluruh repository. Ikuti instruksi platform terlebih d
 - Proyek berada langsung di `projects/<slug>/`; gunakan nama lowercase dengan huruf ASCII, angka, dan tanda hubung.
 - Struktur internal proyek bebas. README, manifest, lockfile, `src/`, `tests/`, dokumentasi, dan konfigurasi AI tidak wajib.
 - Jangan mengasumsikan file atau dokumentasi tersedia. Periksa source, konfigurasi, dependensi, riwayat, dan dokumentasi yang benar-benar ada.
-- Kerjakan hanya ruang lingkup yang diminta. Jangan mengubah proyek lain atau melakukan refactor yang tidak relevan.
+- Kerjakan hanya ruang lingkup yang diminta. Untuk perbaikan sistem repository, jangan mengubah isi `projects/`; untuk tugas proyek, ubah hanya proyek yang diminta. Jangan melakukan refactor yang tidak relevan.
 - Pertahankan data, aset, arsip, dan pekerjaan pengguna. Jangan menghapus, menimpa, atau memindahkan file tanpa alasan dan izin yang jelas.
 - Jangan menyimpan secret, token, password, private key, credential, atau data pribadi sensitif di Git.
 - Hindari dependency baru jika solusi bawaan sudah memadai. Jangan mengubah deployment atau layanan produksi tanpa instruksi eksplisit.

@@ -38,8 +38,14 @@ class DiscoverProjectsTests(unittest.TestCase):
         self.make_project("hybrid-site","index.html","package.json")
         self.assertEqual(discover_projects(self.root)["include"],[
             {"project":"projects/hybrid-site","slug":"hybrid-site","stack":"node"},
-            {"project":"projects/hybrid-site","slug":"hybrid-site","stack":"static"},
-            {"project":"projects/static-site","slug":"static-site","stack":"static"},
+            {"project":"projects/hybrid-site","slug":"hybrid-site","stack":"static","entrypoint":"index.html"},
+            {"project":"projects/static-site","slug":"static-site","stack":"static","entrypoint":"index.html"},
+        ])
+
+    def test_discovers_static_site_with_alternate_root_entrypoint(self):
+        self.make_project("landing-page", "home.html")
+        self.assertEqual(discover_projects(self.root)["include"], [
+            {"project":"projects/landing-page","slug":"landing-page","stack":"static","entrypoint":"home.html"}
         ])
     def test_unknown_project_needs_no_readme_manifest_or_fixed_layout(self):
         project=self.make_project("custom-tool")

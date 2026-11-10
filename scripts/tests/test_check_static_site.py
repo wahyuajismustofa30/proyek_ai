@@ -44,7 +44,7 @@ class CheckStaticSiteTests(unittest.TestCase):
 
     def test_rejects_index_html_directory(self) -> None:
         (self.project / "index.html").mkdir()
-        with self.assertRaisesRegex(ValueError, "requires a regular root index.html"):
+        with self.assertRaisesRegex(ValueError, "entrypoint is missing or is not a regular file"):
             check_static_site(self.project)
 
 

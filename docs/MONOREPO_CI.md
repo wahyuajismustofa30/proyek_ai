@@ -8,11 +8,16 @@
 | `.github/workflows/project-matrix.yml` | Discovery, pemeriksaan aplikasi yang tersedia, smoke test website statis, validasi HTML/CSS/aset |
 | `.github/workflows/dependency-security.yml` | OSV-Scanner untuk manifest dan lockfile |
 
-Snapshot branch protection di `docs/BRANCH_PROTECTION.md` adalah catatan historis. Verifikasi live required checks melalui GitHub Settings → Rules → Rulesets; nama job dalam file workflow tidak membuktikan bahwa job tersebut diwajibkan oleh ruleset.
+Ruleset **Protect main** terverifikasi aktif pada 11 November 2026 dan
+mewajibkan tiga status checks. Rincian aturan, nama checks, dan tanggal
+verifikasi dicatat di [dokumentasi perlindungan branch](BRANCH_PROTECTION.md).
+Periksa kembali GitHub Settings → Rules → Rulesets karena konfigurasi live
+dapat berubah tanpa perubahan pada file repository.
 
 ## Prinsip CI adaptif
 
-CI tidak mewajibkan README, manifest, lockfile, script test, build, lint, atau struktur direktori tertentu. Deteksi dilakukan dari file aktual.
+CI tidak mewajibkan README, manifest, lockfile, script test, build, lint, atau
+struktur direktori tertentu. Deteksi dilakukan dari file aktual.
 
 | Stack | Perilaku |
 |---|---|
@@ -22,7 +27,9 @@ CI tidak mewajibkan README, manifest, lockfile, script test, build, lint, atau s
 | Static website | Kenali file `.html` atau `.htm` di root proyek. Pilih `index.html` bila ada, selain itu file pertama secara alfabetis sebagai entrypoint smoke test. |
 | Stack lain | Tetap ditemukan; pemeriksaan aplikasi otomatis berstatus NOTICE sampai adapter yang sesuai tersedia. |
 
-Script `scripts/run_project_checks.py` menjalankan pemeriksaan stack. Script ini tidak menyatakan tes lulus jika tes tidak dikonfigurasi. Kesalahan manifest, instalasi yang dibutuhkan, atau tes yang gagal menghasilkan FAIL.
+Script `scripts/run_project_checks.py` menjalankan pemeriksaan stack. Script
+ini tidak menyatakan tes lulus jika tes tidak dikonfigurasi. Kesalahan
+manifest, instalasi yang dibutuhkan, atau tes yang gagal menghasilkan FAIL.
 
 ### Status pemeriksaan
 
@@ -33,16 +40,21 @@ Script `scripts/run_project_checks.py` menjalankan pemeriksaan stack. Script ini
 
 ## Discovery dan indeks
 
-`scripts/discover_projects.py` menemukan direktori tingkat pertama di `projects/<slug>/`. Satu proyek dapat memiliki beberapa adapter, misalnya Node.js sekaligus website statis.
+`scripts/discover_projects.py` menemukan direktori tingkat pertama di
+`projects/<slug>/`. Satu proyek dapat memiliki beberapa adapter, misalnya
+Node.js sekaligus website statis.
 
-`scripts/update_project_index.py` adalah satu-satunya sumber kebenaran untuk indeks. Termux menjalankan generator saat `projects/` berubah. Jalur upload lain harus menjalankan:
+`scripts/update_project_index.py` adalah satu-satunya sumber kebenaran untuk
+indeks. Termux menjalankan generator saat `projects/` berubah. Jalur upload
+lain harus menjalankan:
 
 ```sh
 python3 scripts/update_project_index.py --write
 python3 scripts/update_project_index.py --check
 ```
 
-CI memeriksa kesesuaian indeks; workflow tidak melakukan commit otomatis ke branch pengguna.
+CI memeriksa kesesuaian indeks; workflow tidak melakukan commit otomatis ke
+branch pengguna.
 
 ## Validasi web dan keamanan
 
@@ -68,4 +80,5 @@ npx --yes markdownlint-cli2@0.18.1 "**/*.md"
 git diff --check
 ```
 
-Jalankan tes manual atau adapter tambahan untuk stack yang belum didukung. Jangan menyamakan NOTICE dengan PASS.
+Jalankan tes manual atau adapter tambahan untuk stack yang belum didukung.
+Jangan menyamakan NOTICE dengan PASS.

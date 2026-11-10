@@ -92,12 +92,11 @@ def php_project(project: Path) -> None:
     if not isinstance(scripts, dict):
         raise ValueError("composer.json scripts must be a JSON object.")
     run(["composer", "validate", "--no-check-publish", "--no-check-lock"], project)
-    if (project / "composer.lock").is_file():
+    if scripts.get("test") and (project / "composer.lock").is_file():
         run(["composer", "install", "--no-interaction", "--prefer-dist"], project)
     elif scripts.get("test"):
         report("NOTICE", f"{project}: composer.lock is absent; dependency resolution may not be reproducible.")
         run(["composer", "install", "--no-interaction", "--prefer-dist"], project)
-    if scripts.get("test"):
         run(["composer", "run-script", "test", "--no-interaction"], project)
         report("PASS", f"{project}: Composer test script completed.")
     else:

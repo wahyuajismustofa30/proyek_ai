@@ -4,6 +4,8 @@ Dibuat ulang dari paket logo `dekeku_logo_package.zip`.
 
 ## Isi
 
+| `index.html` | Entry point yang mengarahkan ke halaman referensi tema v1.5 saat folder disajikan sebagai situs statis |
+
 | File | Fungsi |
 |---|---|
 | `dekeku-icon.svg`, `dekeku-icon-white.svg` | Icon vektor asli (hitam `#0C0C0C` / putih), menggantikan `dekeku-mascot.svg` (icon dan maskot memakai gambar yang sama) |

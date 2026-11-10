@@ -1,0 +1,31 @@
+{
+  "name": "DEKEKU",
+  "short_name": "DEKEKU",
+  "description": "Your Digital Space",
+  "lang": "id",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0C0C0C",
+  "theme_color": "#0C0C0C",
+  "icons": [
+    {
+      "src": "./assets/icons/dekeku-icon-dark-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/dekeku-icon-dark-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/dekeku-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "scope": "./"
+}

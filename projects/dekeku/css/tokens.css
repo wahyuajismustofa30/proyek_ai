@@ -1,0 +1,9 @@
+:root {
+  --brand-black: #0C0C0C;
+  --brand-charcoal: #181818;
+  --brand-white: #FFFFFF;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --container-width: 1200px;
+}

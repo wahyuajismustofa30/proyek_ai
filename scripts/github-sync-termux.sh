@@ -12,6 +12,50 @@ confirm(){
 }
 git_cmd(){ git -C "$REPO" "$@"; }
 
+scan_staged_secrets(){
+  command -v gitleaks >/dev/null 2>&1 || fail "Gitleaks belum terpasang. Pasang Gitleaks sebelum membuat commit: https://github.com/gitleaks/gitleaks#installing"
+
+  local scan_dir file scan_status
+  scan_dir="$(mktemp -d "${TMPDIR:-/tmp}/proyek-ai-gitleaks.XXXXXX")" || fail "Tidak dapat membuat direktori sementara untuk pemindaian secret."
+
+  while IFS= read -r -d '' file; do
+    [[ -n "$file" ]] || continue
+    mkdir -p "$scan_dir/$(dirname "$file")" || {
+      rm -rf "$scan_dir"
+      fail "Tidak dapat menyiapkan file staging untuk pemindaian Gitleaks."
+    }
+    git_cmd show ":$file" > "$scan_dir/$file" || {
+      rm -rf "$scan_dir"
+      fail "Tidak dapat membaca isi staging untuk pemindaian Gitleaks: $file"
+    }
+  done < <(git_cmd diff --cached --name-only -z --diff-filter=ACMRT)
+
+  if ! find "$scan_dir" -type f -print -quit | grep -q .; then
+    rm -rf "$scan_dir"
+    info "Tidak ada file staged yang perlu dipindai."
+    return 0
+  fi
+
+  info "Memindai isi file staged dengan Gitleaks..."
+  if [[ -f "$REPO/.gitleaks.toml" ]]; then
+    if gitleaks dir --no-banner --redact=100 --config "$REPO/.gitleaks.toml" "$scan_dir"; then
+      scan_status=0
+    else
+      scan_status=$?
+    fi
+  else
+    if gitleaks dir --no-banner --redact=100 "$scan_dir"; then
+      scan_status=0
+    else
+      scan_status=$?
+    fi
+  fi
+  rm -rf "$scan_dir"
+
+  [[ "$scan_status" -eq 0 ]] || fail "Gitleaks menemukan secret atau pemindaian gagal. Commit dibatalkan; staging dan file kerja tetap dipertahankan."
+  info "${GREEN}Pemindaian secret staged berhasil.${RESET}"
+}
+
 command -v git >/dev/null 2>&1 || fail "Git belum terpasang. Jalankan: pkg install git"
 REPO="$(git rev-parse --show-toplevel 2>/dev/null)" || fail "Jalankan github-sync dari dalam repository Git."
 REMOTE=origin
@@ -58,23 +102,48 @@ fi
 
 info ""
 git_cmd status --short
-if ! git_cmd diff --quiet || ! git_cmd diff --cached --quiet || [[ -n "$(git_cmd ls-files --others --exclude-standard)" ]]; then
+
+if ! git_cmd diff --cached --quiet; then
+  info "${YELLOW}Staging yang sudah ada akan dipertahankan.${RESET}"
+  info "Hanya perubahan yang sudah staged yang akan dipindai dan di-commit."
+  if ! git_cmd diff --quiet || [[ -n "$(git_cmd ls-files --others --exclude-standard)" ]]; then
+    info "Perubahan unstaged/untracked akan tetap di luar commit ini."
+  fi
+else
+  if ! git_cmd diff --quiet || [[ -n "$(git_cmd ls-files --others --exclude-standard)" ]]; then
+    info ""
+    info "${YELLOW}Perhatian:${RESET} perubahan berikut dapat dimasukkan ke staging."
+    git_cmd status --short
+    if ! confirm "Stage semua perubahan di atas?"; then
+      info "Staging dibatalkan. File kerja dan staging tetap dipertahankan."
+      exit 0
+    fi
+    git_cmd add -A
+  fi
+fi
+
+if ! git_cmd diff --cached --quiet; then
   info ""
-  info "${YELLOW}Perhatian:${RESET} perubahan non-ignored akan masuk staging."
-  git_cmd add -A
+  info "Ringkasan staging:"
   git_cmd diff --cached --stat
+  info "Daftar file staged:"
   git_cmd diff --cached --name-only
   git_cmd diff --cached --check || fail "Whitespace error pada staging. Perbaiki sebelum commit."
   if [[ -n "$(git_cmd diff --cached --name-only | grep -E '(^|/)\.env($|\.)|(^|/)(id_rsa|id_ed25519|credentials(\.json)?|secrets?)(/|$)|\.(pem|key|p12|pfx)$' || true)" ]]; then
     fail "Nama file berpotensi rahasia terdeteksi di staging. Commit dibatalkan."
   fi
-  if ! confirm "Commit perubahan yang sudah ditampilkan ke main?"; then
+
+  scan_staged_secrets
+
+  if ! confirm "Commit perubahan staged yang sudah ditampilkan ke main?"; then
     info "Commit dibatalkan. File kerja dan staging tetap dipertahankan."
     exit 0
   fi
   read -r -p "Pesan commit (kosong = Auto sync Termux): " MESSAGE || true
   [[ -n "${MESSAGE:-}" ]] || MESSAGE="Auto sync Termux"
   git_cmd commit -m "$MESSAGE" || fail "Commit gagal. Perubahan lokal tetap tersedia."
+else
+  info "Tidak ada perubahan staged untuk di-commit."
 fi
 
 git_cmd fetch origin || fail "Fetch ulang sebelum push gagal."

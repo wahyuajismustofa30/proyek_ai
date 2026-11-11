@@ -4,14 +4,29 @@ export const ADMIN_WHATSAPP = "6285161517176";
 export const MAX_QUANTITY = 20;
 
 let invalidCartItems = 0;
+let invalidArrayItems = 0;
 
 export function readArray(key) {
+  invalidArrayItems = 0;
   try {
     const value = JSON.parse(localStorage.getItem(key) || "[]");
-    return Array.isArray(value) ? value.filter((item) => item && typeof item === "object" && !Array.isArray(item)) : [];
+    if (!Array.isArray(value)) {
+      invalidArrayItems = 1;
+      return [];
+    }
+    return value.filter((item) => {
+      const valid = item && typeof item === "object" && !Array.isArray(item);
+      if (!valid) invalidArrayItems += 1;
+      return valid;
+    });
   } catch {
+    invalidArrayItems = 1;
     return [];
   }
+}
+
+export function getArrayReadIssues() {
+  return invalidArrayItems;
 }
 
 export function getCartReadIssues() {

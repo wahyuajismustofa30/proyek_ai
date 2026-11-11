@@ -179,7 +179,7 @@ function openProduct(product) {
     }
     const nextCart = existing
       ? cart.map((item) => item.cartId === cartId ? { ...item, quantity: currentQuantity + qty } : item)
-      : [...cart, { productId: Number(product.id), packageId: Number(pack.id), quantity: qty }];
+      : [...cart, { productId: Number(product.id), packageId: Number(pack.id), quantity: qty, priceSnapshot: Number(pack.harga) }];
     if (!saveCart(nextCart)) {
       status.textContent = "Keranjang tidak dapat disimpan. Periksa ruang penyimpanan browser.";
       return;

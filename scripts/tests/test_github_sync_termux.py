@@ -1,4 +1,4 @@
-"""Safety and upstream-integration tests for the Termux GitHub sync helper."""
+"""Tests for the direct-to-main Termux GitHub sync helper."""
 
 from __future__ import annotations
 
@@ -21,27 +21,29 @@ class TermuxGitHubSyncTests(unittest.TestCase):
         self.repo = self.root / "working"
         self.upstream = self.root / "upstream"
         self.env = os.environ.copy()
-        self.env.update(
-            {
-                "GIT_AUTHOR_NAME": "CI Test",
-                "GIT_AUTHOR_EMAIL": "ci-test@example.invalid",
-                "GIT_COMMITTER_NAME": "CI Test",
-                "GIT_COMMITTER_EMAIL": "ci-test@example.invalid",
-                "GIT_TERMINAL_PROMPT": "0",
-            }
-        )
+        self.env.update({
+            "GIT_AUTHOR_NAME": "CI Test",
+            "GIT_AUTHOR_EMAIL": "ci-test@example.invalid",
+            "GIT_COMMITTER_NAME": "CI Test",
+            "GIT_COMMITTER_EMAIL": "ci-test@example.invalid",
+            "GIT_TERMINAL_PROMPT": "0",
+        })
         self.git(None, "init", "--bare", "--initial-branch=main", str(self.remote))
         self.git(None, "init", "--initial-branch=main", str(self.repo))
         self.git(self.repo, "config", "user.name", "CI Test")
         self.git(self.repo, "config", "user.email", "ci-test@example.invalid")
         (self.repo / "README.md").write_text("baseline\n", encoding="utf-8")
-        scripts_dir = self.repo / "scripts"
-        scripts_dir.mkdir()
-        (scripts_dir / "update_project_index.py").write_text((ROOT / "scripts" / "update_project_index.py").read_text(encoding="utf-8"), encoding="utf-8")
-        docs_dir = self.repo / "docs"
-        docs_dir.mkdir()
-        (docs_dir / "PROJECT_INDEX.md").write_text("# Indeks Proyek\n\n| Proyek | Direktori | README |\n|---|---|---|\n| — | — | — |\n", encoding="utf-8")
-        self.git(self.repo, "add", "README.md", "scripts", "docs")
+        (self.repo / "scripts").mkdir()
+        (self.repo / "scripts" / "update_project_index.py").write_text(
+            (ROOT / "scripts" / "update_project_index.py").read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+        (self.repo / "docs").mkdir()
+        (self.repo / "docs" / "PROJECT_INDEX.md").write_text(
+            "# Indeks Proyek\n\n| Proyek | Direktori | README |\n|---|---|---|\n| — | — | — |\n",
+            encoding="utf-8",
+        )
+        self.git(self.repo, "add", ".")
         self.git(self.repo, "commit", "-m", "baseline")
         self.git(self.repo, "remote", "add", "origin", str(self.remote))
         self.git(self.repo, "push", "-u", "origin", "main")
@@ -51,12 +53,8 @@ class TermuxGitHubSyncTests(unittest.TestCase):
 
     def git(self, cwd: Path | None, *args: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            ["git", *args],
-            cwd=cwd,
-            env=self.env,
-            check=True,
-            capture_output=True,
-            text=True,
+            ["git", *args], cwd=cwd, env=self.env, check=True,
+            capture_output=True, text=True,
         )
 
     def advance_remote_main(self, filename: str = "upstream.txt") -> None:
@@ -70,129 +68,70 @@ class TermuxGitHubSyncTests(unittest.TestCase):
 
     def run_sync(self, answers: str = "") -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            ["bash", str(SCRIPT)],
-            cwd=self.repo,
-            env=self.env,
-            input=answers,
-            capture_output=True,
-            text=True,
-            check=False,
+            ["bash", str(SCRIPT)], cwd=self.repo, env=self.env, input=answers,
+            capture_output=True, text=True, check=False,
         )
 
-    def test_shell_syntax_is_valid(self) -> None:
-        result = subprocess.run(
-            ["bash", "-n", str(SCRIPT)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        self.assertEqual(result.returncode, 0, result.stderr)
-
-    def test_main_creates_feature_branch_and_never_pushes_main(self) -> None:
+    def test_main_stays_main_and_does_not_create_feature_branch(self) -> None:
         result = self.run_sync()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        branch = self.git(self.repo, "branch", "--show-current").stdout.strip()
-        self.assertRegex(branch, r"^feat/termux-sync-\d{8}-\d{6}$")
-        remote_main = self.git(
-            None, "--git-dir", str(self.remote), "rev-parse", "refs/heads/main"
-        ).stdout.strip()
-        local_head = self.git(self.repo, "rev-parse", "HEAD").stdout.strip()
-        self.assertEqual(remote_main, local_head)
+        self.assertEqual(self.git(self.repo, "branch", "--show-current").stdout.strip(), "main")
         self.assertIn("Tidak ada commit baru", result.stdout)
+        branches = self.git(None, "--git-dir", str(self.remote), "branch", "--list").stdout
+        self.assertNotIn("feat/", branches)
 
-    def test_project_upload_regenerates_index_before_commit(self) -> None:
-        self.git(self.repo, "switch", "-c", "feat/project-upload")
-        project = self.repo / "projects" / "new-project"
-        project.mkdir(parents=True)
-        (project / "index.html").write_text("<!doctype html>\n", encoding="utf-8")
-        result = self.run_sync("y\n\ny\n")
+    def test_commit_and_push_happen_directly_on_main(self) -> None:
+        (self.repo / "change.txt").write_text("direct change\n", encoding="utf-8")
+        result = self.run_sync("y\nDirect commit\ny\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("Indeks proyek diperbarui otomatis", result.stdout)
-        index = (self.repo / "docs" / "PROJECT_INDEX.md").read_text(encoding="utf-8")
-        self.assertIn("New Project", index)
-        self.assertIn("../projects/new-project/", index)
-        self.assertIn("Push berhasil", result.stdout)
+        self.assertIn("Push langsung ke origin/main berhasil", result.stdout)
+        self.assertEqual(self.git(self.repo, "branch", "--show-current").stdout.strip(), "main")
+        local = self.git(self.repo, "rev-parse", "HEAD").stdout.strip()
+        remote = self.git(None, "--git-dir", str(self.remote), "rev-parse", "refs/heads/main").stdout.strip()
+        self.assertEqual(local, remote)
 
-    def test_existing_staging_is_preserved_and_operation_aborts(self) -> None:
-        note = self.repo / "note.txt"
-        note.write_text("already staged\n", encoding="utf-8")
-        self.git(self.repo, "add", "note.txt")
-        before = self.git(self.repo, "diff", "--cached", "--name-only").stdout
-
+    def test_non_main_branch_is_rejected_without_switching(self) -> None:
+        self.git(self.repo, "switch", "-c", "work")
         result = self.run_sync()
-        self.assertNotEqual(result.returncode, 0, result.stdout)
-        self.assertIn("perubahan yang sudah di-stage", result.stderr)
-        after = self.git(self.repo, "diff", "--cached", "--name-only").stdout
-        self.assertEqual(after, before)
-        self.assertEqual(
-            self.git(self.repo, "branch", "--show-current").stdout.strip(), "main"
-        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Pindah ke main secara manual", result.stderr)
+        self.assertEqual(self.git(self.repo, "branch", "--show-current").stdout.strip(), "work")
 
-    def test_behind_feature_branch_fast_forwards_after_confirmation(self) -> None:
-        self.git(self.repo, "switch", "-c", "feat/behind")
-        self.advance_remote_main()
-
-        result = self.run_sync("y\n")
+    def test_staged_user_changes_are_not_discarded_when_commit_declined(self) -> None:
+        note = self.repo / "note.txt"
+        note.write_text("keep staged\n", encoding="utf-8")
+        self.git(self.repo, "add", "note.txt")
+        result = self.run_sync("n\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("Branch berhasil diperbarui", result.stdout)
-        self.assertEqual(
-            self.git(self.repo, "branch", "--show-current").stdout.strip(),
-            "feat/behind",
-        )
+        self.assertIn("staging tetap dipertahankan", result.stdout)
+        self.assertIn("note.txt", self.git(self.repo, "diff", "--cached", "--name-only").stdout)
+
+    def test_dirty_main_is_not_fast_forwarded_when_remote_is_ahead(self) -> None:
+        (self.repo / "local.txt").write_text("local work\n", encoding="utf-8")
+        self.advance_remote_main()
+        result = self.run_sync()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("working tree memiliki perubahan", result.stderr)
+        self.assertTrue((self.repo / "local.txt").exists())
+
+    def test_clean_main_fast_forwards_before_sync(self) -> None:
+        self.advance_remote_main()
+        result = self.run_sync()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("diperbarui dengan fast-forward", result.stdout)
         self.assertEqual(
             self.git(self.repo, "rev-parse", "HEAD").stdout.strip(),
             self.git(self.repo, "rev-parse", "origin/main").stdout.strip(),
         )
 
-    def test_diverged_feature_branch_merges_main_and_pushes_without_rewriting(self) -> None:
-        self.git(self.repo, "switch", "-c", "feat/diverged")
-        (self.repo / "local.txt").write_text("local change\n", encoding="utf-8")
-        self.git(self.repo, "add", "local.txt")
-        self.git(self.repo, "commit", "-m", "feature work")
-        feature_commit = self.git(self.repo, "rev-parse", "HEAD").stdout.strip()
-        self.advance_remote_main()
-
-        result = self.run_sync("y\ny\n")
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("memiliki commit masing-masing", result.stdout)
-        self.assertIn("Branch berhasil diperbarui", result.stdout)
-        self.assertIn("Push berhasil", result.stdout)
-        self.assertEqual(
-            self.git(self.repo, "rev-parse", "HEAD^1").stdout.strip(), feature_commit
-        )
-        self.assertEqual(
-            self.git(self.repo, "rev-parse", "HEAD^2").stdout.strip(),
-            self.git(self.repo, "rev-parse", "origin/main").stdout.strip(),
-        )
-        self.git(None, "--git-dir", str(self.remote), "show-ref", "--verify",
-                 "refs/heads/feat/diverged")
-
-    def test_untracked_dotenv_variant_is_rejected_before_staging(self) -> None:
-        self.git(self.repo, "switch", "-c", "feat/secret-guard")
+    def test_untracked_dotenv_is_rejected_without_staging(self) -> None:
         secret = self.repo / ".env.local"
         secret.write_text("TOKEN=do-not-commit\n", encoding="utf-8")
-
         result = self.run_sync()
-        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotEqual(result.returncode, 0)
         self.assertIn("berpotensi rahasia", result.stderr)
-        self.assertEqual(
-            self.git(self.repo, "diff", "--cached", "--name-only").stdout, ""
-        )
+        self.assertEqual(self.git(self.repo, "diff", "--cached", "--name-only").stdout, "")
         self.assertTrue(secret.exists())
-
-    def test_declining_upstream_integration_leaves_branch_unchanged(self) -> None:
-        self.git(self.repo, "switch", "-c", "feat/decline")
-        before = self.git(self.repo, "rev-parse", "HEAD").stdout.strip()
-        self.advance_remote_main()
-
-        result = self.run_sync("n\n")
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("Sinkronisasi dibatalkan", result.stdout)
-        self.assertEqual(self.git(self.repo, "rev-parse", "HEAD").stdout.strip(), before)
-        self.assertEqual(
-            self.git(self.repo, "branch", "--show-current").stdout.strip(),
-            "feat/decline",
-        )
 
 
 if __name__ == "__main__":

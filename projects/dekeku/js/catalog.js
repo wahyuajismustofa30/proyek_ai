@@ -7,7 +7,6 @@ const eventFilter = document.getElementById("filter-event");
 const themeFilter = document.getElementById("filter-theme");
 const countLabel = document.getElementById("catalog-count");
 const pagination = document.getElementById("catalog-pagination");
-const status = document.getElementById("catalog-status");
 const PER_PAGE = 12;
 let products = [];
 let filtered = [];

@@ -1,4 +1,4 @@
-import { readCart, saveCart, formatRupiah, updateCartBadge, MAX_QUANTITY, getCartReadIssues } from "./shop-utils.js";
+import { formatRupiah, ADMIN_WHATSAPP } from "./shop-utils.js";
 
 const grid = document.getElementById("product-grid");
 const searchInput = document.getElementById("catalog-search");
@@ -7,14 +7,11 @@ const eventFilter = document.getElementById("filter-event");
 const themeFilter = document.getElementById("filter-theme");
 const countLabel = document.getElementById("catalog-count");
 const pagination = document.getElementById("catalog-pagination");
-const dialog = document.getElementById("product-dialog");
-const dialogContent = document.getElementById("product-dialog-content");
 const status = document.getElementById("catalog-status");
 const PER_PAGE = 12;
 let products = [];
 let filtered = [];
 let page = 1;
-let selectedProduct = null;
 
 const node = (tag, className, value) => {
   const element = document.createElement(tag);
@@ -50,6 +47,40 @@ function fillFilter(select, values, label) {
   if ([...select.options].some((option) => option.value === current)) select.value = current;
 }
 
+function orderMessage(product) {
+  const lines = [
+    "Halo DEKEKU, saya ingin memesan produk berikut:",
+    "",
+    `Produk: ${product.nama}`,
+    `Kategori: ${product.category || "-"}`,
+    `Acara: ${product.event || "-"}`,
+    `Tema: ${product.theme || "-"}`,
+    "",
+    "Pilihan paket:"
+  ];
+  if (product.packages.length) {
+    product.packages.forEach((pack, index) => {
+      lines.push(`${index + 1}. ${pack.nama} — ${formatRupiah(Number(pack.harga))}`);
+    });
+    lines.push("", "Saya ingin memilih paket nomor: ");
+  } else {
+    lines.push("Mohon informasikan pilihan paket dan harganya.");
+  }
+  if (product.link_produk && /^https:\/\//i.test(product.link_produk)) {
+    lines.push("", `Preview: ${product.link_produk}`);
+  }
+  lines.push("", "Mohon informasi proses pemesanan selanjutnya. Terima kasih.");
+  return lines.join("\n");
+}
+
+function iconLink(label, path, className = "shop-icon-action") {
+  const link = node("a", className);
+  link.setAttribute("aria-label", label);
+  link.title = label;
+  link.innerHTML = path;
+  return link;
+}
+
 function applyFilters() {
   const query = searchInput.value.trim().toLocaleLowerCase("id");
   filtered = products.filter((product) => {
@@ -80,23 +111,28 @@ function renderProducts() {
     image.alt = product.nama;
     image.loading = "lazy";
     image.onerror = () => { image.onerror = null; image.src = "../assets/logos/dekeku-logo-horizontal.svg"; };
+
     const body = node("div", "shop-card-body");
     body.append(node("span", "shop-card-meta", [product.event, product.theme].filter(Boolean).join(" · ") || product.category));
     body.append(node("h3", "", product.nama));
     const prices = product.packages.map((item) => Number(item.harga)).filter(Number.isFinite);
     body.append(node("p", "shop-card-price", prices.length ? `Mulai ${formatRupiah(Math.min(...prices))}` : "Hubungi kami untuk harga"));
+
     const actions = node("div", "shop-card-actions");
-    const choose = node("button", "button button-dark button-small", "Detail & pilih paket");
-    choose.type = "button";
-    choose.dataset.productId = String(product.id);
-    actions.append(choose);
     if (product.link_produk && /^https:\/\//i.test(product.link_produk)) {
-      const preview = node("a", "button button-small", "Lihat contoh");
+      const preview = iconLink("Lihat preview produk", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>');
       preview.href = product.link_produk;
       preview.target = "_blank";
       preview.rel = "noopener noreferrer";
       actions.append(preview);
     }
+
+    const order = iconLink("Pesan produk melalui WhatsApp", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h2l2.2 12.2a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6"/><circle cx="10" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>');
+    order.href = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(orderMessage(product))}`;
+    order.target = "_blank";
+    order.rel = "noopener noreferrer";
+    actions.append(order);
+
     body.append(actions);
     card.append(image, body);
     grid.append(card);
@@ -118,94 +154,11 @@ function renderProducts() {
   }
 }
 
-function openProduct(product) {
-  selectedProduct = product;
-  dialogContent.replaceChildren();
-  const close = node("button", "button button-small shop-dialog-close", "Tutup");
-  close.type = "button";
-  close.addEventListener("click", () => dialog.close());
-  const image = node("img", "shop-dialog-image");
-  image.src = /^https:\/\//i.test(product.img || "") ? product.img : "../assets/logos/dekeku-logo-horizontal.svg";
-  image.alt = product.nama;
-  image.onerror = () => { image.onerror = null; image.src = "../assets/logos/dekeku-logo-horizontal.svg"; };
-  dialogContent.append(close, image, node("h2", "", product.nama));
-  dialogContent.append(node("p", "", `Kategori: ${product.category || "-"} · Acara: ${product.event || "-"} · Tema: ${product.theme || "-"}`));
-  if (product.link_produk && /^https:\/\//i.test(product.link_produk)) {
-    const sample = node("a", "arrow-link", "Buka contoh produk ↗");
-    sample.href = product.link_produk;
-    sample.target = "_blank";
-    sample.rel = "noopener noreferrer";
-    dialogContent.append(sample);
-  }
-  if (!product.packages.length) {
-    dialogContent.append(node("p", "shop-notice", "Paket untuk produk ini belum tersedia. Silakan hubungi DEKEKU."));
-    dialog.showModal();
-    return;
-  }
-  const field = node("div", "shop-field");
-  const label = node("label", "", "Pilih paket");
-  label.htmlFor = "selected-package";
-  const select = node("select", "shop-control");
-  select.id = "selected-package";
-  product.packages.forEach((item) => select.add(new Option(`${item.nama} — ${formatRupiah(Number(item.harga))}`, String(item.id))));
-  field.append(label, select);
-  const quantityField = node("div", "shop-field");
-  const quantityLabel = node("label", "", "Jumlah");
-  quantityLabel.htmlFor = "selected-quantity";
-  const quantity = node("input", "shop-control");
-  quantity.type = "number";
-  quantity.id = "selected-quantity";
-  quantity.min = "1";
-  quantity.max = String(MAX_QUANTITY);
-  quantity.value = "1";
-  quantityField.append(quantityLabel, quantity);
-  const add = node("button", "button button-dark", "Tambah ke keranjang");
-  add.type = "button";
-  add.addEventListener("click", () => {
-    const pack = product.packages.find((item) => String(item.id) === select.value);
-    const qty = Number(quantity.value);
-    if (!pack || !Number.isInteger(qty) || qty < 1 || qty > MAX_QUANTITY) {
-      status.textContent = `Pilih paket dan jumlah 1–${MAX_QUANTITY} yang valid.`;
-      return;
-    }
-    const cart = readCart();
-    const cartIssues = getCartReadIssues();
-    const cartId = `${product.id}:${pack.id}`;
-    const existing = cart.find((item) => item.cartId === cartId);
-    const currentQuantity = existing ? existing.quantity : 0;
-    if (currentQuantity + qty > MAX_QUANTITY) {
-      status.textContent = `Jumlah ${product.nama} dengan paket ${pack.nama} saat ini ${currentQuantity}. Maksimal ${MAX_QUANTITY} per produk dan paket; kurangi jumlah sebelum menambahkan lagi.`;
-      return;
-    }
-    const nextCart = existing
-      ? cart.map((item) => item.cartId === cartId ? { ...item, quantity: currentQuantity + qty } : item)
-      : [...cart, { productId: Number(product.id), packageId: Number(pack.id), quantity: qty, priceSnapshot: Number(pack.harga) }];
-    if (!saveCart(nextCart)) {
-      status.textContent = "Keranjang tidak dapat disimpan. Periksa ruang penyimpanan browser.";
-      return;
-    }
-    status.textContent = cartIssues
-      ? `${product.nama} ditambahkan. ${cartIssues} item rusak dilewati; item valid tetap dipertahankan.`
-      : `${product.nama} ditambahkan. Jumlah dalam keranjang: ${currentQuantity + qty}.`;
-    dialog.close();
-  });
-  dialogContent.append(field, quantityField, add);
-  dialog.showModal();
-}
-
-grid.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-product-id]");
-  if (!button) return;
-  const product = products.find((item) => String(item.id) === button.dataset.productId);
-  if (product) openProduct(product);
-});
-
 [searchInput, categoryFilter, eventFilter, themeFilter].forEach((control) => {
   control.addEventListener(control === searchInput ? "input" : "change", applyFilters);
 });
 
 async function init() {
-  updateCartBadge();
   try {
     const response = await fetch("../data/produk.json", { cache: "no-cache" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -224,4 +177,5 @@ async function init() {
     console.error("DEKEKU catalogue:", error);
   }
 }
+
 init();

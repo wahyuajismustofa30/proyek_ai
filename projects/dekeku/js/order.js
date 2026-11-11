@@ -1,7 +1,7 @@
 import {
   readCart, saveCart, readArray, formatRupiah, updateCartBadge,
   ORDER_KEY, ADMIN_WHATSAPP, loadCatalogData, resolveCart,
-  getCartReadIssues, hasStoredPriceMismatch
+  getCartReadIssues, getArrayReadIssues, hasStoredPriceMismatch
 } from "./shop-utils.js";
 
 const form = document.getElementById("checkout-form");
@@ -105,6 +105,8 @@ function saveHistory(orders) {
 function renderHistory() {
   history.replaceChildren();
   const orders = getHistory().slice(-5).reverse();
+  const historyIssues = getArrayReadIssues();
+  if (historyIssues) history.append(el("p", "shop-notice", `${historyIssues} data riwayat tidak valid dilewati. Riwayat valid tetap dipertahankan.`));
   if (!orders.length) {
     history.append(el("p", "shop-notice", "Belum ada permintaan pesanan yang tersimpan di perangkat ini."));
     return;
@@ -180,6 +182,26 @@ form.addEventListener("submit", (event) => {
   const notes = document.getElementById("customer-notes").value.trim();
   if (name.length < 2 || name.length > 100 || digits.length < 8 || digits.length > 15 || notes.length > 1000) {
     status.textContent = "Periksa kembali nama, nomor WhatsApp (8–15 digit), dan catatan pesanan.";
+    return;
+  }
+
+  const previousOrder = getHistory().find((entry) => {
+    const age = Date.now() - new Date(entry.waktu).getTime();
+    if (!Number.isFinite(age) || age < 0 || age > 30 * 60 * 1000 ||
+        entry.customer.name !== name || entry.customer.phone !== phone ||
+        !Array.isArray(entry.items) || entry.items.length !== resolved.items.length) return false;
+    return resolved.items.every((item) => entry.items.some((old) =>
+      Number(old.productId) === item.productId &&
+      Number(old.packageId) === item.packageId &&
+      Number(old.quantity) === item.quantity
+    ));
+  });
+  if (previousOrder) {
+    currentOrderId = previousOrder.order_id;
+    sendLink.href = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(makeMessage(previousOrder))}`;
+    sendLink.hidden = false;
+    result.hidden = false;
+    status.textContent = `Pesanan ${currentOrderId} yang sama sudah disiapkan dalam 30 menit terakhir. Tautan sebelumnya digunakan kembali agar tidak membuat pesanan duplikat.`;
     return;
   }
 

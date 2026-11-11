@@ -1,4 +1,4 @@
-import { readCart, saveCart, formatRupiah, updateCartBadge, MAX_QUANTITY } from "./shop-utils.js";
+import { readCart, saveCart, formatRupiah, updateCartBadge, MAX_QUANTITY, getCartReadIssues } from "./shop-utils.js";
 
 const grid = document.getElementById("product-grid");
 const searchInput = document.getElementById("catalog-search");
@@ -169,21 +169,24 @@ function openProduct(product) {
       return;
     }
     const cart = readCart();
+    const cartIssues = getCartReadIssues();
     const cartId = `${product.id}:${pack.id}`;
     const existing = cart.find((item) => item.cartId === cartId);
-    if (existing) existing.quantity = Math.min(MAX_QUANTITY, existing.quantity + qty);
-    else cart.push({
-      cartId, id: Number(product.id), productId: Number(product.id),
-      nama: product.nama, name: product.nama, img: product.img || "",
-      image: product.img || "", link_produk: product.link_produk || "",
-      productUrl: product.link_produk || "", kategori: product.category,
-      category: product.category, acara: product.event, event: product.event,
-      tema: product.theme, theme: product.theme, paket_id: Number(pack.id),
-      packageId: Number(pack.id), paket: pack.nama, packageName: pack.nama,
-      harga: Number(pack.harga), price: Number(pack.harga), jumlah: qty, quantity: qty
-    });
-    saveCart(cart);
-    status.textContent = `${product.nama} ditambahkan ke keranjang.`;
+    const currentQuantity = existing ? existing.quantity : 0;
+    if (currentQuantity + qty > MAX_QUANTITY) {
+      status.textContent = `Jumlah ${product.nama} dengan paket ${pack.nama} saat ini ${currentQuantity}. Maksimal ${MAX_QUANTITY} per produk dan paket; kurangi jumlah sebelum menambahkan lagi.`;
+      return;
+    }
+    const nextCart = existing
+      ? cart.map((item) => item.cartId === cartId ? { ...item, quantity: currentQuantity + qty } : item)
+      : [...cart, { productId: Number(product.id), packageId: Number(pack.id), quantity: qty }];
+    if (!saveCart(nextCart)) {
+      status.textContent = "Keranjang tidak dapat disimpan. Periksa ruang penyimpanan browser.";
+      return;
+    }
+    status.textContent = cartIssues
+      ? `${product.nama} ditambahkan. ${cartIssues} item rusak dilewati; item valid tetap dipertahankan.`
+      : `${product.nama} ditambahkan. Jumlah dalam keranjang: ${currentQuantity + qty + (existing ? 0 : 0)}.`;
     dialog.close();
   });
   dialogContent.append(field, quantityField, add);

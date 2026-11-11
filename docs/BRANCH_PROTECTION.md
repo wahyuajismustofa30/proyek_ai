@@ -62,3 +62,25 @@ GitHub yang berlaku dan perlu diperiksa kembali bila fitur berubah.
 Ruleset adalah konfigurasi GitHub yang terpisah dari file repository. Dokumen
 ini merupakan catatan manual dan tidak tersinkron otomatis dengan GitHub
 Settings.
+
+## Kebijakan validasi yang disederhanakan
+
+Mulai perubahan CI pada November 2026, nama tiga required checks di atas
+dipertahankan agar ruleset tidak perlu diubah. Beban pemeriksaan dibedakan
+berdasarkan konteks:
+
+- **Pull request:** JSON yang berubah, Markdown yang berubah, kompilasi Python,
+  unit test repository, validasi project matrix, pemindaian secret, dependency
+  security, dan whitespace.
+- **Push ke `main`, jadwal mingguan, atau run manual:** pemeriksaan repository
+  lengkap, termasuk seluruh JSON, seluruh Markdown, tautan internal, dan
+  validasi HTML/CSS/aset web rekursif.
+- **Web validation pada PR:** dilewati sementara karena validator rekursif
+  saat ini turut memeriksa direktori referensi/arsip yang bukan target website
+  aktif. Pemeriksaan lengkap tetap berjalan pada push ke `main`, jadwal, dan
+  run manual. Hasil `skipped` pada job web tidak menggagalkan aggregate
+  `Project matrix tests`; discovery dan application tests tetap wajib lulus.
+
+Pemindaian Gitleaks dan OSV-Scanner tetap berjalan pada PR. Kesalahan nyata
+pada file yang berubah tetap menggagalkan validasi. Pemeriksaan penuh tetap
+tersedia untuk menangkap masalah lintas-file yang tidak tercakup oleh diff PR.

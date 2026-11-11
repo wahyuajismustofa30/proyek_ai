@@ -1,4 +1,9 @@
 @import url("./tokens.css");
 
-/* Global styles untuk halaman baru. Halaman referensi lama tetap mandiri. */
+/* Shared foundation for DEKEKU pages. */
 * { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; }
+h1, h2, h3, h4, p { margin-top: 0; }
+img { max-width: 100%; height: auto; }
+:root[data-theme="dark"] .brand img { filter: brightness(0) invert(1); }

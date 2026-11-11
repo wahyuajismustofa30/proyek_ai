@@ -38,9 +38,9 @@ Lalu buka `http://localhost:8000`.
 - **Status situs:** `404.html`, `500.html`, dan `maintenance.html`.
 - **Referensi desain:** `pages/reference/index.html` — dokumen referensi Master Theme, bukan halaman publik.
 
-### Batas integrasi pembayaran
+### Alur pemesanan
 
-Integrasi Midtrans belum diaktifkan. Repository referensi hanya memperlihatkan pemanggilan endpoint Cloudflare Worker dari frontend; kode backend, validasi harga di server, dan mekanisme verifikasi notifikasi pembayaran tidak tersedia untuk diaudit dari repository ini. Karena itu, alur saat ini menyiapkan permintaan pesanan melalui WhatsApp dan tidak mengklaim pembayaran atau pesanan telah terkonfirmasi. Catatan pesanan disimpan lokal di browser pengguna, bukan di server.
+Pemesanan dimulai dari kartu produk dan dilanjutkan langsung melalui WhatsApp. Pelanggan memilih paket dan menyepakati detail pesanan di percakapan dengan DEKEKU. Website tidak menggunakan keranjang, checkout lokal, riwayat pesanan, atau pembayaran otomatis.
 
 
 ## Catatan konten

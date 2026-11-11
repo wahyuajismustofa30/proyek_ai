@@ -26,6 +26,7 @@ let catalog = null;
 let currentOrderId = null;
 let submitting = false;
 let resolvedItems = [];
+let invalidHistoryRecords = 0;
 
 function totalOf(items) {
   return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -82,13 +83,16 @@ function validHistoryOrder(order) {
 
 function getHistory() {
   const unique = new Map();
+  invalidHistoryRecords = 0;
   readArray(ORDER_KEY).forEach((order) => {
-    if (validHistoryOrder(order) && order.items.every((item) =>
+    const validItems = validHistoryOrder(order) && order.items.every((item) =>
       item && typeof item === "object" && typeof item.name === "string" &&
       typeof item.packageName === "string" && Number.isInteger(Number(item.quantity)) &&
       Number(item.quantity) >= 1 && Number(item.quantity) <= 20 &&
       Number.isFinite(Number(item.price)) && Number(item.price) >= 0
-    )) unique.set(order.order_id, order);
+    );
+    if (validItems) unique.set(order.order_id, order);
+    else invalidHistoryRecords += 1;
   });
   return [...unique.values()];
 }
@@ -105,7 +109,7 @@ function saveHistory(orders) {
 function renderHistory() {
   history.replaceChildren();
   const orders = getHistory().slice(-5).reverse();
-  const historyIssues = getArrayReadIssues();
+  const historyIssues = getArrayReadIssues() + invalidHistoryRecords;
   if (historyIssues) history.append(el("p", "shop-notice", `${historyIssues} data riwayat tidak valid dilewati. Riwayat valid tetap dipertahankan.`));
   if (!orders.length) {
     history.append(el("p", "shop-notice", "Belum ada permintaan pesanan yang tersimpan di perangkat ini."));

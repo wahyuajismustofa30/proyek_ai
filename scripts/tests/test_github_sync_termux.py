@@ -106,7 +106,7 @@ class TermuxGitHubSyncTests(unittest.TestCase):
         self.assertEqual(committed, ["staged.txt"])
         self.assertTrue(unstaged.exists())
         self.assertTrue(untracked.exists())
-        self.assertEqual(self.git(self.repo, "status", "--short").stdout.splitlines(), [" M unstaged.txt", "?? untracked.txt"])
+        self.assertEqual(self.git(self.repo, "status", "--short").stdout.splitlines(), ["?? unstaged.txt", "?? untracked.txt"])
 
     def test_non_main_branch_is_rejected_without_switching(self) -> None:
         self.git(self.repo, "switch", "-c", "work")

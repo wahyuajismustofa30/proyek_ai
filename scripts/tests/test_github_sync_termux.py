@@ -99,7 +99,7 @@ class TermuxGitHubSyncTests(unittest.TestCase):
         unstaged.write_text("unstaged change\\n", encoding="utf-8")
         untracked.write_text("untracked change\\n", encoding="utf-8")
 
-        result = self.run_sync("y\\n")
+        result = self.run_sync("y\\nStaged-only commit\\ny\\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("Perubahan unstaged/untracked akan tetap di luar commit ini", result.stdout)
         committed = self.git(self.repo, "show", "--pretty=format:", "--name-only", "HEAD").stdout.splitlines()

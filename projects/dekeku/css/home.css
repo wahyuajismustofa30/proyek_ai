@@ -145,3 +145,40 @@ h2 span{color:#929292}.intro h2{max-width:790px}.section-lead{color:var(--text-s
  .hero-art{transform:scale(.72);width:139%;margin-left:-19%;margin-bottom:-90px}
  .hero-actions{align-items:flex-start;flex-direction:column}.price-row{gap:8px}.price-row strong{font-size:15px}
 }
+
+/* Shared contrast, navigation and interaction refinements. */
+.primary-nav .nav-cta { display: none; }
+.hero h1, .manifesto h2, .closing h2, .package-cta h2 { color: #fff; }
+.manifesto h2 em, .closing h2 em, .package-cta h2 em { color: #aaa; }
+.hero .eyebrow-light, .closing .eyebrow-light, .manifesto .eyebrow-light, .package-cta .eyebrow-light {
+  color: #b8b8b8;
+}
+.site-header { isolation: isolate; }
+.primary-nav a:focus-visible, .footer-links a:focus-visible, .arrow-link:focus-visible {
+  border-radius: 4px;
+  outline-offset: 4px;
+}
+.service-card, .price-group { transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition); }
+.service-card:hover, .price-group:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+}
+.price-row:focus-visible { outline-offset: 5px; }
+@media (max-width: 900px) {
+  .nav-wrap { gap: 16px; }
+  .primary-nav { gap: 14px; }
+  .primary-nav a:not(.button) { font-size: 11px; }
+  .brand img { width: 146px; }
+}
+@media (max-width: 700px) {
+  .primary-nav .nav-cta { display: flex; min-height: 44px; }
+  .menu-toggle, .theme-toggle { min-width: 44px; min-height: 44px; }
+  .primary-nav { max-height: calc(100dvh - 72px); overflow-y: auto; }
+  .hero h1 { color: #fff; }
+  .footer-links { flex-wrap: wrap; }
+  .footer-bottom { flex-wrap: wrap; }
+}
+@media (max-width: 380px) {
+  .hero-bottom { gap: 12px; flex-wrap: wrap; }
+  .hero-bottom span:last-child { text-align: right; }
+}

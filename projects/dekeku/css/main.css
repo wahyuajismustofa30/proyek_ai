@@ -63,3 +63,44 @@ button, input, textarea, select { font: inherit; }
 }
 .icon-button:focus-visible { outline-offset: 3px; }
 :root[data-theme="dark"] .brand img { filter: brightness(0) invert(1); }
+
+
+/* Accessibility and responsive foundation refinements. */
+html { scroll-padding-top: 88px; }
+body { min-width: 320px; }
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 12px;
+  left: 12px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface-ink);
+  color: var(--text-on-ink);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform var(--duration-fast) ease;
+}
+.skip-link:focus { transform: translateY(0); }
+.button:focus-visible, .icon-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.button:active { transform: translateY(1px); }
+.button:disabled, .button[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: .55;
+  transform: none;
+}
+input, textarea, select { max-width: 100%; }
+::selection { background: var(--accent); color: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

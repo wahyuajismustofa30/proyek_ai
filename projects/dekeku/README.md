@@ -12,7 +12,7 @@ Proyek ini berisi homepage DEKEKU, aset identitas brand, dan halaman referensi M
 - `404.html`, `500.html`, dan `maintenance.html` — halaman status situs.
 - `pages/reference/index.html` — referensi desain, bukan halaman publik.
 
-Halaman keranjang dan order pada repository referensi belum dipindahkan. Keduanya bergantung pada alur keranjang, data produk, penyimpanan lokal, dan integrasi pembayaran yang belum menjadi bagian dari implementasi DEKEKU di direktori ini.
+Data katalog referensi telah dipindahkan ke `data/produk.json`. Katalog, keranjang, dan formulir pemesanan WhatsApp menggunakan JavaScript native dan penyimpanan lokal browser.
 
 
 ## Menjalankan lokal
@@ -30,14 +30,18 @@ Lalu buka `http://localhost:8000`.
 ## Status implementasi halaman
 
 - **Homepage:** `index.html` — layanan, keunggulan, ringkasan harga, proses, dan FAQ.
-- **Produk:** `pages/produk.html` — kategori layanan website dan undangan digital.
+- **Produk:** `pages/produk.html` — katalog dinamis dengan data `data/produk.json`, filter, pencarian, pagination, dan pilihan paket.
 - **Paket & harga:** `pages/paket.html` — rincian paket dan FAQ.
 - **Tentang:** `pages/tentang.html` — profil dan perjalanan DEKEKU.
 - **Kontak:** `pages/kontak.html` — kanal WhatsApp dan lokasi Arto Printing.
+- **Keranjang:** `pages/keranjang.html` — jumlah, hapus item, subtotal, dan total.
+- **Pemesanan:** `pages/order.html` — validasi data pelanggan, ringkasan, penyusunan pesan WhatsApp, dan riwayat lokal.
 - **Status situs:** `404.html`, `500.html`, dan `maintenance.html`.
 - **Referensi desain:** `pages/reference/index.html` — dokumen referensi Master Theme, bukan halaman publik.
 
-Halaman `pages/keranjang.html` dan `pages/order.html` belum dipindahkan. Pada repository referensi, keduanya bergantung pada data katalog, penyimpanan keranjang, modul JavaScript transaksi, dan integrasi pembayaran. Fitur tersebut perlu dipindahkan serta diuji sebagai satu alur agar tidak menghasilkan halaman pemesanan yang hanya tampak tersedia tetapi tidak berfungsi.
+### Batas integrasi pembayaran
+
+Integrasi Midtrans belum diaktifkan. Repository referensi hanya memperlihatkan pemanggilan endpoint Cloudflare Worker dari frontend; kode backend, validasi harga di server, dan mekanisme verifikasi notifikasi pembayaran tidak tersedia untuk diaudit dari repository ini. Karena itu, alur saat ini menyiapkan permintaan pesanan melalui WhatsApp dan tidak mengklaim pembayaran atau pesanan telah terkonfirmasi. Catatan pesanan disimpan lokal di browser pengguna, bukan di server.
 
 
 ## Catatan konten

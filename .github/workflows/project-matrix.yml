@@ -93,6 +93,9 @@ jobs:
         run: echo "::notice::$PROJECT_PATH was discovered; no application test adapter is configured yet."
   web-validation:
     name: HTML, CSS, and project assets
+    # Full repository web scan is retained for main, scheduled, and manual runs.
+    # PRs use changed-file checks; the legacy recursive scan also traverses reference/archive material.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -118,7 +121,14 @@ jobs:
           WEB_VALIDATION_RESULT: ${{ needs.web-validation.result }}
           DISCOVERY_RESULT: ${{ needs.discover.result }}
         run: |
-          if [[ "$DISCOVERY_RESULT" != "success" || "$PROJECT_TEST_RESULT" != "success" || "$WEB_VALIDATION_RESULT" != "success" ]]; then
-            echo "Project validation failed: discovery=$DISCOVERY_RESULT application=$PROJECT_TEST_RESULT web=$WEB_VALIDATION_RESULT"
+          if [[ "$DISCOVERY_RESULT" != "success" || "$PROJECT_TEST_RESULT" != "success" ]]; then
+            echo "Project validation failed: discovery=$DISCOVERY_RESULT application=$PROJECT_TEST_RESULT"
             exit 1
+          fi
+          if [[ "$WEB_VALIDATION_RESULT" != "success" && "$WEB_VALIDATION_RESULT" != "skipped" ]]; then
+            echo "Web validation failed: $WEB_VALIDATION_RESULT"
+            exit 1
+          fi
+          if [[ "$WEB_VALIDATION_RESULT" == "skipped" ]]; then
+            echo "NOTICE: full recursive web validation is reserved for main, scheduled, and manual runs."
           fi

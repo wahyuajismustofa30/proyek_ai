@@ -27,21 +27,22 @@ function makeMessage(order) {
     "*PERMINTAAN PESANAN DEKEKU*",
     `ID Pesanan: ${order.order_id}`,
     "",
-    `Nama: ${order.customer.name}`,
-    `WhatsApp pelanggan: ${order.customer.phone}`,
-    order.customer.notes ? `Catatan: ${order.customer.notes}` : "",
+    `Nama: ${order.customer?.name || order.nama || "-"}`,
+    `WhatsApp pelanggan: ${order.customer?.phone || order.nomor_wa || "-"}`,
+    order.customer?.notes ? `Catatan: ${order.customer.notes}` : "",
     "",
     "*RINCIAN PRODUK*"
   ];
   order.items.forEach((item, index) => {
     lines.push(
-      `${index + 1}. ${item.name}`,
-      `   Paket: ${item.packageName}`,
-      `   Jumlah: ${item.quantity}`,
-      `   Harga: ${formatRupiah(item.price)}`,
-      `   Subtotal: ${formatRupiah(item.price * item.quantity)}`
+      `${index + 1}. ${item.name || item.nama || "Produk"}`,
+      `   Paket: ${item.packageName || item.paket || "-"}`,
+      `   Jumlah: ${Number(item.quantity ?? item.jumlah ?? 1)}`,
+      `   Harga: ${formatRupiah(Number(item.price ?? item.harga ?? 0))}`,
+      `   Subtotal: ${formatRupiah(Number(item.price ?? item.harga ?? 0) * Number(item.quantity ?? item.jumlah ?? 1))}`
     );
-    if (item.productUrl) lines.push(`   Contoh: ${item.productUrl}`);
+    const productUrl = item.productUrl || item.link_produk;
+    if (productUrl) lines.push(`   Contoh: ${productUrl}`);
   });
   lines.push("", `*TOTAL: ${formatRupiah(order.total)}*`, "", "Mohon konfirmasi ketersediaan dan langkah pemesanan berikutnya. Terima kasih.");
   return lines.filter(Boolean).join("\n");
@@ -145,11 +146,17 @@ sendLink.addEventListener("click", () => {
     order.status = "menunggu_konfirmasi";
     localStorage.setItem(ORDER_KEY, JSON.stringify(orders));
   }
+  status.textContent = "WhatsApp dibuka. Pesan baru terkirim setelah kamu menekan tombol Kirim di aplikasi WhatsApp. Setelah benar-benar mengirim pesan, kamu dapat mengosongkan keranjang.";
+  document.getElementById("clear-cart-after-send").hidden = false;
+});
+
+document.getElementById("clear-cart-after-send").addEventListener("click", () => {
   saveCart([]);
   currentOrderId = null;
-  status.textContent = "WhatsApp dibuka. Pesan baru terkirim setelah kamu menekan tombol Kirim di aplikasi WhatsApp.";
+  document.getElementById("clear-cart-after-send").hidden = true;
   sendLink.hidden = true;
-  renderHistory();
+  status.textContent = "Keranjang dikosongkan. Status pengiriman pesan tetap belum diverifikasi oleh DEKEKU.";
+  init();
 });
 
 init();

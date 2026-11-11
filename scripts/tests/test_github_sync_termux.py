@@ -82,13 +82,31 @@ class TermuxGitHubSyncTests(unittest.TestCase):
 
     def test_commit_and_push_happen_directly_on_main(self) -> None:
         (self.repo / "change.txt").write_text("direct change\n", encoding="utf-8")
-        result = self.run_sync("y\nDirect commit\ny\n")
+        result = self.run_sync("y\ny\nDirect commit\ny\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("Push langsung ke origin/main berhasil", result.stdout)
         self.assertEqual(self.git(self.repo, "branch", "--show-current").stdout.strip(), "main")
         local = self.git(self.repo, "rev-parse", "HEAD").stdout.strip()
         remote = self.git(None, "--git-dir", str(self.remote), "rev-parse", "refs/heads/main").stdout.strip()
         self.assertEqual(local, remote)
+
+    def test_existing_staging_excludes_unstaged_and_untracked_changes(self) -> None:
+        staged = self.repo / "staged.txt"
+        unstaged = self.repo / "unstaged.txt"
+        untracked = self.repo / "untracked.txt"
+        staged.write_text("staged change\\n", encoding="utf-8")
+        self.git(self.repo, "add", "staged.txt")
+        unstaged.write_text("unstaged change\\n", encoding="utf-8")
+        untracked.write_text("untracked change\\n", encoding="utf-8")
+
+        result = self.run_sync("y\\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Perubahan unstaged/untracked akan tetap di luar commit ini", result.stdout)
+        committed = self.git(self.repo, "show", "--pretty=format:", "--name-only", "HEAD").stdout.splitlines()
+        self.assertEqual(committed, ["staged.txt"])
+        self.assertTrue(unstaged.exists())
+        self.assertTrue(untracked.exists())
+        self.assertEqual(self.git(self.repo, "status", "--short").stdout.splitlines(), [" M unstaged.txt", "?? untracked.txt"])
 
     def test_non_main_branch_is_rejected_without_switching(self) -> None:
         self.git(self.repo, "switch", "-c", "work")

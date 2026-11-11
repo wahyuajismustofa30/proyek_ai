@@ -1,4 +1,4 @@
-/* DEKEKU shop components — extends Master Theme tokens without changing them. */
+/* DEKEKU catalogue components — extends Master Theme tokens without changing them. */
 .shop-toolbar{display:grid;grid-template-columns:1.5fr repeat(3,minmax(0,1fr));gap:12px;margin:28px 0}
 .shop-control{width:100%;min-height:48px;padding:11px 14px;border:1px solid var(--border-input);border-radius:var(--radius-md);background:var(--surface);color:var(--text-primary)}
 .shop-count{color:var(--text-secondary);font-size:13px;margin:0 0 18px}
@@ -9,39 +9,14 @@
 .shop-card-meta{color:var(--text-secondary);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .shop-card h3{margin:8px 0;font-size:16px;line-height:1.45}
 .shop-card-price{margin:auto 0 14px;color:var(--text-primary);font-size:14px;font-weight:800}
-.shop-card-actions{display:flex;flex-wrap:wrap;gap:8px;width:100%}
-.shop-card-actions .button{flex:1}
+.shop-card-actions{display:flex;gap:10px;width:100%}
+.shop-icon-action{display:inline-grid;place-items:center;width:42px;height:42px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text-primary);transition:background .2s ease,border-color .2s ease}
+.shop-icon-action:hover{border-color:var(--border-strong);background:var(--surface-muted)}
+.shop-icon-action svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .shop-pagination{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:28px}
 .shop-pagination button{min-width:44px}
 .shop-empty{padding:36px 22px;border:1px dashed var(--border-strong);border-radius:var(--radius-lg);text-align:center;color:var(--text-secondary)}
-.shop-dialog{width:min(560px,calc(100% - 28px));max-height:min(85vh,760px);padding:0;border:1px solid var(--border);border-radius:var(--radius-xl);background:var(--surface);color:var(--text-primary);box-shadow:var(--shadow-md)}
-.shop-dialog::backdrop{background:var(--overlay)}
-.shop-dialog-inner{padding:24px}
-.shop-dialog-image{width:100%;max-height:250px;object-fit:cover;border-radius:var(--radius-md);background:var(--surface-muted)}
-.shop-dialog h2{margin:18px 0 8px;font-size:var(--fs-h3)}
-.shop-dialog-close{float:right}
 .shop-status{min-height:24px;margin:12px 0;color:var(--success-fg);font-size:13px}
-.shop-cart-list{display:grid;gap:14px}
-.shop-cart-item{display:grid;grid-template-columns:112px minmax(0,1fr) auto;gap:18px;align-items:center;padding:18px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface)}
-.shop-cart-item img{width:112px;aspect-ratio:1;object-fit:cover;border-radius:var(--radius-md);background:var(--surface-muted)}
-.shop-cart-item h3{margin:0 0 5px;font-size:16px}
-.shop-cart-item p{margin:3px 0;color:var(--text-secondary);font-size:13px}
-.shop-cart-item input{width:76px;min-height:42px;padding:8px;border:1px solid var(--border-input);border-radius:var(--radius-md);background:var(--surface);color:var(--text-primary)}
-.shop-cart-price{font-weight:800;white-space:nowrap}
-.shop-cart-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start}
-.shop-summary{position:sticky;top:100px;padding:22px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface)}
-.shop-summary-line{display:flex;justify-content:space-between;gap:16px;margin:10px 0;color:var(--text-secondary)}
-.shop-summary-total{padding-top:14px;border-top:1px solid var(--border);color:var(--text-primary);font-size:18px;font-weight:800}
-.shop-form{display:grid;gap:16px}
-.shop-field{display:grid;gap:6px}
-.shop-field label{font-size:13px;font-weight:700}
-.shop-field input,.shop-field textarea{width:100%;min-height:48px;padding:12px 14px;border:1px solid var(--border-input);border-radius:var(--radius-md);background:var(--surface);color:var(--text-primary)}
-.shop-field textarea{min-height:110px;resize:vertical}
-.shop-order-list{display:grid;gap:12px;margin-top:18px}
-.shop-order-card{padding:18px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface)}
-.shop-order-card p{margin:5px 0;color:var(--text-secondary);font-size:13px}
-.shop-notice{padding:16px 18px;border-left:3px solid var(--accent);border-radius:0 var(--radius-md) var(--radius-md) 0;background:var(--surface-muted);color:var(--text-secondary);font-size:13px}
-.shop-cart-badge{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-left:5px;padding:0 5px;border-radius:99px;background:var(--accent);color:#fff;font-size:11px;font-weight:800}
-@media(max-width:900px){.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.shop-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.shop-cart-layout{grid-template-columns:1fr}.shop-summary{position:static}}
-@media(max-width:600px){.shop-grid{grid-template-columns:1fr 1fr;gap:10px}.shop-card-body{padding:13px}.shop-card h3{font-size:13px}.shop-card-actions{display:grid}.shop-card-actions .button{width:100%;padding:10px 12px}.shop-toolbar{grid-template-columns:1fr}.shop-cart-item{grid-template-columns:76px minmax(0,1fr);gap:12px;padding:12px}.shop-cart-item img{width:76px}.shop-cart-price{grid-column:2}.shop-dialog-inner{padding:18px}}
+@media(max-width:900px){.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.shop-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.shop-grid{grid-template-columns:1fr 1fr;gap:10px}.shop-card-body{padding:13px}.shop-card h3{font-size:13px}.shop-card-actions{gap:8px}.shop-toolbar{grid-template-columns:1fr}}
 @media(max-width:380px){.shop-grid{grid-template-columns:1fr}}

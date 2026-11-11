@@ -74,7 +74,11 @@ export function readCart() {
       }
       return;
     }
-    cart.push({ cartId, productId, packageId, quantity });
+    const storedPrice = Number(item.priceSnapshot ?? item.price ?? item.harga);
+    cart.push({
+      cartId, productId, packageId, quantity,
+      ...(Number.isFinite(storedPrice) && storedPrice >= 0 ? { priceSnapshot: storedPrice } : {})
+    });
   });
   return cart;
 }
@@ -91,7 +95,10 @@ export function saveCart(cart) {
     .map((item) => ({
       productId: Number(item.productId ?? item.id),
       packageId: Number(item.packageId ?? item.paket_id),
-      quantity: Number(item.quantity ?? item.jumlah)
+      quantity: Number(item.quantity ?? item.jumlah),
+      ...(Number.isFinite(Number(item.priceSnapshot ?? item.price ?? item.harga)) &&
+        Number(item.priceSnapshot ?? item.price ?? item.harga) >= 0
+        ? { priceSnapshot: Number(item.priceSnapshot ?? item.price ?? item.harga) } : {})
     })) : [];
   try {
     localStorage.setItem(CART_KEY, JSON.stringify(clean));
@@ -153,7 +160,7 @@ export function hasStoredPriceMismatch(cart, data) {
     return stored.some((item) => {
       if (!item || typeof item !== "object") return false;
       const id = Number(item.packageId ?? item.paket_id);
-      const oldPrice = item.price ?? item.harga;
+      const oldPrice = item.priceSnapshot ?? item.price ?? item.harga;
       return oldPrice !== undefined && Number(oldPrice) !== packagePrices.get(id);
     });
   } catch {

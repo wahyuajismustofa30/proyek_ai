@@ -182,3 +182,7 @@ h2 span{color:#929292}.intro h2{max-width:790px}.section-lead{color:var(--text-s
   .hero-bottom { gap: 12px; flex-wrap: wrap; }
   .hero-bottom span:last-child { text-align: right; }
 }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .brand img { filter: brightness(0) invert(1); }
+}

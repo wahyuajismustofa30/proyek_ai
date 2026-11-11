@@ -27,17 +27,24 @@ python -m http.server 8000
 
 Lalu buka `http://localhost:8000`.
 
-## Halaman
+## Status implementasi halaman
 
-- **Homepage:** `index.html` — layanan, keunggulan, ringkasan harga, proses, dan FAQ singkat.
-- **Paket & harga:** `pages/paket.html` — rincian paket website dan undangan digital serta FAQ lengkap.
-- **Referensi desain:** `pages/reference/index.html` — dokumen referensi Master Theme v1.6, bukan halaman publikasi.
+- **Homepage:** `index.html` — layanan, keunggulan, ringkasan harga, proses, dan FAQ.
+- **Produk:** `pages/produk.html` — kategori layanan website dan undangan digital.
+- **Paket & harga:** `pages/paket.html` — rincian paket dan FAQ.
+- **Tentang:** `pages/tentang.html` — profil dan perjalanan DEKEKU.
+- **Kontak:** `pages/kontak.html` — kanal WhatsApp dan lokasi Arto Printing.
+- **Status situs:** `404.html`, `500.html`, dan `maintenance.html`.
+- **Referensi desain:** `pages/reference/index.html` — dokumen referensi Master Theme, bukan halaman publik.
+
+Halaman `pages/keranjang.html` dan `pages/order.html` belum dipindahkan. Pada repository referensi, keduanya bergantung pada data katalog, penyimpanan keranjang, modul JavaScript transaksi, dan integrasi pembayaran. Fitur tersebut perlu dipindahkan serta diuji sebagai satu alur agar tidak menghasilkan halaman pemesanan yang hanya tampak tersedia tetapi tidak berfungsi.
+
 
 ## Catatan konten
 
 Harga ringkas pada homepage dan rincian paket lokal harus dijaga konsisten dengan halaman referensi aktif DEKEKU. Periksa kembali harga dan ketentuan sebelum publikasi jika informasi website aktif berubah.
 
-Tautan konsultasi langsung belum dipasang karena alamat WhatsApp resmi belum diverifikasi. Tombol utama sementara diarahkan ke halaman paket.
+Nomor WhatsApp dan informasi lokasi pada halaman kontak mengikuti informasi yang tersedia pada repository referensi DEKEKU. Periksa kembali sebelum publikasi jika informasi kontak berubah.
 
 ## Aset
 

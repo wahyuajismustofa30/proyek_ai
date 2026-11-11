@@ -117,7 +117,7 @@ h2 span{color:#929292}.intro h2{max-width:790px}.section-lead{color:var(--text-s
  .section-space{padding-block:var(--section-spacing-mobile)}
  .container{width:min(calc(100% - 36px),var(--container-width))}
  .nav-wrap{height:66px}.brand img{width:140px}.menu-toggle{display:grid;margin-left:auto}.nav-tools{order:2}.nav-tools>.button{display:none}
- .primary-nav{display:none;position:absolute;top:65px;left:0;right:0;padding:14px 20px 22px;background:var(--background);border-bottom:1px solid var(--border);box-shadow:var(--shadow-soft);align-items:stretch;gap:0}
+ .primary-nav{display:none;position:absolute;top:65px;left:0;right:0;padding:14px 20px 22px;background:var(--background);border-bottom:1px solid var(--border);box-shadow:var(--shadow-md);align-items:stretch;gap:0}
  .primary-nav.is-open{display:grid}.primary-nav a:not(.button){padding:12px 2px;border-bottom:1px solid var(--border);font-size:13px}
  .primary-nav .nav-cta{display:flex;margin-top:13px}.hero{padding:55px 0 22px;min-height:0}
  .hero-grid{grid-template-columns:1fr;gap:0}.hero-copy{padding:0}.hero h1{font-size:clamp(43px,11vw,62px);margin:22px 0 18px}

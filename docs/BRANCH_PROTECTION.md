@@ -1,86 +1,75 @@
 # Perlindungan Branch `main`
 
-Dokumen ini mencatat konfigurasi ruleset GitHub yang diverifikasi secara langsung
-pada **11 November 2026**. Ruleset dapat berubah sewaktu-waktu; periksa kembali
-GitHub Settings → Rules → Rulesets sebelum mengandalkan snapshot ini untuk
-keputusan operasional.
+Dokumen ini mencatat ruleset GitHub yang diverifikasi pada **11 November 2026**.
+Konfigurasi GitHub dapat berubah tanpa perubahan pada repository; periksa kembali
+GitHub Settings → Rules → Rulesets sebelum mengambil keputusan operasional.
 
-## Snapshot ruleset aktif
+## Ruleset aktif
 
 Ruleset **Protect main** (ID `26797557`) berstatus **Active** dan menargetkan
 `refs/heads/main`.
 
-| Aturan | Konfigurasi terverifikasi |
+| Aturan | Status terverifikasi |
 |---|---|
-| Require a pull request before merging | Aktif |
-| Required approvals | 0 |
-| Dismiss stale pull request approvals | Aktif |
-| Require review from Code Owners | Nonaktif |
-| Require approval of the most recent reviewable push | Nonaktif |
-| Require extra approval for unattributed Copilot changes | Aktif |
-| Require conversation resolution | Aktif |
-| Require branches to be up to date | Aktif (strict required status checks) |
-| Required status checks | Tiga job pada tabel berikut |
-| Require linear history | Aktif |
-| Block force pushes / non-fast-forward updates | Aktif |
 | Restrict deletions | Aktif |
-| Allowed merge method | Squash saja |
-| Bypass actors | Tidak ada |
+| Block non-fast-forward updates | Aktif |
+| Require linear history | Aktif |
+| Require a pull request before merging | Tidak dikonfigurasi pada ruleset ini |
+| Required status checks | Tidak dikonfigurasi pada ruleset ini |
+| Required approvals | Tidak dikonfigurasi pada ruleset ini |
 
-### Required status checks
+Ruleset tersebut tidak menetapkan kewajiban Pull Request, approval reviewer,
+atau required status checks. Dengan demikian, alur kerja repository saat ini
+mengizinkan commit langsung ke `main` selama pembaruan memenuhi aturan aktif
+dan dilakukan tanpa force-push.
 
-| Nama check | Workflow |
+Endpoint branch protection klasik yang tersedia melaporkan branch `main`
+sebagai protected, tetapi tidak menyediakan aturan required status checks
+aktif. Dokumen ini merujuk pada aturan yang dapat diverifikasi secara langsung
+dari ruleset **Protect main**; jangan menyimpulkan pengaturan lain yang tidak
+terbaca dari endpoint tersebut.
+
+## Kebijakan kerja
+
+- Gunakan `main` sebagai branch kerja dan tujuan commit/push default.
+- Commit langsung ke `main` diperbolehkan; feature branch dan Pull Request
+  tidak diwajibkan kecuali pengguna secara eksplisit memintanya.
+- Approval Pull Request bukan syarat untuk commit langsung ke `main`.
+- Jangan force-push, menulis ulang riwayat, atau menghapus branch `main`.
+- Pertahankan linear history dan gunakan pembaruan fast-forward.
+- Jangan mengubah ruleset atau pengaturan keamanan GitHub tanpa persetujuan.
+
+## CI dan required status checks
+
+GitHub Actions berjalan pada push ke `main`. Workflow juga dapat berjalan
+pada Pull Request ke `main`, jadwal mingguan, atau pemicu manual sesuai
+konfigurasi masing-masing workflow.
+
+CI tetap berfungsi sebagai pemeriksaan kualitas setelah push. Namun, hasil CI
+tidak dikonfigurasi sebagai **required status checks** pada ruleset aktif
+`Protect main`. Artinya, ruleset tersebut tidak menahan commit langsung
+sampai seluruh workflow selesai.
+
+Nama job yang ada di workflow saat snapshot ini:
+
+| Nama job | Workflow |
 |---|---|
 | `Validate JSON, Python, Markdown, links, and whitespace` | `.github/workflows/validate.yml` |
 | `Scan dependencies with OSV-Scanner` | `.github/workflows/dependency-security.yml` |
 | `Project matrix tests` | `.github/workflows/project-matrix.yml` |
 
-Ketiga nama tersebut cocok dengan job yang didefinisikan dalam workflow pada
-snapshot ini. Ruleset mewajibkan ketiganya dan menerapkan kebijakan strict agar
-branch tujuan harus mutakhir terhadap base branch.
+Nama-nama tersebut adalah job CI, bukan daftar required status checks.
 
-## Persetujuan dan kebijakan maintainer
-
-Required approvals bernilai **0**. Karena itu, aturan PR tidak mewajibkan
-approval reviewer biasa. Code Owner review dan approval atas push terbaru juga
-nonaktif pada snapshot ini.
-
-Pengaturan persetujuan tambahan untuk perubahan Copilot yang tidak teratribusi
-tercatat aktif. Jangan menyimpulkan bahwa pengaturan tersebut menggantikan
-atau menambah jumlah approval biasa; perilaku akhirnya mengikuti kebijakan
-GitHub yang berlaku dan perlu diperiksa kembali bila fitur berubah.
-
-## Cara memeriksa
+## Cara memeriksa ulang
 
 1. Buka repository → **Settings → Rules → Rulesets**.
 2. Pilih **Protect main**.
-3. Verifikasi status enforcement, target branch, aturan PR, jumlah approval,
-   conversation resolution, required checks, bypass actors, dan metode merge.
-4. Cocokkan nama required checks dengan job yang benar-benar dihasilkan workflow.
-5. Perbarui tanggal dan isi snapshot ini setelah verifikasi live berikutnya.
+3. Pastikan ruleset berstatus Active dan target mencakup `refs/heads/main`.
+4. Periksa aturan deletion, non-fast-forward, dan linear history.
+5. Periksa apakah ada aturan baru terkait Pull Request atau required status
+   checks.
+6. Cocokkan pemicu dan job CI dengan file workflow di `.github/workflows/`.
 
-Ruleset adalah konfigurasi GitHub yang terpisah dari file repository. Dokumen
-ini merupakan catatan manual dan tidak tersinkron otomatis dengan GitHub
-Settings.
-
-## Kebijakan validasi yang disederhanakan
-
-Mulai perubahan CI pada November 2026, nama tiga required checks di atas
-dipertahankan agar ruleset tidak perlu diubah. Beban pemeriksaan dibedakan
-berdasarkan konteks:
-
-- **Pull request:** JSON yang berubah, Markdown yang berubah, kompilasi Python,
-  unit test repository, validasi project matrix, pemindaian secret, dependency
-  security, dan whitespace.
-- **Push ke `main`, jadwal mingguan, atau run manual:** pemeriksaan repository
-  lengkap, termasuk seluruh JSON, seluruh Markdown, tautan internal, dan
-  validasi HTML/CSS/aset web rekursif.
-- **Web validation pada PR:** dilewati sementara karena validator rekursif
-  saat ini turut memeriksa direktori referensi/arsip yang bukan target website
-  aktif. Pemeriksaan lengkap tetap berjalan pada push ke `main`, jadwal, dan
-  run manual. Hasil `skipped` pada job web tidak menggagalkan aggregate
-  `Project matrix tests`; discovery dan application tests tetap wajib lulus.
-
-Pemindaian Gitleaks dan OSV-Scanner tetap berjalan pada PR. Kesalahan nyata
-pada file yang berubah tetap menggagalkan validasi. Pemeriksaan penuh tetap
-tersedia untuk menangkap masalah lintas-file yang tidak tercakup oleh diff PR.
+Ruleset adalah konfigurasi GitHub yang terpisah dari file repository.
+Dokumen ini merupakan snapshot manual, bukan sinkronisasi otomatis dengan
+GitHub Settings.

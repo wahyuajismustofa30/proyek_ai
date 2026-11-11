@@ -4,15 +4,34 @@
 
 | Workflow | Tanggung jawab |
 |---|---|
-| `.github/workflows/validate.yml` | YAML/schema, JSON, kompilasi Python, unit test tooling, kesegaran indeks, Markdown, link, secret, whitespace |
-| `.github/workflows/project-matrix.yml` | Discovery, pemeriksaan aplikasi yang tersedia, smoke test website statis, validasi HTML/CSS/aset |
+| `.github/workflows/validate.yml` | YAML/schema Dependabot, JSON, kompilasi Python, unit test tooling, kesegaran indeks, Markdown, link internal, secret, whitespace |
+| `.github/workflows/project-matrix.yml` | Discovery proyek, pemeriksaan aplikasi yang tersedia, smoke test website statis, validasi HTML/CSS/aset |
 | `.github/workflows/dependency-security.yml` | OSV-Scanner untuk manifest dan lockfile |
 
-Ruleset **Protect main** terverifikasi aktif pada 11 November 2026 dan
-mewajibkan tiga status checks. Rincian aturan, nama checks, dan tanggal
-verifikasi dicatat di [dokumentasi perlindungan branch](BRANCH_PROTECTION.md).
-Periksa kembali GitHub Settings → Rules → Rulesets karena konfigurasi live
-dapat berubah tanpa perubahan pada file repository.
+Ketiga workflow berjalan pada push ke `main`. Workflow juga memiliki pemicu
+Pull Request ke `main`, jadwal mingguan, atau manual sesuai konfigurasi
+masing-masing file.
+
+## Hubungan CI dengan perlindungan `main`
+
+Ruleset **Protect main** (ID `26797557`) diverifikasi aktif pada
+11 November 2026. Aturan yang terverifikasi adalah perlindungan penghapusan,
+larangan non-fast-forward, dan kewajiban linear history.
+
+Ruleset aktif tidak menetapkan Pull Request, approval, atau required status
+checks. Repository menggunakan kebijakan **Direct Commit to Main**: commit
+langsung ke `main` diperbolehkan dan Pull Request bersifat opsional, kecuali
+pengguna meminta alur berbeda.
+
+CI berjalan setelah push dan memberikan hasil pemeriksaan kualitas serta
+keamanan. Hasil CI bukan gerbang required status checks pada ruleset, sehingga
+workflow yang gagal tidak secara otomatis mencegah commit yang sudah ter-push.
+Periksa hasil Actions setelah push dan tangani kegagalan yang ditemukan.
+
+Rincian aturan perlindungan branch dicatat di
+[dokumentasi perlindungan branch](BRANCH_PROTECTION.md). Periksa kembali
+GitHub Settings → Rules → Rulesets karena konfigurasi live dapat berubah
+tanpa perubahan pada file repository.
 
 ## Prinsip CI adaptif
 
@@ -27,8 +46,8 @@ struktur direktori tertentu. Deteksi dilakukan dari file aktual.
 | Static website | Kenali file `.html` atau `.htm` di root proyek. Pilih `index.html` bila ada, selain itu file pertama secara alfabetis sebagai entrypoint smoke test. |
 | Stack lain | Tetap ditemukan; pemeriksaan aplikasi otomatis berstatus NOTICE sampai adapter yang sesuai tersedia. |
 
-Script `scripts/run_project_checks.py` menjalankan pemeriksaan stack. Script
-ini tidak menyatakan tes lulus jika tes tidak dikonfigurasi. Kesalahan
+Script `scripts/run_project_checks.py` menjalankan pemeriksaan stack.
+Script ini tidak menyatakan tes lulus jika tes tidak dikonfigurasi. Kesalahan
 manifest, instalasi yang dibutuhkan, atau tes yang gagal menghasilkan FAIL.
 
 ### Status pemeriksaan
@@ -56,13 +75,27 @@ python3 scripts/update_project_index.py --check
 CI memeriksa kesesuaian indeks; workflow tidak melakukan commit otomatis ke
 branch pengguna.
 
-## Validasi web dan keamanan
+## Detail validasi
 
-- `scripts/check_static_site.py` menjalankan HTTP smoke test terhadap entrypoint terdeteksi.
-- `scripts/validate_web_projects.py` memeriksa sintaks HTML/CSS, SVG/XML, dan referensi aset lokal. Ini bukan browser compatibility, visual regression, atau audit aksesibilitas penuh.
+- Pada Pull Request, workflow validasi memeriksa JSON dan Markdown yang
+  berubah, menjalankan pemeriksaan repository, pemindaian secret, dan
+  pemeriksaan whitespace.
+- Pada push ke `main`, jadwal, atau pemicu manual, workflow validasi
+  memeriksa seluruh Markdown dan tautan internal serta menjalankan pemeriksaan
+  repository, pemindaian secret, dan whitespace.
+- `scripts/check_static_site.py` menjalankan HTTP smoke test terhadap
+  entrypoint terdeteksi.
+- `scripts/validate_web_projects.py` memeriksa sintaks HTML/CSS, SVG/XML,
+  dan referensi aset lokal. Ini bukan browser compatibility, visual
+  regression, atau audit aksesibilitas penuh.
+- Validasi web rekursif penuh pada `project-matrix.yml` berjalan untuk push
+  ke `main`, jadwal, dan pemicu manual. Job tersebut dilewati pada Pull
+  Request; discovery dan application tests tetap dijalankan dan job agregat
+  menerima status skipped untuk validasi web.
 - Gitleaks memindai secret.
 - OSV-Scanner memindai dependency.
-- Dependabot mengelola pembaruan workflow GitHub Actions dan tooling Python di root. Ecosystem proyek ditambahkan secara eksplisit bila memang digunakan.
+- Dependabot mengelola pembaruan workflow GitHub Actions dan tooling Python
+  di root. Ecosystem proyek ditambahkan secara eksplisit bila memang digunakan.
 
 ## Pemeriksaan lokal
 

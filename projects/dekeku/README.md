@@ -2,25 +2,18 @@
 
 Proyek ini berisi homepage DEKEKU, aset identitas brand, dan halaman referensi Master Theme v1.6.
 
-## Struktur
+## Struktur halaman
 
-```text
-.
-├── index.html                  # Homepage bisnis DEKEKU
-├── pages/
-│   ├── paket.html              # Harga, rincian paket, dan FAQ
-│   └── reference/index.html    # Referensi Master Theme v1.6
-├── assets/
-│   ├── icons/
-│   └── logos/
-├── css/
-│   ├── main.css                # Fondasi bersama
-│   ├── home.css                # Tampilan homepage
-│   └── tokens.css              # Token dasar brand
-├── js/main.js                  # Navigasi dan pengaturan tema
-├── docs/head-snippet.html
-└── manifest.webmanifest
-```
+- `index.html` — halaman utama.
+- `pages/produk.html` — katalog jenis layanan.
+- `pages/paket.html` — paket, harga, dan FAQ.
+- `pages/tentang.html` — profil dan perjalanan DEKEKU.
+- `pages/kontak.html` — kanal konsultasi dan lokasi.
+- `404.html`, `500.html`, dan `maintenance.html` — halaman status situs.
+- `pages/reference/index.html` — referensi desain, bukan halaman publik.
+
+Halaman keranjang dan order pada repository referensi belum dipindahkan. Keduanya bergantung pada alur keranjang, data produk, penyimpanan lokal, dan integrasi pembayaran yang belum menjadi bagian dari implementasi DEKEKU di direktori ini.
+
 
 ## Menjalankan lokal
 

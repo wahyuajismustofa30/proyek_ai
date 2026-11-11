@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Pilihan paket website dan undangan digital DEKEKU, lengkap dengan harga, fitur, dan FAQ.">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0c0c" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="../assets/icons/favicon-48.png" sizes="48x48">
+  <link rel="icon" href="../assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/home.css">
+  <title>Paket & Harga — DEKEKU</title>
+  <style>
+    .package-hero{padding:76px 0 58px;background:var(--surface);border-bottom:1px solid var(--border)}
+    .package-hero h1{max-width:850px;font-size:clamp(42px,6vw,76px);line-height:1.06;letter-spacing:-.065em;margin:24px 0}
+    .package-hero h1 span{color:var(--text-secondary)}
+    .package-hero .section-lead{max-width:650px}
+    .package-section{padding:70px 0}
+    .package-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:28px}
+    .package-card{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:16px;padding:25px;background:var(--surface);min-height:100%}
+    .package-card.featured{border-color:var(--text-primary);box-shadow:0 12px 36px #0000000b}
+    .package-label{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--text-secondary)}
+    .package-card h3{font-size:21px;letter-spacing:-.04em;margin:18px 0 8px}
+    .package-price{font-size:32px;font-weight:800;letter-spacing:-.06em;margin:12px 0 3px}
+    .package-price small{font-size:12px;font-weight:600;letter-spacing:0;color:var(--text-secondary)}
+    .package-desc{font-size:13px;line-height:1.8;color:var(--text-secondary);min-height:68px}
+    .package-list{list-style:none;padding:0;margin:20px 0 26px;display:grid;gap:12px;font-size:13px}
+    .package-list li{padding-left:20px;position:relative;line-height:1.55}
+    .package-list li:before{content:"✓";position:absolute;left:0;color:var(--text-secondary)}
+    .package-card .button{margin-top:auto;justify-content:center}
+    .package-note{font-size:12px;color:var(--text-secondary);line-height:1.8;margin-top:18px}
+    .package-faq{padding:70px 0;background:var(--surface)}
+    .package-cta{padding:65px 0;background:#0c0c0c;color:#fff}
+    .package-cta h2{font-size:clamp(34px,5vw,58px);letter-spacing:-.06em;line-height:1.1;margin:22px 0}
+    .package-cta p{color:#aaa;max-width:570px;line-height:1.8}
+    @media(max-width:850px){.package-grid{grid-template-columns:1fr 1fr}.package-card{padding:20px}}
+    @media(max-width:600px){.package-hero{padding:55px 0 42px}.package-grid{grid-template-columns:1fr}.package-card{min-height:0}.package-desc{min-height:0}.package-section,.package-faq{padding:52px 0}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Lewati ke konten</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="../index.html" aria-label="DEKEKU, beranda"><img src="../assets/logos/dekeku-logo-horizontal.svg" alt="DEKEKU" width="176" height="40"></a>
+      <button class="icon-button menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Buka navigasi"><span></span><span></span></button>
+      <nav class="primary-nav" id="primary-nav" aria-label="Navigasi utama">
+        <a href="../index.html#layanan">Layanan</a><a href="../index.html#keunggulan">Keunggulan</a><a href="../index.html#harga">Harga</a><a href="../index.html#proses">Proses</a>
+        <a class="button button-small button-dark nav-cta" href="#paket-undangan">Pilih Paket</a>
+      </nav>
+      <div class="nav-tools">
+        <button class="icon-button theme-toggle" id="theme-toggle" type="button" aria-label="Aktifkan tema gelap" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 15.2A8.5 8.5 0 0 1 8.8 3.8 8.5 8.5 0 1 0 20.2 15.2Z"/></svg></button>
+        <a class="button button-small button-dark" href="#paket-website">Paket Website <span aria-hidden="true">↓</span></a>
+      </div>
+    </div>
+  </header>
+  <main id="main">
+    <section class="package-hero">
+      <div class="container">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> DEKEKU / PAKET & HARGA</p>
+        <h1>Mulai dari kebutuhan.<br><span>Pilih yang paling sesuai.</span></h1>
+        <p class="section-lead">Tidak semua website punya kebutuhan yang sama. Kami menawarkan harga fleksibel sesuai fitur, tampilan, dan tingkat aktivitas situs Anda.</p>
+      </div>
+    </section>
+    <section class="package-section" id="paket-undangan">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow"><span class="eyebrow-dot"></span> 01 / DIGITAL INVITATION</p><h2>Harga paket<br><span>undangan digital.</span></h2></div><p class="section-lead">Undangan online yang praktis dan personal untuk momen istimewa.</p></div>
+        <div class="package-grid">
+          <article class="package-card"><span class="package-label">ILLUSTRATION</span><h3>Ghibli</h3><p class="package-price">Rp75K <small>/ sekali bayar</small></p><p class="package-desc">Undangan digital bergaya ilustrasi, cocok untuk acara keluarga atau syukuran religius.</p><ul class="package-list"><li>Desain tema standar</li><li>Foto ilustrasi Ghibli</li><li>Subdomain gratis</li><li>Pengerjaan 1–2 hari</li></ul><a class="button button-dark" href="../index.html#proses">Pesan Sekarang ↗</a></article>
+          <article class="package-card"><span class="package-label">PREWEDDING</span><h3>Prewedding</h3><p class="package-price">Rp99K <small>/ sekali bayar</small></p><p class="package-desc">Desain romantis dengan foto prewedding, tampil elegan dan berkesan.</p><ul class="package-list"><li>Desain tema standar</li><li>Foto custom</li><li>Subdomain gratis</li><li>Pengerjaan 1–3 hari</li></ul><a class="button button-dark" href="../index.html#proses">Pesan Sekarang ↗</a></article>
+          <article class="package-card featured"><span class="package-label">PREMIUM</span><h3>Premium</h3><p class="package-price">Rp119K <small>/ sekali bayar</small></p><p class="package-desc">Undangan digital dengan layout unik dan animasi ringan untuk kesan eksklusif.</p><ul class="package-list"><li>Desain premium</li><li>Fitur lengkap</li><li>Subdomain gratis</li><li>Pengerjaan 2–4 hari</li></ul><a class="button button-dark" href="../index.html#proses">Pesan Sekarang ↗</a></article>
+        </div>
+      </div>
+    </section>
+    <section class="package-section" id="paket-website" style="background:var(--surface)">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow"><span class="eyebrow-dot"></span> 02 / WEB BUILDER</p><h2>Harga layanan<br><span>web builder.</span></h2></div><p class="section-lead">Website untuk bisnis, personal, portofolio, atau katalog sederhana.</p></div>
+        <div class="package-grid">
+          <article class="package-card"><span class="package-label">STATIC WEBSITE</span><h3>Website Statis</h3><p class="package-price">Rp0K <small>/ bulan</small></p><p class="package-desc">Halaman statis seperti portofolio, landing page, atau profil usaha tanpa data produk dan tanpa biaya bulanan.</p><ul class="package-list"><li>Setting awal Rp150K</li><li>Desain pilihan template</li><li>Perawatan tidak termasuk</li><li>Subdomain gratis dekeku.my.id</li></ul><a class="button button-dark" href="../index.html#proses">Pesan Sekarang ↗</a></article>
+          <article class="package-card"><span class="package-label">SMALL BUSINESS</span><h3>Usaha Kecil</h3><p class="package-price">Rp45K <small>/ bulan</small></p><p class="package-desc">Paket cocok untuk usaha kecil dengan daftar produk statis.</p><ul class="package-list"><li>Setting awal Rp155K</li><li>Update konten maks. 4x/bulan</li><li>Perawatan termasuk</li><li>Subdomain gratis dekeku.my.id</li></ul><a class="button button-dark" href="../index.html#proses">Pesan Sekarang ↗</a></article>
+          <article class="package-card featured"><span class="package-label">SME / UKM</span><h3>UKM</h3><p class="package-price">Rp95K <small>/ bulan</small></p><p class="package-desc">Untuk UKM yang membutuhkan kehadiran web profesional dengan perawatan rutin.</p><ul class="package-list"><li>Setting awal Rp205K</li><li>Update konten maks. 4x/bulan</li><li>Perawatan termasuk</li><li>Subdomain gratis dekeku.my.id</li></ul><a class="button button-dark" href="../index.html#proses">Pesan Sekarang ↗</a></article>
+        </div>
+        <p class="package-note">Harga dan rincian mengikuti informasi paket yang tersedia. Domain sendiri dapat digunakan; subdomain gratis tersedia sesuai ketentuan. Penambahan halaman atau fitur khusus dikonsultasikan terpisah.</p>
+      </div>
+    </section>
+    <section class="package-faq">
+      <div class="container faq-grid">
+        <div><p class="eyebrow"><span class="eyebrow-dot"></span> GOOD TO KNOW</p><h2>FAQ —<br><span>Pertanyaan umum.</span></h2><p class="section-lead">Informasi sebelum memulai website atau undangan digital.</p></div>
+        <div class="faq-list">
+          <details><summary>Apakah saya bisa menggunakan domain sendiri?<span>+</span></summary><p>Bisa. Anda dapat menggunakan domain milik sendiri atau subdomain gratis dari dekeku.my.id tanpa biaya tambahan.</p></details>
+          <details><summary>Apakah ada biaya perawatan?<span>+</span></summary><p>Paket bulanan mencakup perawatan ringan seperti revisi konten dan update postingan. Penambahan halaman baru dikenakan biaya sesuai kesepakatan.</p></details>
+          <details><summary>Bisa request fitur tambahan?<span>+</span></summary><p>Bisa. Kebutuhan formulir, galeri, katalog, atau fitur interaktif dapat dikonsultasikan. Biaya tambahan diinformasikan saat konsultasi.</p></details>
+          <details><summary>Apakah bisa melihat demo sebelum publikasi?<span>+</span></summary><p>Ya. Anda menerima tautan preview untuk meninjau dan merevisi sebelum rilis resmi.</p></details>
+          <details><summary>Apa saja yang perlu disiapkan?<span>+</span></summary><p>Deskripsi usaha/personal, logo, gambar dan teks konten, kontak serta media sosial, dan referensi desain jika ada.</p></details>
+          <details><summary>Apakah website bisa tampil di Google?<span>+</span></summary><p>Website disiapkan agar SEO-friendly dan dapat ditemukan Google setelah dirilis.</p></details>
+          <details><summary>Bisa menambahkan form kontak atau pemesanan?<span>+</span></summary><p>Bisa. Form kontak, pemesanan, dan kebutuhan interaktif lainnya dapat ditambahkan sesuai kebutuhan.</p></details>
+        </div>
+      </div>
+    </section>
+    <section class="package-cta"><div class="container"><p class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span> LET'S MAKE IT REAL</p><h2>Ada ide yang ingin<br><em>diwujudkan?</em></h2><p>Ceritakan kebutuhan Anda. Kami bantu memilih layanan dan paket yang sesuai untuk memulainya.</p><div style="margin-top:26px"><a class="button button-light" href="../index.html#proses">Mulai dari proses DEKEKU ↗</a></div></div></section>
+  </main>
+  <footer class="site-footer"><div class="container footer-top"><div class="footer-brand"><a href="../index.html"><img src="../assets/logos/dekeku-logo-horizontal-white.svg" alt="DEKEKU" width="160" height="36"></a><p>Your Digital Space.</p></div><div class="footer-links"><div><b>Jelajahi</b><a href="../index.html#layanan">Layanan</a><a href="../index.html#harga">Harga</a><a href="../index.html#proses">Proses</a></div><div><b>Informasi</b><a href="paket.html">Paket & FAQ</a><a href="https://www.dekeku.my.id/">Website DEKEKU</a></div></div></div><div class="container footer-bottom"><span>© <span id="year">2026</span> DEKEKU. All rights reserved.</span><span>Made for ideas that matter.</span></div></footer>
+  <script src="../js/main.js" defer></script>
+</body>
+</html>

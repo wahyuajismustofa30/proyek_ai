@@ -2,26 +2,187 @@
 <html lang="id">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0C0C0C">
-  <meta name="description" content="DEKEKU — Your Digital Space. Identitas dan referensi desain.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="DEKEKU membantu bisnis dan personal membangun kehadiran digital melalui website dan undangan digital.">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0c0c" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="assets/icons/favicon-48.png" sizes="48x48">
   <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/home.css">
   <title>DEKEKU — Your Digital Space</title>
-  <style>
-    :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0c0c0c;color:#fff}
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:2rem}
-    main{text-align:center;max-width:42rem}img{width:min(100%,22rem);height:auto}p{color:#b8b8b8;line-height:1.7}
-    a{display:inline-block;color:#0c0c0c;background:#fff;padding:.8rem 1.2rem;border-radius:.65rem;text-decoration:none;font-weight:600}
-  </style>
 </head>
 <body>
-  <main>
-    <img src="assets/logos/dekeku-logo-horizontal-white.svg" alt="DEKEKU — Your Digital Space">
-    <p>Identitas visual dan referensi sistem desain DEKEKU.</p>
-    <a href="pages/reference/index.html">Buka Referensi Tema</a>
+  <a class="skip-link" href="#main">Lewati ke konten</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="#beranda" aria-label="DEKEKU, beranda">
+        <img src="assets/logos/dekeku-logo-horizontal.svg" alt="DEKEKU" width="176" height="40">
+      </a>
+      <button class="icon-button menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Buka navigasi">
+        <span></span><span></span>
+      </button>
+      <nav class="primary-nav" id="primary-nav" aria-label="Navigasi utama">
+        <a href="#layanan">Layanan</a>
+        <a href="#keunggulan">Keunggulan</a>
+        <a href="#harga">Harga</a>
+        <a href="#proses">Proses</a>
+        <a class="button button-small button-dark nav-cta" href="https://www.dekeku.my.id/pages/paket.html">Lihat Paket</a>
+      </nav>
+      <div class="nav-tools">
+        <button class="icon-button theme-toggle" id="theme-toggle" type="button" aria-label="Aktifkan tema gelap" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 15.2A8.5 8.5 0 0 1 8.8 3.8 8.5 8.5 0 1 0 20.2 15.2Z"/></svg>
+        </button>
+        <a class="button button-small button-dark" href="https://www.dekeku.my.id/pages/paket.html">Mulai Sekarang <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="beranda">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span> YOUR DIGITAL SPACE</span>
+          <h1>Ide hebat layak punya <span>ruang digital</span> yang tepat.</h1>
+          <p class="hero-lead">Dari website untuk bisnis hingga undangan digital untuk momen istimewa. Kami bantu wujudkan tampilan online yang terasa lebih personal dan profesional.</p>
+          <div class="hero-actions">
+            <a class="button button-light" href="#layanan">Jelajahi Layanan <span aria-hidden="true">↓</span></a>
+            <a class="text-link text-link-light" href="https://www.dekeku.my.id/pages/paket.html">Lihat pilihan paket <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="hero-note"><span class="note-mark">✳</span><span>Dirancang sesuai kebutuhan. Dibangun untuk memberi kesan.</span></div>
+        </div>
+        <div class="hero-art" aria-label="Ilustrasi tampilan website dan undangan digital" role="img">
+          <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+          <div class="browser-card">
+            <div class="browser-top"><span></span><span></span><span></span><i>yourbrand.id</i></div>
+            <div class="browser-content">
+              <div class="browser-brand"><b>BRAND.</b><span>ABOUT&nbsp;&nbsp; WORK&nbsp;&nbsp; CONTACT</span></div>
+              <div class="browser-title">Make your<br><em>ideas matter.</em></div>
+              <div class="browser-line"></div><div class="browser-line short"></div>
+              <div class="browser-action">EXPLORE MORE ↗</div>
+              <div class="browser-shape"></div>
+            </div>
+          </div>
+          <div class="invite-card">
+            <div class="invite-frame"><span class="invite-kicker">THE WEDDING OF</span><strong>A & R</strong><span class="invite-script">A special day</span><span class="invite-date">SAVE THE DATE · 12.12.26</span></div>
+          </div>
+          <div class="floating-stamp"><span>IDEA</span><b>↗</b><span>TO ONLINE</span></div>
+          <div class="hero-caption">DESIGN THAT FEELS LIKE YOU.</div>
+        </div>
+      </div>
+      <div class="hero-bottom container"><span>DESIGN · DIGITAL · EXPERIENCE</span><span>SCROLL TO EXPLORE ↓</span></div>
+    </section>
+
+    <section class="intro section-space">
+      <div class="container intro-grid">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> HELLO, WE ARE DEKEKU</p>
+        <div><h2>Bukan sekadar tampil online. Ini tentang bagaimana orang <span>mengenal Anda.</span></h2><p class="section-lead">Setiap bisnis punya cerita. Setiap momen punya makna. DEKEKU menghadirkan solusi digital yang membantu keduanya tampil lebih baik di dunia online.</p></div>
+      </div>
+    </section>
+
+    <section class="services section-space" id="layanan">
+      <div class="container">
+        <div class="section-heading">
+          <div><p class="eyebrow"><span class="eyebrow-dot"></span> WHAT WE DO</p><h2>Dua kebutuhan,<br><span>satu ruang kreatif.</span></h2></div>
+          <p class="section-lead">Pilih layanan yang paling sesuai dengan kebutuhan Anda. Kami bantu dari konsep hingga siap ditampilkan.</p>
+        </div>
+        <div class="service-grid">
+          <article class="service-card service-web">
+            <div class="service-visual web-visual" aria-hidden="true">
+              <div class="mini-window"><div class="mini-window-bar"><i></i><i></i><i></i></div><div class="mini-site"><b>YOUR BRAND</b><span class="mini-nav">HOME&nbsp;&nbsp; ABOUT&nbsp;&nbsp; CONTACT</span><strong>Build your<br>digital presence.</strong><i class="mini-cta"></i><div class="mini-panels"><i></i><i></i><i></i></div></div></div>
+              <span class="visual-label">01 / WEB BUILDER</span>
+            </div>
+            <div class="service-content"><div class="service-index">01 — WEBSITE</div><h3>Website untuk bisnis & personal</h3><p>Bangun kehadiran online melalui website profil, landing page, portofolio, atau katalog sederhana yang mencerminkan identitas Anda.</p><a class="arrow-link" href="https://www.dekeku.my.id/pages/paket.html">Jelajahi layanan website <span>↗</span></a></div>
+          </article>
+          <article class="service-card service-invite">
+            <div class="service-visual invite-visual" aria-hidden="true">
+              <div class="paper-invite"><span>YOU ARE INVITED TO</span><b>Our<br>Wedding</b><i>the beginning of forever</i><small>12 · 12 · 2026</small></div>
+              <div class="paper-shadow"></div><span class="visual-label">02 / DIGITAL INVITATION</span>
+            </div>
+            <div class="service-content"><div class="service-index">02 — INVITATION</div><h3>Undangan digital</h3><p>Bagikan kabar bahagia dengan undangan online yang praktis, personal, dan dirancang untuk membuat momen istimewa semakin berkesan.</p><a class="arrow-link" href="https://www.dekeku.my.id/pages/paket.html">Jelajahi undangan digital <span>↗</span></a></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="manifesto section-space" id="keunggulan">
+      <div class="container manifesto-inner">
+        <p class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span> THE DEKEKU APPROACH</p>
+        <h2>Digital presence should feel <em>effortless.</em></h2>
+        <div class="manifesto-bottom"><p>Kami percaya solusi digital yang baik bukan hanya menarik dilihat. Ia harus mudah dipahami, nyaman digunakan, dan sesuai dengan tujuan pemiliknya.</p><span class="manifesto-symbol">D<span>.</span></span></div>
+      </div>
+    </section>
+
+    <section class="benefits section-space">
+      <div class="container">
+        <div class="section-heading compact-heading"><div><p class="eyebrow"><span class="eyebrow-dot"></span> WHY DEKEKU</p><h2>Hal sederhana yang<br><span>membuat perbedaan.</span></h2></div></div>
+        <div class="benefit-grid">
+          <article class="benefit-item"><span class="benefit-no">01</span><div><h3>Desain yang terarah</h3><p>Tampilan disusun dengan hierarki yang jelas agar identitas dan informasi mudah dikenali.</p></div><span class="benefit-icon">↗</span></article>
+          <article class="benefit-item"><span class="benefit-no">02</span><div><h3>Nyaman di berbagai layar</h3><p>Layout responsif agar website tetap nyaman dibuka melalui ponsel, tablet, maupun desktop.</p></div><span class="benefit-icon">⌘</span></article>
+          <article class="benefit-item"><span class="benefit-no">03</span><div><h3>Proses yang jelas</h3><p>Mulai dari kebutuhan, pilihan desain, preview, hingga publikasi disampaikan dengan alur yang mudah diikuti.</p></div><span class="benefit-icon">◎</span></article>
+          <article class="benefit-item"><span class="benefit-no">04</span><div><h3>Fleksibel sesuai kebutuhan</h3><p>Fitur dan tampilan dapat dibicarakan agar solusi yang dibuat tidak berlebihan maupun kurang tepat.</p></div><span class="benefit-icon">✳</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing section-space" id="harga">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow"><span class="eyebrow-dot"></span> SIMPLE & TRANSPARENT</p><h2>Mulai dari kebutuhan.<br><span>Pilih yang sesuai.</span></h2></div><p class="section-lead">Pilihan paket untuk website dan undangan digital. Detail fitur dan ketentuan tersedia di halaman paket.</p></div>
+        <div class="price-groups">
+          <div class="price-group"><div class="price-group-head"><span>01 / DIGITAL INVITATION</span><h3>Undangan digital</h3><p>Untuk berbagi momen istimewa.</p></div><div class="price-list">
+            <a class="price-row" href="https://www.dekeku.my.id/pages/paket.html"><span><b>Ghibli</b><small>Ilustrasi · tema standar</small></span><strong>Rp75K</strong><span class="price-arrow">↗</span></a>
+            <a class="price-row" href="https://www.dekeku.my.id/pages/paket.html"><span><b>Prewedding</b><small>Foto custom · tema standar</small></span><strong>Rp99K</strong><span class="price-arrow">↗</span></a>
+            <a class="price-row" href="https://www.dekeku.my.id/pages/paket.html"><span><b>Premium</b><small>Layout unik · fitur lengkap</small></span><strong>Rp119K</strong><span class="price-arrow">↗</span></a>
+          </div></div>
+          <div class="price-group"><div class="price-group-head"><span>02 / WEB BUILDER</span><h3>Website bisnis</h3><p>Untuk usaha, personal, dan portofolio.</p></div><div class="price-list">
+            <a class="price-row" href="https://www.dekeku.my.id/pages/paket.html"><span><b>Basic</b><small>Statis · tanpa biaya bulanan</small></span><strong>Rp0K<small>/bulan</small></strong><span class="price-arrow">↗</span></a>
+            <a class="price-row" href="https://www.dekeku.my.id/pages/paket.html"><span><b>Business</b><small>Update konten · perawatan</small></span><strong>Rp45K<small>/bulan</small></strong><span class="price-arrow">↗</span></a>
+            <a class="price-row" href="https://www.dekeku.my.id/pages/paket.html"><span><b>Professional</b><small>Untuk kebutuhan UKM</small></span><strong>Rp95K<small>/bulan</small></strong><span class="price-arrow">↗</span></a>
+          </div></div>
+        </div>
+        <div class="pricing-footnote"><span>* Biaya setting awal berlaku untuk paket website. Detail harga, fitur, dan ketentuan dapat dilihat pada halaman paket.</span><a class="arrow-link" href="https://www.dekeku.my.id/pages/paket.html">Lihat detail semua paket <span>↗</span></a></div>
+      </div>
+    </section>
+
+    <section class="process section-space" id="proses">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow"><span class="eyebrow-dot"></span> HOW IT WORKS</p><h2>Dari ide menjadi<br><span>siap dibagikan.</span></h2></div><p class="section-lead">Alur kerja yang sederhana membantu Anda mengetahui apa yang perlu disiapkan di setiap tahap.</p></div>
+        <div class="process-grid">
+          <article><span>01</span><h3>Ceritakan kebutuhan</h3><p>Tentukan jenis layanan, tujuan, dan gambaran hasil yang diinginkan.</p></article>
+          <article><span>02</span><h3>Pilih konsep</h3><p>Diskusikan tampilan, konten, fitur, serta paket yang sesuai.</p></article>
+          <article><span>03</span><h3>Tinjau preview</h3><p>Periksa hasil awal dan sampaikan penyesuaian sesuai kesepakatan.</p></article>
+          <article><span>04</span><h3>Publikasi</h3><p>Setelah disetujui, website atau undangan siap dibagikan secara online.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq section-space">
+      <div class="container faq-grid">
+        <div><p class="eyebrow"><span class="eyebrow-dot"></span> GOOD TO KNOW</p><h2>Punya pertanyaan?<br><span>Mulai dari sini.</span></h2><p class="section-lead">Beberapa hal yang sering ditanyakan sebelum memulai proyek.</p><a class="arrow-link" href="https://www.dekeku.my.id/pages/paket.html">Baca informasi paket <span>↗</span></a></div>
+        <div class="faq-list">
+          <details><summary>Apakah bisa menggunakan domain sendiri?<span>+</span></summary><p>Bisa. Anda dapat menggunakan domain milik sendiri atau memilih subdomain gratis dari dekeku.my.id sesuai ketentuan layanan.</p></details>
+          <details><summary>Apakah bisa meminta fitur tambahan?<span>+</span></summary><p>Bisa. Kebutuhan seperti formulir, galeri, katalog, atau fitur interaktif dapat dikonsultasikan. Biaya tambahan akan diinformasikan sebelum pengerjaan.</p></details>
+          <details><summary>Apakah saya bisa melihat hasil sebelum dipublikasikan?<span>+</span></summary><p>Ya. Anda akan menerima tautan preview untuk meninjau hasil dan menyampaikan revisi sebelum rilis resmi.</p></details>
+          <details><summary>Apa yang perlu disiapkan?<span>+</span></summary><p>Siapkan deskripsi usaha atau acara, logo, gambar, teks konten, kontak, dan referensi desain jika tersedia.</p></details>
+          <details><summary>Apakah website bisa dibuka dari ponsel?<span>+</span></summary><p>Ya. Website dirancang responsif agar dapat digunakan pada ponsel, tablet, dan desktop.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing">
+      <div class="container closing-inner"><p class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span> LET'S MAKE IT REAL</p><h2>Ada ide yang ingin<br><em>diwujudkan?</em></h2><div class="closing-bottom"><p>Ceritakan kebutuhan Anda. Temukan layanan dan paket yang paling sesuai untuk memulainya.</p><a class="button button-light" href="https://www.dekeku.my.id/pages/paket.html">Temukan Paket Anda <span aria-hidden="true">↗</span></a></div><div class="closing-decoration">DEKEKU<span>.</span></div></div>
+    </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="container footer-top"><div class="footer-brand"><a href="#beranda"><img src="assets/logos/dekeku-logo-horizontal-white.svg" alt="DEKEKU" width="160" height="36"></a><p>Your Digital Space.</p></div><div class="footer-links"><div><b>Jelajahi</b><a href="#layanan">Layanan</a><a href="#harga">Harga</a><a href="#proses">Proses</a></div><div><b>Informasi</b><a href="https://www.dekeku.my.id/pages/paket.html">Paket & FAQ</a><a href="https://www.dekeku.my.id">Website DEKEKU</a></div></div></div>
+    <div class="container footer-bottom"><span>© <span id="year">2026</span> DEKEKU. All rights reserved.</span><span>Made for ideas that matter.</span></div>
+  </footer>
+  <script src="js/main.js" defer></script>
 </body>
 </html>

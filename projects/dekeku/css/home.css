@@ -165,6 +165,7 @@ h2 span{color:#929292}.intro h2{max-width:790px}.section-lead{color:var(--text-s
 }
 .price-row:focus-visible { outline-offset: 5px; }
 @media (max-width: 900px) {
+  .primary-nav .nav-cta { display: flex; }
   .nav-wrap { gap: 16px; }
   .primary-nav { gap: 14px; }
   .primary-nav a:not(.button) { font-size: 11px; }

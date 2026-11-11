@@ -192,12 +192,13 @@ form.addEventListener("submit", (event) => {
   const previousOrder = getHistory().find((entry) => {
     const age = Date.now() - new Date(entry.waktu).getTime();
     if (!Number.isFinite(age) || age < 0 || age > 30 * 60 * 1000 ||
-        entry.customer.name !== name || entry.customer.phone !== phone ||
+        entry.customer.name !== name || entry.customer.phone !== phone || entry.customer.notes !== notes ||
         !Array.isArray(entry.items) || entry.items.length !== resolved.items.length) return false;
     return resolved.items.every((item) => entry.items.some((old) =>
       Number(old.productId) === item.productId &&
       Number(old.packageId) === item.packageId &&
-      Number(old.quantity) === item.quantity
+      Number(old.quantity) === item.quantity &&
+      Number(old.price) === item.price
     ));
   });
   if (previousOrder) {

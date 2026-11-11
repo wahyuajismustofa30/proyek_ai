@@ -186,7 +186,7 @@ function openProduct(product) {
     }
     status.textContent = cartIssues
       ? `${product.nama} ditambahkan. ${cartIssues} item rusak dilewati; item valid tetap dipertahankan.`
-      : `${product.nama} ditambahkan. Jumlah dalam keranjang: ${currentQuantity + qty + (existing ? 0 : 0)}.`;
+      : `${product.nama} ditambahkan. Jumlah dalam keranjang: ${currentQuantity + qty}.`;
     dialog.close();
   });
   dialogContent.append(field, quantityField, add);

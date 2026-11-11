@@ -7,7 +7,9 @@ Proyek ini berisi homepage DEKEKU, aset identitas brand, dan halaman referensi M
 ```text
 .
 ├── index.html                  # Homepage bisnis DEKEKU
-├── pages/reference/index.html  # Referensi Master Theme v1.6
+├── pages/
+│   ├── paket.html              # Harga, rincian paket, dan FAQ
+│   └── reference/index.html    # Referensi Master Theme v1.6
 ├── assets/
 │   ├── icons/
 │   └── logos/
@@ -34,13 +36,13 @@ Lalu buka `http://localhost:8000`.
 
 ## Halaman
 
-- **Homepage:** `index.html`
-- **Referensi desain:** `pages/reference/index.html`
-- **Informasi paket aktif:** [dekeku.my.id/pages/paket.html](https://www.dekeku.my.id/pages/paket.html)
+- **Homepage:** `index.html` — layanan, keunggulan, ringkasan harga, proses, dan FAQ singkat.
+- **Paket & harga:** `pages/paket.html` — rincian paket website dan undangan digital serta FAQ lengkap.
+- **Referensi desain:** `pages/reference/index.html` — dokumen referensi Master Theme v1.6, bukan halaman publikasi.
 
 ## Catatan konten
 
-Harga pada homepage mengikuti informasi paket yang tersedia pada halaman paket DEKEKU. Detail fitur, biaya setting awal, dan ketentuan tetap merujuk ke halaman paket tersebut.
+Harga ringkas pada homepage dan rincian paket lokal harus dijaga konsisten dengan halaman referensi aktif DEKEKU. Periksa kembali harga dan ketentuan sebelum publikasi jika informasi website aktif berubah.
 
 Tautan konsultasi langsung belum dipasang karena alamat WhatsApp resmi belum diverifikasi. Tombol utama sementara diarahkan ke halaman paket.
 

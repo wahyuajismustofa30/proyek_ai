@@ -13,7 +13,10 @@ confirm(){
 git_cmd(){ git -C "$REPO" "$@"; }
 
 scan_staged_secrets(){
-  command -v gitleaks >/dev/null 2>&1 || fail "Gitleaks belum terpasang. Pasang Gitleaks sebelum membuat commit: https://github.com/gitleaks/gitleaks#installing"
+  if ! command -v gitleaks >/dev/null 2>&1; then
+    info "${YELLOW}NOTICE:${RESET} Gitleaks belum terpasang; pemindaian lokal dilewati. Pasang Gitleaks untuk mengaktifkan pemeriksaan sebelum commit: https://github.com/gitleaks/gitleaks#installing"
+    return 0
+  fi
 
   local scan_dir file scan_status
   scan_dir="$(mktemp -d "${TMPDIR:-/tmp}/proyek-ai-gitleaks.XXXXXX")" || fail "Tidak dapat membuat direktori sementara untuk pemindaian secret."

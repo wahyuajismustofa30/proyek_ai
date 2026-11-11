@@ -38,10 +38,12 @@ dependency or maintenance issue rather than a vulnerability.
 
 ## Repository safeguards
 
-The root CI workflows include Gitleaks secret scanning and OSV-Scanner dependency
-scanning. The workflow source also defines pull-request validation jobs. Whether pull
-requests and particular status checks are currently enforced as merge requirements is
-a GitHub ruleset setting and must be verified in repository Settings → Rules → Rulesets.
+The root CI workflow runs OSV-Scanner dependency scanning. This repository does not
+run automated secret scanning; its Termux sync helper retains only basic sensitive-filename
+checks. Keep real credentials, private keys, and production data out of commits. The workflow
+source also defines pull-request validation jobs. Whether pull requests and particular
+status checks are currently enforced as merge requirements is a GitHub ruleset setting and
+must be verified in repository Settings → Rules → Rulesets.
 The last recorded configuration snapshot and its verification limitation are documented
 in [docs/BRANCH_PROTECTION.md](docs/BRANCH_PROTECTION.md).
 

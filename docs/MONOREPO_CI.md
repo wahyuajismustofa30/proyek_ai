@@ -4,7 +4,7 @@
 
 | Workflow | Tanggung jawab |
 |---|---|
-| `.github/workflows/validate.yml` | YAML/schema Dependabot, JSON, kompilasi Python, unit test tooling, kesegaran indeks, Markdown, link internal, secret, whitespace |
+| `.github/workflows/validate.yml` | YAML/schema Dependabot, JSON, kompilasi Python, unit test tooling, kesegaran indeks, Markdown, link internal, whitespace |
 | `.github/workflows/project-matrix.yml` | Discovery proyek, pemeriksaan aplikasi yang tersedia, smoke test website statis, validasi HTML/CSS/aset |
 | `.github/workflows/dependency-security.yml` | OSV-Scanner untuk manifest dan lockfile |
 
@@ -78,11 +78,10 @@ branch pengguna.
 ## Detail validasi
 
 - Pada Pull Request, workflow validasi memeriksa JSON dan Markdown yang
-  berubah, menjalankan pemeriksaan repository, pemindaian secret, dan
-  pemeriksaan whitespace.
+  berubah, menjalankan pemeriksaan repository, pemeriksaan whitespace.
 - Pada push ke `main`, jadwal, atau pemicu manual, workflow validasi
   memeriksa seluruh Markdown dan tautan internal serta menjalankan pemeriksaan
-  repository, pemindaian secret, dan whitespace.
+  repository, dan whitespace.
 - `scripts/check_static_site.py` menjalankan HTTP smoke test terhadap
   entrypoint terdeteksi.
 - `scripts/validate_web_projects.py` memeriksa sintaks HTML/CSS, SVG/XML,
@@ -92,7 +91,7 @@ branch pengguna.
   ke `main`, jadwal, dan pemicu manual. Job tersebut dilewati pada Pull
   Request; discovery dan application tests tetap dijalankan dan job agregat
   menerima status skipped untuk validasi web.
-- Gitleaks memindai secret.
+- Tidak ada pemindaian secret otomatis; helper Termux hanya mempertahankan pemeriksaan dasar nama file sensitif.
 - OSV-Scanner memindai dependency.
 - Dependabot mengelola pembaruan workflow GitHub Actions dan tooling Python
   di root. Ecosystem proyek ditambahkan secara eksplisit bila memang digunakan.

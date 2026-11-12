@@ -26,6 +26,7 @@ PARTIALS = ROOT / "partials"
 # Halaman yang memakai header/footer bersama. Tambahkan halaman baru di sini.
 HALAMAN = [
     "index.html",
+    "blog/index.html",
     "laman/katalog/index.html",
     "laman/layanan/index.html",
     "laman/cara-pesan/index.html",

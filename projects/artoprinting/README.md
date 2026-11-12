@@ -243,7 +243,7 @@ dan ekstensi axe DevTools untuk aksesibilitas.
 ### Generator undangan: CSS dan dependensi
 File `tamu-undangan/style.css` adalah hasil kompilasi Tailwind CSS 4.1.11. Repository saat ini tidak menyediakan `input.css` maupun manifest/lockfile build untuk mereproduksinya. Pertahankan file hasil kompilasi dan jangan menjalankan build ulang sampai sumber serta versi toolchain yang benar tersedia.
 
-Generator memuat `showAlert()` dari jsDelivr. URL yang ada belum mengunci commit immutable dan tidak memiliki Subresource Integrity. Versi/commit dan hash integritas perlu diverifikasi dari sumber upstream sebelum dependensi diubah; audit ini tidak mengganti library secara spekulatif.
+Generator memuat `showAlert()` dari jsDelivr pada commit immutable `72646e89a28be53dd3127c160c855085d2617b15` dan memverifikasi file dengan Subresource Integrity (SHA-384). Jika library diperbarui, verifikasi commit dan hitung ulang hash integritas dari file upstream sebelum mengubah URL.
 
 ## Layanan eksternal
 
@@ -256,4 +256,4 @@ Generator memuat `showAlert()` dari jsDelivr. URL yang ada belum mengunci commit
 | Cloudinary (`res.cloudinary.com/ahwihzsc`) | gambar Open Graph/Twitter & apple-touch-icon |
 | `undangan.dekeku.my.id` | demo undangan web |
 | `lh3.googleusercontent.com` | foto profil pengulas |
-| jsDelivr `wahyuajismustofa/berbagi-koding/js/utils@v1.js` | `showAlert()` di tamu-undangan (referensi belum dipatok ke commit immutable; evaluasi sebelum perubahan) |
+| jsDelivr `wahyuajismustofa/berbagi-koding` | `showAlert()` di tamu-undangan (commit dipatok + SRI SHA-384) |

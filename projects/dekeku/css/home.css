@@ -198,3 +198,83 @@ h2 span{color:#929292}.intro h2{max-width:790px}.section-lead{color:var(--text-s
 @media(max-width:900px){.hero-grid{min-height:370px}.hero-art{height:360px}.home-featured-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.hero{padding:38px 0 18px}.hero-grid{min-height:0;grid-template-columns:1fr;gap:0}.hero h1{font-size:clamp(38px,10vw,54px);margin:18px 0 14px}.hero-art{height:290px;width:100%;margin:0;transform:scale(.78);transform-origin:center top}.home-products{padding-block:48px}.home-products .section-heading{margin-bottom:22px}.home-category-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.home-category-link{min-width:0;padding:11px 12px}.home-featured-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.home-featured-grid .shop-card-body{padding:11px}.home-featured-grid .shop-card h3{font-size:12px}.home-featured-grid .shop-card-actions{flex-direction:row;gap:6px}.home-featured-grid .shop-card-actions a{width:100%;min-width:0;padding:7px 4px;font-size:10px}}
 @media(max-width:340px){.home-featured-grid{grid-template-columns:1fr}}
+
+/* Reliable collapsed navigation for tablet and mobile layouts. */
+@media (max-width: 900px) {
+  .nav-wrap {
+    position: relative;
+  }
+
+  .menu-toggle {
+    display: grid;
+    flex: 0 0 44px;
+    margin-left: auto;
+    align-content: center;
+    justify-items: center;
+    gap: 5px;
+    z-index: 42;
+  }
+
+  .primary-nav {
+    display: none;
+    position: absolute;
+    top: calc(100% + 1px);
+    left: 0;
+    right: 0;
+    z-index: 41;
+    max-height: calc(100dvh - 82px);
+    overflow-y: auto;
+    padding: 12px 20px 20px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-top: 0;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    box-shadow: var(--shadow-md);
+  }
+
+  .primary-nav.is-open {
+    display: flex;
+  }
+
+  .primary-nav a:not(.button) {
+    display: block;
+    padding: 12px 2px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .primary-nav .nav-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 14px;
+  }
+
+  .nav-tools {
+    order: initial;
+    flex: 0 0 auto;
+  }
+
+  .nav-tools > .button {
+    display: none;
+  }
+}
+
+@media (min-width: 701px) and (max-width: 900px) {
+  .nav-wrap {
+    height: 70px;
+  }
+}
+
+@media (max-width: 700px) {
+  .nav-wrap {
+    height: 66px;
+  }
+
+  .primary-nav {
+    max-height: calc(100dvh - 78px);
+    padding-inline: 18px;
+  }
+}

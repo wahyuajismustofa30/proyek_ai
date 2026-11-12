@@ -3,18 +3,22 @@
 cek-proyek.py — pemeriksaan statis sebelum upload/deploy.
 
     python tools/cek-proyek.py
-    python tools/cek-proyek.py --tulis-daftar-gambar   # juga menulis docs/daftar-gambar-produk.txt
+    python tools/cek-proyek.py --cek-url-eksternal    # periksa URL gambar eksternal
+    python tools/cek-proyek.py --tulis-daftar-gambar   # tulis daftar URL gambar eksternal
 
 Yang diperiksa:
   1. Semua file JSON di assets/data valid.
   2. Semua referensi lokal di HTML (src, href), CSS (url(...), @import) dan
      JavaScript (import ... from) mengarah ke file yang ada.
-  3. Semua gambar lokal yang dirujuk produk.json (field img) dan artikel ada di folder.
-  4. Link internal produk.json (link_produk /produk.html?p=..&id=..) menunjuk data yang ada.
-  5. Header/footer di setiap halaman sama dengan partials/ (lewat sinkron-partial.py --cek).
+  3. Gambar lokal yang dirujuk produk.json dan HTML diperiksa keberadaannya.
+  4. Gambar eksternal dilaporkan belum diverifikasi; --cek-url-eksternal memeriksa
+     status HTTP dan Content-Type dengan timeout, satu per satu.
+  5. Link internal produk.json (link_produk /produk.html?p=..&id=..) menunjuk data yang ada.
+  6. Header/footer di setiap halaman sama dengan partials/ (lewat sinkron-partial.py --cek).
 
-Keluar dengan kode 1 bila ada masalah selain gambar produk yang belum disalin
-(gambar produk dilaporkan terpisah karena memang tidak ikut ZIP).
+Keluar dengan kode 1 bila ada masalah lokal atau URL eksternal yang terkonfirmasi
+menghasilkan HTTP 404/410. Kegagalan jaringan lain dilaporkan sebagai gagal
+diverifikasi, bukan dianggap gambar hilang.
 Hanya memakai pustaka standar Python 3.
 """
 import json

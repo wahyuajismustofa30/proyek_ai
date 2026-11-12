@@ -180,7 +180,8 @@ class BlogIndexParser(HTMLParser):
     def __init__(self):
         super().__init__()
         self.card_depth = 0
-        self.card_urls = []
+        self.card_link_sets = []
+        self.current_card_links = None
         self.jsonld_parts = []
         self.in_jsonld = False
 
@@ -188,14 +189,17 @@ class BlogIndexParser(HTMLParser):
         a = dict(attrs)
         if tag == "article" and "blog-card" in a.get("class", "").split():
             self.card_depth += 1
+            self.current_card_links = []
         if self.card_depth and tag == "a" and a.get("href", "").startswith("/post/"):
-            self.card_urls.append(a["href"])
+            self.current_card_links.append(a["href"])
         if tag == "script" and a.get("type") == "application/ld+json":
             self.in_jsonld = True
             self.jsonld_parts = []
 
     def handle_endtag(self, tag):
         if tag == "article" and self.card_depth:
+            self.card_link_sets.append(self.current_card_links or [])
+            self.current_card_links = None
             self.card_depth -= 1
         if tag == "script" and self.in_jsonld:
             self.in_jsonld = False
@@ -233,9 +237,17 @@ def cek_blog():
 
     parser = BlogIndexParser()
     parser.feed(index.read_text(encoding="utf-8"))
-    kartu = parser.card_urls
+    kartu = []
+    for nomor, tautan in enumerate(parser.card_link_sets, start=1):
+        unik = sorted(set(tautan))
+        if len(unik) != 1:
+            masalah.append(
+                f"Blog: kartu artikel ke-{nomor} harus memiliki tautan konsisten ke satu artikel"
+            )
+        elif unik:
+            kartu.append(unik[0])
     if len(kartu) != len(set(kartu)):
-        masalah.append("Blog: ada URL kartu artikel yang duplikat")
+        masalah.append("Blog: ada kartu artikel yang mengarah ke URL duplikat")
     if set(kartu) != set(artikel):
         masalah.append(
             "Blog: daftar kartu tidak sama dengan file post/*.html "

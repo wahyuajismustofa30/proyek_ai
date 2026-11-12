@@ -3,8 +3,9 @@
 cek-proyek.py — pemeriksaan statis sebelum upload/deploy.
 
     python tools/cek-proyek.py
-    python tools/cek-proyek.py --cek-url-eksternal    # periksa URL gambar eksternal
-    python tools/cek-proyek.py --tulis-daftar-gambar   # tulis daftar URL gambar eksternal
+    python tools/cek-proyek.py --cek-url-eksternal              # periksa URL gambar eksternal
+    python tools/cek-proyek.py --cek-url-eksternal --pekerja 4  # batasi 4 koneksi paralel
+    python tools/cek-proyek.py --tulis-daftar-gambar             # tulis daftar URL gambar eksternal
 
 Yang diperiksa:
   1. Semua file JSON di assets/data valid.
@@ -12,7 +13,7 @@ Yang diperiksa:
      JavaScript (import ... from) mengarah ke file yang ada.
   3. Gambar lokal yang dirujuk produk.json dan HTML diperiksa keberadaannya.
   4. Gambar eksternal dilaporkan belum diverifikasi; --cek-url-eksternal memeriksa
-     status HTTP dan Content-Type dengan timeout, satu per satu.
+     status HTTP dan Content-Type dengan timeout serta jumlah worker terbatas.
   5. Link internal produk.json (link_produk /produk.html?p=..&id=..) menunjuk data yang ada.
   6. Header/footer di setiap halaman sama dengan partials/ (lewat sinkron-partial.py --cek).
 

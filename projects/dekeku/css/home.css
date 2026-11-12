@@ -187,3 +187,14 @@ h2 span{color:#929292}.intro h2{max-width:790px}.section-lead{color:var(--text-s
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .brand img { filter: brightness(0) invert(1); }
 }
+
+/* Product-first homepage section. */
+.hero{min-height:0;padding:48px 0 22px}.hero-grid{min-height:430px;gap:34px}.hero h1{font-size:clamp(40px,4.7vw,62px);max-width:600px}.hero-art{height:410px}
+.home-products{padding-block:72px}.home-products .section-heading{margin-bottom:28px}.home-category-list{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 26px}
+.home-category-link{display:flex;flex-direction:column;gap:4px;min-width:150px;padding:13px 16px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);text-decoration:none;transition:border-color var(--transition),background var(--transition)}
+.home-category-link:hover{border-color:var(--border-strong);background:var(--surface-muted)}.home-category-link strong{font-size:12px;color:var(--text-primary);text-transform:capitalize}.home-category-link span{font-size:10px;color:var(--text-secondary);text-transform:capitalize}.home-loading{font-size:12px;color:var(--text-secondary)}
+.home-featured-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.home-featured-grid .shop-card{box-shadow:var(--shadow-sm)}.home-featured-grid .shop-card-actions a{font-size:11px}
+.home-products-footer{display:flex;justify-content:center;margin-top:28px}.home-products-footer .button{min-height:46px}
+@media(max-width:900px){.hero-grid{min-height:370px}.hero-art{height:360px}.home-featured-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.hero{padding:38px 0 18px}.hero-grid{min-height:0;grid-template-columns:1fr;gap:0}.hero h1{font-size:clamp(38px,10vw,54px);margin:18px 0 14px}.hero-art{height:290px;width:100%;margin:0;transform:scale(.78);transform-origin:center top}.home-products{padding-block:48px}.home-products .section-heading{margin-bottom:22px}.home-category-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.home-category-link{min-width:0;padding:11px 12px}.home-featured-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.home-featured-grid .shop-card-body{padding:11px}.home-featured-grid .shop-card h3{font-size:12px}.home-featured-grid .shop-card-actions{flex-direction:column}.home-featured-grid .shop-card-actions a{width:100%}}
+@media(max-width:340px){.home-featured-grid{grid-template-columns:1fr}}

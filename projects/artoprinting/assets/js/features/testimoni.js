@@ -2,7 +2,7 @@
 // Halaman Testimoni: 9 tampil dulu, sisanya lewat tombol. Beranda: cuplikan 3 ulasan.
 
 import { CONFIG } from '../config.js';
-import { esc, angka } from '../utils/teks.js';
+import { esc, angka, urlAman } from '../utils/teks.js';
 import { getUlasan } from '../services/data.js';
 
 const TONES = ['tone-c', 'tone-m', 'tone-y', '', '', ''];
@@ -34,12 +34,13 @@ export async function initTestimoni(opsi = {}) {
     box.setAttribute('aria-busy', 'false');
     box.innerHTML = ulasan.slice(0, tampil).map((u, i) => {
       const inisial = esc((u.nama || '?').trim().charAt(0).toUpperCase());
+      const avatar = urlAman(u.img);
       return `
         <figure class="review ${TONES[i % TONES.length]}">
           <blockquote>${esc(bersihkan(u.ulasan)).replace(/\n/g, '<br>')}</blockquote>
           <figcaption>
-            ${u.img ? `<img src="${esc(u.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-nama="${esc(u.nama)}">`
-                    : `<span class="avatar-fallback">${inisial}</span>`}
+            ${avatar ? `<img src="${esc(avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-nama="${esc(u.nama)}">`
+                      : `<span class="avatar-fallback">${inisial}</span>`}
             ${esc(u.nama)}
           </figcaption>
         </figure>`;

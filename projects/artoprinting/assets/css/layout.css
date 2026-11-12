@@ -218,3 +218,25 @@ body > main { flex: 1 0 auto; }
   text-underline-offset: 3px;
 }
 .link-more:hover { color: var(--ink); }
+
+
+/* ---------- Tautan lewati ke konten utama (akses keyboard) ---------- */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: var(--ink);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-160%);
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+#main-content {
+  scroll-margin-top: 84px;
+}

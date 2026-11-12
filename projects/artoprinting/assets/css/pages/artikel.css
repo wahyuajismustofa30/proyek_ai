@@ -42,3 +42,22 @@
 }
 .prose .lihat-juga h2 { margin: 0 0 .5em; font-size: 1.3rem; }
 .prose .lihat-juga ul { margin: 0; }
+
+
+/* ---------- Navigasi kembali ke indeks blog ---------- */
+.article-back {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line, #e5e7eb);
+}
+.article-back a {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  text-decoration: none;
+}
+.article-back a:hover { text-decoration: underline; }
+.article-back a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}

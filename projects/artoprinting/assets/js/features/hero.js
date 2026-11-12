@@ -26,9 +26,12 @@ export function renderHero(daftar, produkList) {
     requestAnimationFrame(() => setTimeout(() => stack.classList.remove('is-loading'), 60));
   }
 
-  const total = produkList.reduce((n, k) => n + daftar[k].length, 0);
-  setText('stat-total', angka(total));
+  // Layanan adalah kategori terpisah, bukan desain produk katalog.
+  const jenisProduk = produkList.filter((k) => k !== 'Layanan' && Array.isArray(daftar[k]));
+  const totalDesain = jenisProduk.reduce((n, k) => n + daftar[k].length, 0);
+
+  setText('stat-total', angka(totalDesain));
   setText('stat-undangan', angka(undangan.length));
   setText('stack-count', `${angka(undangan.length)} model undangan`);
-  setText('stat-jenis', angka(produkList.length));
+  setText('stat-jenis', angka(jenisProduk.length));
 }

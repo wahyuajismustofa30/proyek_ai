@@ -76,9 +76,6 @@ Halaman detail menerima `?p=undangan-cetak` maupun `?p=Undangan_Cetak`.
 │   │   └── legacy/nordic-custom.css   tema lama, tidak dipakai (arsip)
 │   ├── data/                   ⚠ path ini kontrak dengan alur data spreadsheet
 │   │   ├── produk.json · setting.json · ulasan.json
-│   ├── images/
-│   │   ├── brand/              logo, favicon, maskot, foto toko
-│   │   └── *.webp / *.jpeg     foto produk & galeri (sengaja tidak ikut ZIP)
 │   └── js/
 │       ├── config.js           SEMUA pengaturan: nomor WA, alamat halaman, path data, urutan tab
 │       ├── core/
@@ -98,9 +95,16 @@ Halaman detail menerima `?p=undangan-cetak` maupun `?p=Undangan_Cetak`.
 ├── tools/
 │   ├── sinkron-partial.py      salin partials/ ke semua halaman
 │   └── cek-proyek.py           periksa tautan, aset, data, partial sebelum deploy
-├── docs/                       dibuat otomatis saat daftar gambar dihasilkan
 └── README.md
 ```
+
+### Pengelolaan aset gambar
+
+Repository tidak memiliki direktori `assets/images/`. Aset gambar yang disimpan di repository tetap berada pada lokasi aktualnya, misalnya `favicon.ico` di root. Gambar produk dan aset visual lain yang dirujuk situs menggunakan URL eksternal; referensinya antara lain terdapat pada field `img` di `assets/data/produk.json`, konfigurasi `CONFIG.img` di `assets/js/config.js`, serta markup halaman.
+
+URL gambar eksternal yang sudah digunakan merupakan bagian dari konfigurasi konten situs. Jangan mengganti, memindahkan, atau memigrasikannya tanpa kebutuhan teknis yang jelas dan persetujuan.
+
+Perintah `python tools/cek-proyek.py --tulis-daftar-gambar` mengumpulkan URL eksternal dari atribut `src` elemen gambar di HTML dan field `img` dalam `assets/data/produk.json`. Hasilnya adalah daftar referensi URL yang ditemukan oleh script, bukan inventaris seluruh file gambar yang tersimpan di server eksternal. Direktori `docs/` beserta file daftar tersebut dibuat otomatis saat perintah dijalankan; keduanya tidak harus tersedia di repository.
 
 ### Urutan pemuatan di setiap halaman
 
@@ -142,7 +146,7 @@ Pengalihan ke `www`/`https` otomatis mati di localhost.
 ## Sebelum deploy
 
 1. Jalankan `python tools/cek-proyek.py --tulis-daftar-gambar` untuk membuat `docs/daftar-gambar-produk.txt`. Folder `docs/` dibuat otomatis bila belum tersedia. Daftar berisi URL gambar eksternal yang ditemukan pada atribut `src` elemen gambar di file HTML dan field `img` dalam `assets/data/produk.json`; URL dideduplikasi dan diurutkan.
-2. Gunakan daftar tersebut sebagai referensi gambar eksternal yang perlu disiapkan atau diperiksa di `https://drive.dekeku.my.id/storage/old/artoprinting/`. Daftar ini bukan inventaris seluruh gambar lokal.
+2. Gunakan daftar tersebut sebagai referensi URL gambar eksternal yang ditemukan script. Daftar ini tidak mencakup seluruh file yang tersimpan di server eksternal dan tidak menjamin semua referensi gambar di CSS, JavaScript, atau layanan lain ikut tercatat.
 3. Jalankan `python tools/cek-proyek.py` untuk memeriksa aset lokal dan melihat status gambar eksternal tanpa mengakses jaringan.
 4. Opsional: jalankan `python tools/cek-proyek.py --cek-url-eksternal` untuk memeriksa URL gambar eksternal dengan timeout dan maksimal 8 koneksi paralel. HTTP 404/410 dilaporkan sebagai gambar hilang; gangguan jaringan dilaporkan sebagai gagal diverifikasi.
 5. Push ke GitHub Pages. File `CNAME` / `.nojekyll` di repository (bila ada) jangan dihapus.

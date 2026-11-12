@@ -21,11 +21,13 @@ menghasilkan HTTP 404/410. Kegagalan jaringan lain dilaporkan sebagai gagal
 diverifikasi, bukan dianggap gambar hilang.
 Hanya memakai pustaka standar Python 3.
 """
+import argparse
 import json
 import pathlib
 import re
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib.error
 import urllib.request
 from html.parser import HTMLParser
@@ -171,7 +173,7 @@ def cek_produk(data):
 
 
 def cek_url_gambar(url):
-    """Periksa URL gambar eksternal dengan GET terbatas dan timeout."""
+    """Periksa satu URL gambar; hasil dikembalikan agar aman untuk worker paralel."""
     req = urllib.request.Request(
         url,
         headers={"User-Agent": "ArtoPrinting-Project-Validator/1.0", "Range": "bytes=0-0"},
@@ -181,19 +183,51 @@ def cek_url_gambar(url):
             status = getattr(response, "status", 200)
             tipe = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
             if status < 200 or status >= 400:
-                gambar_eksternal_gagal[url] = f"HTTP {status}"
-            elif not tipe.startswith("image/"):
-                gambar_eksternal_gagal[url] = f"Content-Type bukan gambar ({tipe or 'tidak diketahui'})"
-            else:
-                response.read(1)
-                gambar_eksternal_valid.add(url)
+                return url, "gagal", f"HTTP {status}"
+            if not tipe.startswith("image/"):
+                return url, "gagal", f"Content-Type bukan gambar ({tipe or 'tidak diketahui'})"
+            response.read(1)
+            return url, "valid", ""
     except urllib.error.HTTPError as e:
         if e.code in (404, 410):
-            gambar_eksternal_hilang[url] = f"HTTP {e.code}"
-        else:
-            gambar_eksternal_gagal[url] = f"HTTP {e.code}"
+            return url, "hilang", f"HTTP {e.code}"
+        return url, "gagal", f"HTTP {e.code}"
     except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
-        gambar_eksternal_gagal[url] = str(getattr(e, "reason", e))
+        return url, "gagal", str(getattr(e, "reason", e))
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Periksa integritas proyek Arto Printing.")
+    parser.add_argument(
+        "--cek-url-eksternal", action="store_true",
+        help="periksa status HTTP dan Content-Type gambar eksternal (membutuhkan jaringan)",
+    )
+    parser.add_argument(
+        "--pekerja", type=int, default=8,
+        help="jumlah pemeriksaan URL paralel, 1–16 (default: 8)",
+    )
+    parser.add_argument(
+        "--tulis-daftar-gambar", action="store_true",
+        help="tulis daftar URL gambar produk eksternal ke docs/daftar-gambar-produk.txt",
+    )
+    args = parser.parse_args()
+    if not 1 <= args.pekerja <= 16:
+        parser.error("--pekerja harus berada pada rentang 1–16")
+    return args
+
+
+def cek_url_eksternal(pekerja):
+    """Periksa URL eksternal dengan jumlah worker terbatas."""
+    with ThreadPoolExecutor(max_workers=pekerja) as executor:
+        futures = [executor.submit(cek_url_gambar, url) for url in sorted(gambar_eksternal)]
+        for future in as_completed(futures):
+            url, status, alasan = future.result()
+            if status == "valid":
+                gambar_eksternal_valid.add(url)
+            elif status == "hilang":
+                gambar_eksternal_hilang[url] = alasan
+            else:
+                gambar_eksternal_gagal[url] = alasan
 
 def cek_partial():
     r = subprocess.run([sys.executable, str(ROOT / "tools/sinkron-partial.py"), "--cek"], capture_output=True, text=True)
@@ -202,30 +236,46 @@ def cek_partial():
 
 
 def main():
+    args = parse_args()
     data = cek_json()
     cek_html()
     cek_css_js()
     cek_produk(data)
     cek_partial()
 
-    eksternal_belum = (
-        gambar_eksternal
-        - gambar_eksternal_valid
-        - set(gambar_eksternal_hilang)
-        - set(gambar_eksternal_gagal)
-    )
+    if args.cek_url_eksternal:
+        cek_url_eksternal(args.pekerja)
+
+    if args.tulis_daftar_gambar:
+        urls = sorted(gambar_eksternal)
+        out = ROOT / "docs/daftar-gambar-produk.txt"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text("\\n".join(urls) + ("\\n" if urls else ""), encoding="utf-8")
+        print(f"Daftar gambar ditulis: {rel(out)} ({len(urls)} URL)")
+
+    belum = gambar_eksternal - gambar_eksternal_valid - set(gambar_eksternal_hilang) - set(gambar_eksternal_gagal)
     print(
         f"GAMBAR EKSTERNAL: {len(gambar_eksternal_valid)} valid, "
         f"{len(gambar_eksternal_hilang)} hilang, "
         f"{len(gambar_eksternal_gagal)} gagal diperiksa, "
-        f"{len(eksternal_belum)} belum diverifikasi."
+        f"{len(belum)} belum diverifikasi."
     )
-    for url, alasan in gambar_eksternal_hilang.items():
+    for url, alasan in sorted(gambar_eksternal_hilang.items()):
         print(f"  - HILANG {url} ({alasan})")
-    for url, alasan in gambar_eksternal_gagal.items():
+    for url, alasan in sorted(gambar_eksternal_gagal.items()):
         print(f"  - GAGAL {url} ({alasan})")
-    if eksternal_belum:
+    if belum:
         print("  Gunakan --cek-url-eksternal untuk memeriksa URL yang belum diverifikasi.")
+
+    if masalah:
+        print(f"MASALAH LOKAL ({len(masalah)}):")
+        for pesan in masalah:
+            print("  -", pesan)
+    else:
+        print("OK: referensi lokal, JSON, link produk, dan partial valid.")
+
+    # Gangguan jaringan sementara tidak menggagalkan pemeriksaan proyek.
+    # Hanya masalah lokal atau URL yang terkonfirmasi 404/410 menghasilkan exit code 1.
     sys.exit(1 if masalah or gambar_eksternal_hilang else 0)
 
 if __name__ == "__main__":

@@ -23,6 +23,7 @@ Semua alamat memakai **huruf kecil**. Halaman selain beranda, `post/`, dan `tamu
 | Testimoni | `/laman/testimoni/` | `laman/testimoni/index.html` |
 | Kontak | `/laman/kontak/` | `laman/kontak/index.html` |
 | Detail produk | `/laman/produk/?p=<slug>&id=<id>` (mis. `?p=undangan-cetak&id=5`) | `laman/produk/index.html` |
+| Blog | `/blog/` | `blog/index.html` |
 | Artikel | `/post/percetakan-murah-purbalingga.html` | `post/...` |
 | Tamu undangan | `/tamu-undangan/`, `/tamu-undangan/generator.html` | `tamu-undangan/...` |
 | Tidak ditemukan | (otomatis) | `404.html` (wajib di root untuk GitHub Pages) |
@@ -60,6 +61,7 @@ Halaman detail menerima `?p=undangan-cetak` maupun `?p=Undangan_Cetak`.
 │   ├── testimoni/index.html    semua ulasan Google
 │   ├── kontak/index.html       tentang, admin WhatsApp, alamat, foto toko, peta
 │   └── produk/index.html       detail produk
+├── blog/index.html              indeks artikel blog
 ├── post/percetakan-murah-purbalingga.html
 ├── tamu-undangan/              alat terpisah (style.css = hasil build Tailwind; jangan diedit manual)
 ├── produk.html                 pengalih alamat lama -> /laman/produk/ (jangan dihapus)

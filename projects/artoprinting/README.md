@@ -181,6 +181,31 @@ Format, nama field, dan lokasi file tidak diubah.
 
 ---
 
+## Menambah artikel blog
+
+Blog tetap memakai HTML statis tanpa CMS, database, generator, atau dependensi tambahan.
+Untuk menambah artikel, gunakan artikel yang sudah ada sebagai pola:
+
+1. Salin `post/percetakan-murah-purbalingga.html` ke `post/<slug-artikel>.html`.
+2. Perbarui isi artikel, judul, deskripsi, canonical, Open Graph/Twitter, tanggal terbit,
+   gambar, dan JSON-LD `Article`. Pertahankan pola URL `/post/<slug-artikel>.html`.
+3. Tambahkan satu kartu `.blog-card` di `blog/index.html`, termasuk tautan, gambar,
+   alt, kategori, judul, tanggal, dan ringkasan.
+4. Tambahkan satu `ListItem` ke `mainEntity.itemListElement` pada JSON-LD
+   `CollectionPage`, lalu sesuaikan `numberOfItems`.
+5. Tambahkan URL artikel ke `sitemap.xml` dengan `lastmod` sesuai tanggal perubahan konten.
+6. Jalankan pemeriksaan dari direktori proyek:
+
+   ```bash
+   python tools/cek-proyek.py
+   python tools/sinkron-partial.py --cek
+   ```
+
+Validator memeriksa bahwa seluruh file `post/*.html` terwakili tepat pada kartu blog
+dan JSON-LD, canonical tiap artikel sesuai URL file, serta sitemap memuat semua artikel
+dan halaman `/blog/`. Pemeriksaan ini membantu mendeteksi daftar yang tertinggal;
+konten dan metadata tetap ditulis langsung pada HTML statis.
+
 ## Mengubah header / footer
 
 1. Edit `partials/header.html` atau `partials/footer.html`.

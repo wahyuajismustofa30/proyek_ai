@@ -32,6 +32,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib.error
 import urllib.request
 from html.parser import HTMLParser
+import xml.etree.ElementTree as ET
 from urllib.parse import urlsplit, unquote, parse_qs
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -173,6 +174,131 @@ def cek_produk(data):
 
 
 
+
+class BlogIndexParser(HTMLParser):
+    """Ambil URL kartu artikel dan JSON-LD CollectionPage dari indeks blog."""
+    def __init__(self):
+        super().__init__()
+        self.card_depth = 0
+        self.card_urls = []
+        self.jsonld_parts = []
+        self.in_jsonld = False
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == "article" and "blog-card" in a.get("class", "").split():
+            self.card_depth += 1
+        if self.card_depth and tag == "a" and a.get("href", "").startswith("/post/"):
+            self.card_urls.append(a["href"])
+        if tag == "script" and a.get("type") == "application/ld+json":
+            self.in_jsonld = True
+            self.jsonld_parts = []
+
+    def handle_endtag(self, tag):
+        if tag == "article" and self.card_depth:
+            self.card_depth -= 1
+        if tag == "script" and self.in_jsonld:
+            self.in_jsonld = False
+            self.jsonld_parts.append("\\n")
+
+    def handle_data(self, data):
+        if self.in_jsonld:
+            self.jsonld_parts.append(data)
+
+
+class CanonicalParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.urls = []
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == "link" and a.get("rel", "").lower() == "canonical":
+            self.urls.append(a.get("href", ""))
+
+
+def cek_blog():
+    """Pastikan file artikel, kartu blog, JSON-LD, canonical, dan sitemap selaras."""
+    folder_post = ROOT / "post"
+    index = ROOT / "blog/index.html"
+    sitemap = ROOT / "sitemap.xml"
+
+    artikel = sorted(f"/post/{f.name}" for f in folder_post.glob("*.html"))
+    if not index.is_file():
+        masalah.append("Blog: blog/index.html tidak ditemukan")
+        return
+    if not sitemap.is_file():
+        masalah.append("Blog: sitemap.xml tidak ditemukan")
+        return
+
+    parser = BlogIndexParser()
+    parser.feed(index.read_text(encoding="utf-8"))
+    kartu = parser.card_urls
+    if len(kartu) != len(set(kartu)):
+        masalah.append("Blog: ada URL kartu artikel yang duplikat")
+    if set(kartu) != set(artikel):
+        masalah.append(
+            "Blog: daftar kartu tidak sama dengan file post/*.html "
+            f"(kartu={sorted(set(kartu))}, file={artikel})"
+        )
+
+    try:
+        schema_text = "".join(parser.jsonld_parts).strip()
+        schema = json.loads(schema_text)
+        item_list = schema.get("mainEntity", {})
+        item_list = item_list.get("itemListElement", []) if isinstance(item_list, dict) else []
+        schema_urls = [
+            item.get("url", "")
+            for item in item_list
+            if isinstance(item, dict)
+        ]
+        expected_schema = {
+            "https://www.artoprintingpbg.com" + path for path in artikel
+        }
+        if set(schema_urls) != expected_schema or len(schema_urls) != len(expected_schema):
+            masalah.append(
+                "Blog: CollectionPage JSON-LD tidak sama dengan file artikel "
+                f"(schema={sorted(set(schema_urls))}, file={sorted(expected_schema)})"
+            )
+        if item_list and schema.get("mainEntity", {}).get("numberOfItems") != len(artikel):
+            masalah.append("Blog: numberOfItems CollectionPage tidak sesuai jumlah artikel")
+        elif not item_list and artikel:
+            masalah.append("Blog: CollectionPage JSON-LD tidak memiliki itemListElement")
+    except (json.JSONDecodeError, AttributeError, TypeError) as e:
+        masalah.append(f"Blog: CollectionPage JSON-LD tidak valid ({e})")
+
+    try:
+        root = ET.parse(sitemap).getroot()
+        ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        sitemap_urls = {
+            node.text.strip()
+            for node in root.findall("sm:url/sm:loc", ns)
+            if node.text and node.text.strip()
+        }
+        expected_sitemap = {
+            "https://www.artoprintingpbg.com" + path for path in artikel
+        }
+        if not expected_sitemap.issubset(sitemap_urls):
+            masalah.append(
+                "Blog: sitemap.xml belum memuat semua artikel "
+                f"({sorted(expected_sitemap - sitemap_urls)})"
+            )
+        if "https://www.artoprintingpbg.com/blog/" not in sitemap_urls:
+            masalah.append("Blog: sitemap.xml belum memuat /blog/")
+    except (ET.ParseError, OSError) as e:
+        masalah.append(f"Blog: sitemap.xml tidak valid ({e})")
+
+    for path in artikel:
+        file_artikel = ROOT / path.lstrip("/")
+        seo = CanonicalParser()
+        seo.feed(file_artikel.read_text(encoding="utf-8"))
+        canonical = "https://www.artoprintingpbg.com" + path
+        if seo.urls != [canonical]:
+            masalah.append(
+                f"Blog: canonical {rel(file_artikel)} harus tepat satu dan bernilai {canonical}"
+            )
+
+
 def cek_url_gambar(url):
     """Periksa satu URL gambar; hasil dikembalikan agar aman untuk worker paralel."""
     req = urllib.request.Request(
@@ -242,6 +368,7 @@ def main():
     cek_html()
     cek_css_js()
     cek_produk(data)
+    cek_blog()
     cek_partial()
 
     if args.cek_url_eksternal:

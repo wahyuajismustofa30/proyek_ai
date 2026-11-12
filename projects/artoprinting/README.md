@@ -98,7 +98,7 @@ Halaman detail menerima `?p=undangan-cetak` maupun `?p=Undangan_Cetak`.
 ├── tools/
 │   ├── sinkron-partial.py      salin partials/ ke semua halaman
 │   └── cek-proyek.py           periksa tautan, aset, data, partial sebelum deploy
-├── docs/                       manifest file, daftar gambar produk
+├── docs/                       dibuat otomatis saat daftar gambar dihasilkan
 └── README.md
 ```
 
@@ -141,10 +141,10 @@ Pengalihan ke `www`/`https` otomatis mati di localhost.
 
 ## Sebelum deploy
 
-1. Salin foto produk ke `https://drive.dekeku.my.id/storage/old/artoprinting/` (daftar: `docs/daftar-gambar-produk.txt`).
-2. Jalankan `python tools/cek-proyek.py` untuk memeriksa aset lokal dan melihat status gambar eksternal tanpa mengakses jaringan.
-3. Opsional: jalankan `python tools/cek-proyek.py --cek-url-eksternal` untuk memeriksa URL gambar eksternal dengan timeout dan maksimal 8 koneksi paralel. HTTP 404/410 dilaporkan sebagai gambar hilang; gangguan jaringan dilaporkan sebagai gagal diverifikasi.
-4. Opsional: jalankan `python tools/cek-proyek.py --tulis-daftar-gambar` untuk membuat `docs/daftar-gambar-produk.txt`.
+1. Jalankan `python tools/cek-proyek.py --tulis-daftar-gambar` untuk membuat `docs/daftar-gambar-produk.txt`. Folder `docs/` dibuat otomatis bila belum tersedia.
+2. Gunakan daftar tersebut sebagai referensi saat menyiapkan gambar di `https://drive.dekeku.my.id/storage/old/artoprinting/`.
+3. Jalankan `python tools/cek-proyek.py` untuk memeriksa aset lokal dan melihat status gambar eksternal tanpa mengakses jaringan.
+4. Opsional: jalankan `python tools/cek-proyek.py --cek-url-eksternal` untuk memeriksa URL gambar eksternal dengan timeout dan maksimal 8 koneksi paralel. HTTP 404/410 dilaporkan sebagai gambar hilang; gangguan jaringan dilaporkan sebagai gagal diverifikasi.
 5. Push ke GitHub Pages. File `CNAME` / `.nojekyll` di repository (bila ada) jangan dihapus.
 
 ---

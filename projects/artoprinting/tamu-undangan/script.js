@@ -130,7 +130,7 @@
 
     // simpan isian di URL supaya bisa dibagikan / dibuka ulang
     var params = new URLSearchParams({ jenis: jenis, nama: namaArray.join(', '), link: link, pengundang: pengundang });
-    window.history.replaceState({}, '', location.pathname + '?' + params);
+    window.history.replaceState({}, '', location.pathname + '#' + params.toString());
   }
 
   function modeHalaman() {
@@ -139,10 +139,25 @@
   }
 
   function muatDariURL() {
-    var params = new URLSearchParams(window.location.search);
-    ['jenis', 'nama', 'link', 'pengundang'].forEach(function (k) {
+    var kunci = ['jenis', 'nama', 'link', 'pengundang'];
+    var query = new URLSearchParams(window.location.search);
+    var params = query;
+    var dataLama = kunci.some(function (k) { return query.has(k); });
+
+    // Link lama berbentuk query tetap dibaca, lalu dipindahkan ke fragment.
+    // Fragment tidak dikirim ke server sebagai bagian HTTP request atau Referer.
+    if (!dataLama && window.location.hash.length > 1) {
+      params = new URLSearchParams(window.location.hash.slice(1));
+    }
+
+    kunci.forEach(function (k) {
       if (params.has(k)) document.getElementById(k).value = params.get(k);
     });
+
+    if (dataLama) {
+      window.history.replaceState({}, '', location.pathname + '#' + params.toString());
+    }
+
     if (params.get('jenis') && params.get('nama') && params.get('link') && params.get('pengundang')) {
       buatTabel(modeHalaman());
     }

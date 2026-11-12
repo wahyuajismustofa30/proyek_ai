@@ -250,7 +250,7 @@ def main():
         urls = sorted(gambar_eksternal)
         out = ROOT / "docs/daftar-gambar-produk.txt"
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text("\\n".join(urls) + ("\\n" if urls else ""), encoding="utf-8")
+        out.write_text("\n".join(urls) + ("\n" if urls else ""), encoding="utf-8")
         print(f"Daftar gambar ditulis: {rel(out)} ({len(urls)} URL)")
 
     belum = gambar_eksternal - gambar_eksternal_valid - set(gambar_eksternal_hilang) - set(gambar_eksternal_gagal)

@@ -141,8 +141,8 @@ Pengalihan ke `www`/`https` otomatis mati di localhost.
 
 ## Sebelum deploy
 
-1. Jalankan `python tools/cek-proyek.py --tulis-daftar-gambar` untuk membuat `docs/daftar-gambar-produk.txt`. Folder `docs/` dibuat otomatis bila belum tersedia.
-2. Gunakan daftar tersebut sebagai referensi saat menyiapkan gambar di `https://drive.dekeku.my.id/storage/old/artoprinting/`.
+1. Jalankan `python tools/cek-proyek.py --tulis-daftar-gambar` untuk membuat `docs/daftar-gambar-produk.txt`. Folder `docs/` dibuat otomatis bila belum tersedia. Daftar berisi URL gambar eksternal yang ditemukan pada atribut `src` elemen gambar di file HTML dan field `img` dalam `assets/data/produk.json`; URL dideduplikasi dan diurutkan.
+2. Gunakan daftar tersebut sebagai referensi gambar eksternal yang perlu disiapkan atau diperiksa di `https://drive.dekeku.my.id/storage/old/artoprinting/`. Daftar ini bukan inventaris seluruh gambar lokal.
 3. Jalankan `python tools/cek-proyek.py` untuk memeriksa aset lokal dan melihat status gambar eksternal tanpa mengakses jaringan.
 4. Opsional: jalankan `python tools/cek-proyek.py --cek-url-eksternal` untuk memeriksa URL gambar eksternal dengan timeout dan maksimal 8 koneksi paralel. HTTP 404/410 dilaporkan sebagai gambar hilang; gangguan jaringan dilaporkan sebagai gagal diverifikasi.
 5. Push ke GitHub Pages. File `CNAME` / `.nojekyll` di repository (bila ada) jangan dihapus.

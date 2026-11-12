@@ -62,7 +62,12 @@
   color: var(--ink-mute);
   font-size: .9rem;
 }
-.blog-feature {
+.blog-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+.blog-card {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
   overflow: hidden;
@@ -71,20 +76,20 @@
   background: var(--paper);
   box-shadow: 0 16px 44px rgba(13, 43, 92, .07);
 }
-.blog-feature-media {
+.blog-card-media {
   min-height: 320px;
   overflow: hidden;
   background: var(--sheet);
 }
-.blog-feature-media img {
+.blog-card-media img {
   width: 100%;
   height: 100%;
   min-height: 320px;
   object-fit: cover;
   transition: transform .35s ease;
 }
-.blog-feature:hover .blog-feature-media img { transform: scale(1.025); }
-.blog-feature-content {
+.blog-card:hover .blog-card-media img { transform: scale(1.025); }
+.blog-card-content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -101,7 +106,7 @@
   font-size: .78rem;
   font-weight: 800;
 }
-.blog-feature-content h3 {
+.blog-card-content h3 {
   margin: 16px 0 10px;
   color: var(--ink);
   font-family: var(--font-display);
@@ -109,8 +114,8 @@
   font-weight: 800;
   line-height: 1.12;
 }
-.blog-feature-content h3 a { text-decoration: none; }
-.blog-feature-content h3 a:hover { color: var(--teal-deep); }
+.blog-card-content h3 a { text-decoration: none; }
+.blog-card-content h3 a:hover { color: var(--teal-deep); }
 .blog-meta {
   margin: 0 0 14px;
   color: var(--ink-mute);
@@ -151,11 +156,11 @@
 }
 .blog-cta p { max-width: 42rem; margin: 0; color: var(--ink-soft); }
 @media (max-width: 760px) {
-  .blog-feature { grid-template-columns: 1fr; }
-  .blog-feature-media, .blog-feature-media img { min-height: 0; aspect-ratio: 16 / 9; }
-  .blog-feature-content { padding: 24px; }
+  .blog-card { grid-template-columns: 1fr; }
+  .blog-card-media, .blog-card-media img { min-height: 0; aspect-ratio: 16 / 9; }
+  .blog-card-content { padding: 24px; }
 }
 @media (max-width: 420px) {
   .blog-intro { padding-top: 40px; }
-  .blog-feature-content { padding: 20px; }
+  .blog-card-content { padding: 20px; }
 }

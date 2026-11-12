@@ -204,37 +204,64 @@ def main():
     cek_produk(data)
     cek_partial()
 
-    unik = sorted(set(gambar_hilang))
+    if "--cek-url-eksternal" in sys.argv:
+        for url in sorted(gambar_eksternal):
+            cek_url_gambar(url)
+
     if "--tulis-daftar-gambar" in sys.argv:
         semua = set()
         for daftar in data.get("produk.json", {}).values():
             if isinstance(daftar, list):
-                semua.update(x["img"] for x in daftar if str(x.get("img", "")).startswith("https://drive.dekeku.my.id/storage/old/artoprinting/"))
+                semua.update(
+                    x["img"] for x in daftar
+                    if str(x.get("img", "")).startswith(
+                        "https://drive.dekeku.my.id/storage/old/artoprinting/"
+                    )
+                )
         for f in ROOT.glob("post/*.html"):
-            semua.update(re.findall(r'src="(https://drive.dekeku.my.id/storage/old/artoprinting/(?!brand/)[^"]+)"', f.read_text(encoding="utf-8")))
+            semua.update(re.findall(
+                r'src="(https://drive.dekeku.my.id/storage/old/artoprinting/(?!brand/)[^"]+)"',
+                f.read_text(encoding="utf-8"),
+            ))
         out = ROOT / "docs/daftar-gambar-produk.txt"
         out.parent.mkdir(exist_ok=True)
         out.write_text(
-            "# Gambar lokal yang dirujuk produk.json dan artikel.\n"
-            "# Semuanya harus ada di folder https://drive.dekeku.my.id/storage/old/artoprinting/ sebelum deploy.\n"
-            f"# Jumlah: {len(semua)}\n" + "\n".join(sorted(semua)) + "\n", encoding="utf-8")
-        print(f"Daftar gambar ditulis ke {rel(out)} ({len(semua)} file)")
+            "# URL gambar eksternal yang dirujuk produk.json dan artikel.\n"
+            "# Pastikan URL dapat diakses sebelum deploy.\n"
+            f"# Jumlah: {len(semua)}\n" + "\n".join(sorted(semua)) + "\n",
+            encoding="utf-8",
+        )
+        print(f"Daftar gambar ditulis ke {rel(out)} ({len(semua)} URL)")
 
+    lokal_hilang = sorted(set(gambar_hilang))
     if masalah:
         print(f"MASALAH ({len(masalah)}):")
         for m in masalah:
             print("  -", m)
     else:
-        print("OK: semua referensi file lokal, data JSON, link internal produk, dan partial valid.")
-    if unik:
-        print(f"PERHATIAN: {len(unik)} gambar di https://drive.dekeku.my.id/storage/old/artoprinting/ belum ada di folder ini "
-              "(salin dari backup gambar sebelum deploy). Contoh:")
-        for g in unik[:5]:
-            print("  -", g)
-    else:
-        print("OK: semua gambar produk tersedia.")
-    sys.exit(1 if masalah else 0)
+        print("OK: referensi lokal, JSON, link internal produk, dan partial valid.")
 
+    print(f"GAMBAR LOKAL: {len(gambar_lokal_valid)} valid, {len(lokal_hilang)} hilang.")
+    for gambar in lokal_hilang[:5]:
+        print("  -", gambar)
+
+    if "--cek-url-eksternal" in sys.argv:
+        print(
+            f"GAMBAR EKSTERNAL: {len(gambar_eksternal_valid)} valid, "
+            f"{len(gambar_eksternal_hilang)} hilang, "
+            f"{len(gambar_eksternal_gagal)} gagal diverifikasi."
+        )
+        for url, alasan in gambar_eksternal_hilang.items():
+            print(f"  - HILANG {url} ({alasan})")
+        for url, alasan in gambar_eksternal_gagal.items():
+            print(f"  - GAGAL {url} ({alasan})")
+    else:
+        print(
+            f"GAMBAR EKSTERNAL: {len(gambar_eksternal)} belum diverifikasi "
+            "(gunakan --cek-url-eksternal untuk pemeriksaan jaringan)."
+        )
+
+    sys.exit(1 if masalah or gambar_eksternal_hilang else 0)
 
 if __name__ == "__main__":
     main()

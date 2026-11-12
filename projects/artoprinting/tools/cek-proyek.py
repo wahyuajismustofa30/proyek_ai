@@ -22,6 +22,8 @@ import pathlib
 import re
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from html.parser import HTMLParser
 from urllib.parse import urlsplit, unquote, parse_qs
 
@@ -30,6 +32,11 @@ ABAIKAN_DIR = {"docs", "tools", "partials", ".git", "node_modules"}
 
 masalah = []
 gambar_hilang = []
+gambar_lokal_valid = set()
+gambar_eksternal = set()
+gambar_eksternal_valid = set()
+gambar_eksternal_hilang = {}
+gambar_eksternal_gagal = {}
 
 
 def rel(p):

@@ -1,0 +1,160 @@
+{
+  "katalog": [
+    {
+      "path": "/?p=layanan",
+      "judul": "Semua Layanan",
+      "deskripsi": "Mulai dari cetak dokumen, desain grafis, sampai produk custom dan layanan digital?semua ada di sini buat bantuin kebutuhan kamu, cepat, mudah, dan hasilnya keren!",
+      "fungsi": "",
+      "data": "layanan",
+      "rendering": "productRendering",
+      "rendering_filter1": "",
+      "rendering_filter2": "",
+      "rendering_def_filter": ""
+    },
+    {
+      "path": "/",
+      "judul": "Katalog Undangan",
+      "deskripsi": "Temukan undangan web eksklusif untuk membuat momen spesialmu lebih berkesan.",
+      "fungsi": "",
+      "data": "undangan-cetak",
+      "rendering": "productRenderingWithFilters",
+      "rendering_filter1": "kategori1",
+      "rendering_filter2": "status",
+      "rendering_def_filter": "Ready"
+    },
+    {
+      "path": "/?p=galeri",
+      "judul": "Galeri Produk",
+      "deskripsi": "Beberapa produk yang telah kami kerjakan untuk berbagai keperluan pelanggan.",
+      "fungsi": "",
+      "data": "galeri",
+      "rendering": "productRenderingWithFilters",
+      "rendering_filter1": "kategori1",
+      "rendering_filter2": "",
+      "rendering_def_filter": ""
+    },
+    {
+      "path": "/?p=mug",
+      "judul": "Mug",
+      "deskripsi": "Abadikan momen spesial dengan mug custom eksklusif berisi foto dan nama pilihanmu! Cocok sebagai hadiah ulang tahun, anniversary, atau kejutan kecil penuh makna. Dicetak dengan teknik sublimasi tahan lama dan warna tajam.",
+      "fungsi": "",
+      "data": "mug",
+      "rendering": "productRendering",
+      "rendering_filter1": "",
+      "rendering_filter2": "",
+      "rendering_def_filter": ""
+    },
+    {
+      "path": "/?p=aqiqah",
+      "judul": "Aqiqah",
+      "deskripsi": "Kami menyediakan layanan desain & cetak undangan aqiqah sesuai permintaan Anda. Bisa tema bunga, islami klasik, ilustrasi bayi, hingga gaya minimalis modern. Bisa kirim desain ke seluruh Indonesia.",
+      "fungsi": "",
+      "data": "aqiqah",
+      "rendering": "productRendering",
+      "rendering_filter1": "",
+      "rendering_filter2": "",
+      "rendering_def_filter": ""
+    },
+    {
+      "path": "/?p=kartu-ucapan",
+      "judul": "Kartu Ucapan",
+      "deskripsi": "Butuh kartu ucapan yang unik dan sesuai karakter brand Anda? Kami melayani desain & cetak kartu ucapan full custom: dari desain, ukuran, jenis kertas, hingga cetakan spesial seperti emboss dan hotprint.",
+      "fungsi": "",
+      "data": "kartu-ucapan",
+      "rendering": "productRenderingWithFilters",
+      "rendering_filter1": "kategori1",
+      "rendering_filter2": "",
+      "rendering_def_filter": ""
+    },
+    {
+      "path": "/?p=pigura",
+      "judul": "Pigura",
+      "deskripsi": "Melayani pembuatan pigura custom sesuai kebutuhan Anda ? baik dari ukuran, bahan, warna, hingga cetakan isi. Cocok untuk seniman, desainer, toko foto, dan proyek kreatif.",
+      "fungsi": "",
+      "data": "pigura",
+      "rendering": "productRenderingWithFilters",
+      "rendering_filter1": "kategori1",
+      "rendering_filter2": "",
+      "rendering_def_filter": ""
+    },
+    {
+      "path": "/?p=kartu-nama",
+      "judul": "Kartu Nama",
+      "deskripsi": "Ingin tampil beda? Kami cetak kartu nama dengan desain kreatif dan bentuk fleksibel. Cocok untuk pekerja kreatif, desainer, fotografer, atau siapa pun yang ingin tampil unik. Bisa full color, potongan custom, atau konsep tematik.",
+      "fungsi": "",
+      "data": "kartu-nama",
+      "rendering": "productRendering",
+      "rendering_filter1": "",
+      "rendering_filter2": "",
+      "rendering_def_filter": ""
+    },
+    {
+      "path": "/?p=cover",
+      "judul": "Cover",
+      "deskripsi": "Cover elegan untuk kitab Yasin, doa harian, atau buku amalan. Cocok untuk dibawa ke pengajian, tahlil, atau sebagai bingkisan. Tersedia juga versi custom nama/judul dan motif emboss Islami.",
+      "fungsi": "",
+      "data": "cover",
+      "rendering": "productRenderingWithFilters",
+      "rendering_filter1": "kategori1",
+      "rendering_filter2": "",
+      "rendering_def_filter": ""
+    },
+    {
+      "path": "/?p=undangan-web",
+      "judul": "Undangan Web",
+      "deskripsi": "Melayani pembuatan pigura custom sesuai kebutuhan Anda ? baik dari ukuran, bahan, warna, hingga cetakan isi. Cocok untuk seniman, desainer, toko foto, dan proyek kreatif.",
+      "fungsi": "",
+      "data": "undangan-web",
+      "rendering": "productRenderingWithFilters",
+      "rendering_filter1": "kategori1",
+      "rendering_filter2": "",
+      "rendering_def_filter": ""
+    }
+  ],
+  "menu": [
+    {
+      "label": "Undangan",
+      "url": "/"
+    },
+    {
+      "label": "Undangan Web",
+      "url": "/?p=undangan-web"
+    },
+    {
+      "label": "Layanan",
+      "url": "/?p=layanan"
+    },
+    {
+      "label": "Mug",
+      "url": "/?p=mug"
+    },
+    {
+      "label": "Aqiqah",
+      "url": "/?p=aqiqah"
+    },
+    {
+      "label": "Kartu Ucapan",
+      "url": "/?p=kartu-ucapan"
+    },
+    {
+      "label": "Pigura",
+      "url": "/?p=pigura"
+    },
+    {
+      "label": "Kartu Nama",
+      "url": "/?p=kartu-nama"
+    },
+    {
+      "label": "Cover",
+      "url": "/?p=cover"
+    }
+  ],
+  "variabel": [
+    {
+      "google_tag": "G-7D0RLQEEQD",
+      "wa_admin": 6285712110870,
+      "nama_admin": "Miftahul"
+    }
+  ],
+  "updated": "9/4/2026, 17.16.15"
+}

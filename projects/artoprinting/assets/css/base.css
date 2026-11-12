@@ -1,0 +1,98 @@
+/* =========================================================
+   Arto Printing — dasar
+   Token warna/tipografi (palet logo resmi), reset, utilitas, tombol.
+   Dimuat pertama oleh setiap halaman.
+   ========================================================= */
+
+:root {
+  /* Palet resmi: diambil dari logo & lembar maskot Arto Printing */
+  --teal: #0ba59d;         /* hijau toska logo */
+  --teal-deep: #066b66;    /* toska gelap: teks/tombol di atas putih, abu muda, dan toska muda (kontras >= 4.5:1) */
+  --teal-tint: #e7f6f5;    /* toska sangat muda untuk latar */
+  --royal: #263a8b;        /* biru logo ("memberi kemudahan") */
+  --ink: #0d2b5c;          /* navy maskot: teks utama & footer */
+  --ink-soft: #3b4c6b;
+  --ink-mute: #5f6875;     /* abu teks kecil; versi gelap dari abu maskot #757E8A agar kontras >= 4.5:1 */
+  --paper: #ffffff;
+  --sheet: #f2f5f7;        /* abu muda maskot */
+  --line: #dde3e8;
+  --sticker: #d9dee3;      /* bayangan stiker logo */
+
+  --font-display: "Fredoka", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --wrap: 1200px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 22px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+button, input, select { font: inherit; color: inherit; }
+
+:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+.hidden { display: none !important; }
+[hidden] { display: none !important; }
+
+/* ---------- Tombol ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  font-weight: 700;
+  font-size: .97rem;
+  text-decoration: none;
+  cursor: pointer;
+  line-height: 1.2;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn-ink { background: var(--ink); color: #fff; }
+.btn-ink:hover { background: var(--royal); }
+.btn-line { border-color: var(--ink); color: var(--ink); background: transparent; }
+.btn-line:hover { background: var(--ink); color: #fff; }
+.btn-wa { background: var(--teal-deep); color: #fff; }
+.btn-wa:hover { background: var(--ink); }
+.btn-sm { padding: 9px 16px; font-size: .9rem; }

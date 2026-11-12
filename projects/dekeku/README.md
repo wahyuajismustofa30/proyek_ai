@@ -55,3 +55,16 @@ Nomor WhatsApp dan informasi lokasi pada halaman kontak mengikuti informasi yang
 - `assets/icons/`: favicon, ikon, dan ikon PWA.
 - `manifest.webmanifest`: metadata PWA.
 - `docs/head-snippet.html`: contoh metadata head untuk integrasi.
+
+## Komponen global
+
+Header dan footer halaman publik dimuat dari komponen bersama:
+
+- `components/header.html` — logo, navigasi utama, tombol tema, menu mobile, dan WhatsApp Admin.
+- `components/footer.html` — identitas, tautan halaman, dan tahun hak cipta.
+- `js/components.js` — memuat komponen berdasarkan atribut `data-component` dan `data-root` pada placeholder halaman.
+- `js/main.js` — menginisialisasi interaksi menu, tema, dan tahun setelah komponen selesai dimuat.
+
+Seluruh halaman publik (homepage, halaman Produk/Paket/Tentang/Kontak, 404, 500, dan maintenance) menggunakan komponen yang sama. Halaman referensi desain di `pages/reference/` tetap menjadi dokumen internal dan tidak menggunakan layout publik.
+
+Komponen menggunakan JavaScript `fetch()`, sehingga website harus dijalankan melalui HTTP/HTTPS (misalnya server lokal pada bagian Menjalankan lokal), bukan dibuka langsung melalui protokol `file://`.

@@ -1,6 +1,7 @@
 // hero.js — tumpukan foto undangan dan angka ringkas di hero beranda.
 
-import { angka } from '../utils/teks.js';
+import { angka, urlAman } from '../utils/teks.js';
+import { CONFIG } from '../config.js';
 
 function setText(id, txt) {
   const el = document.getElementById(id);
@@ -20,8 +21,12 @@ export function renderHero(daftar, produkList) {
     const ready = undangan.filter((p) => /ready/i.test(p.status || ''));
     const pool = ready.length >= 3 ? ready : undangan;
     const pilih = [pool[Math.floor(pool.length * 0.15)], pool[Math.floor(pool.length * 0.55)], pool[0]];
-    stack.querySelectorAll('.proof img').forEach((img, i) => {
-      if (pilih[i]) { img.src = pilih[i].img; img.alt = pilih[i].nama; }
+    stack.querySelectorAll('.proof img').forEach((imgEl, i) => {
+      if (pilih[i]) {
+        const img = urlAman(pilih[i].img) || urlAman(CONFIG.img.fallbackProduk);
+        if (img) imgEl.src = img;
+        imgEl.alt = pilih[i].nama;
+      }
     });
     requestAnimationFrame(() => setTimeout(() => stack.classList.remove('is-loading'), 60));
   }

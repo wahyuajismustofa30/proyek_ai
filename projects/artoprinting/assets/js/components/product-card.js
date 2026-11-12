@@ -1,7 +1,7 @@
 // product-card.js — markup kartu produk (dipakai katalog beranda dan "produk terkait").
 
 import { CONFIG } from '../config.js';
-import { esc, label, slug } from '../utils/teks.js';
+import { esc, label, slug, urlAman } from '../utils/teks.js';
 
 /** "Ready" / "Pre Order" dari field status atau keterangan; selain itu kosong. */
 export function statusOf(p) {
@@ -10,7 +10,7 @@ export function statusOf(p) {
 }
 
 export function isExternal(url) {
-  return /^https?:\/\//i.test(url || '');
+  return /^https:\/\//i.test(url || '');
 }
 
 /**
@@ -19,7 +19,7 @@ export function isExternal(url) {
  * Link eksternal (Undangan Web) dibiarkan apa adanya.
  */
 export function linkProduk(p) {
-  const link = p.link_produk || '#';
+  const link = urlAman(p.link_produk) || '#';
   if (!link.startsWith('/produk.html')) return link;
   // ?p=Undangan_Cetak&id=5  ->  ?p=undangan-cetak&id=5  (semua huruf kecil)
   const q = new URLSearchParams(link.split('?')[1] || '');
@@ -62,11 +62,12 @@ export function cardHTML(p, key) {
   const link = linkProduk(p);
   const ext = isExternal(link);
   const sub = p.kategori || label(key);
+  const img = urlAman(p.img) || CONFIG.img.fallbackProduk;
   return `
       <a class="card" href="${esc(link)}"${ext ? ' target="_blank" rel="noopener"' : ''}>
         <div class="card-media">
           ${badgeHTML(p)}
-          <img src="${esc(p.img)}" alt="${esc(p.nama)}" loading="lazy" decoding="async">
+          <img src="${esc(img)}" alt="${esc(p.nama)}" loading="lazy" decoding="async">
         </div>
         <p class="card-title">${esc(p.nama)}</p>
         <p class="card-sub">${esc(sub)}</p>

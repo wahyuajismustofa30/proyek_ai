@@ -1,10 +1,10 @@
 # Website Arto Printing
 
 Situs katalog dan profil **Arto Printing** (percetakan di Bobotsari, Purbalingga):
-katalog ±978 desain dari `produk.json`, detail produk + pesan lewat WhatsApp,
+katalog 960 desain dan 18 layanan dari `assets/data/produk.json`, detail produk + pesan lewat WhatsApp,
 halaman layanan, cara pesan, testimoni, kontak, artikel blog, dan alat pembuat link tamu undangan.
 
-- **Teknologi:** HTML statis, CSS biasa, JavaScript modul (ES modules) bawaan browser. Tanpa framework, tanpa build.
+- **Teknologi:** HTML statis, CSS, dan JavaScript modul (ES modules) bawaan browser. Situs utama tanpa framework/build; CSS generator undangan merupakan hasil kompilasi Tailwind yang sumber build-nya belum tersedia di repository.
 - **Hosting:** GitHub Pages dengan domain `www.artoprintingpbg.com`.
 - **Data:** file JSON di `assets/data/`.
 
@@ -61,7 +61,7 @@ Halaman detail menerima `?p=undangan-cetak` maupun `?p=Undangan_Cetak`.
 │   ├── kontak/index.html       tentang, admin WhatsApp, alamat, foto toko, peta
 │   └── produk/index.html       detail produk
 ├── post/percetakan-murah-purbalingga.html
-├── tamu-undangan/              alat terpisah (style.css = hasil build Tailwind, jangan diedit manual)
+├── tamu-undangan/              alat terpisah (style.css = hasil build Tailwind; jangan diedit manual)
 ├── produk.html                 pengalih alamat lama -> /laman/produk/ (jangan dihapus)
 ├── 404.html                    halaman tidak ditemukan + pengalih alamat pendek/huruf besar
 ├── favicon.ico · sitemap.xml · robots.txt
@@ -99,7 +99,7 @@ Halaman detail menerima `?p=undangan-cetak` maupun `?p=Undangan_Cetak`.
 │   ├── sinkron-partial.py      salin partials/ ke semua halaman
 │   └── cek-proyek.py           periksa tautan, aset, data, partial sebelum deploy
 ├── docs/                       manifest file, daftar gambar produk
-└── README.md · CHANGELOG.md · LAPORAN_AUDIT.md · .gitignore
+└── README.md
 ```
 
 ### Urutan pemuatan di setiap halaman
@@ -142,8 +142,8 @@ Pengalihan ke `www`/`https` otomatis mati di localhost.
 ## Sebelum deploy
 
 1. Salin foto produk ke `https://drive.dekeku.my.id/storage/old/artoprinting/` (daftar: `docs/daftar-gambar-produk.txt`).
-2. `python tools/cek-proyek.py` → harus `OK` dan `OK: semua gambar produk tersedia.`
-3. Push ke GitHub Pages. File `CNAME` / `.nojekyll` di repository (bila ada) jangan dihapus.
+2. `python tools/cek-proyek.py` → memeriksa aset lokal dan melaporkan gambar eksternal sebagai belum diverifikasi (mode ini tidak mengakses jaringan).\n3. Opsional: `python tools/cek-proyek.py --cek-url-eksternal` untuk memeriksa URL gambar eksternal dengan timeout. HTTP 404/410 dilaporkan sebagai gambar hilang; gangguan jaringan dilaporkan sebagai gagal diverifikasi.\n4. Opsional: `python tools/cek-proyek.py --tulis-daftar-gambar` untuk membuat `docs/daftar-gambar-produk.txt`.
+5. Push ke GitHub Pages. File `CNAME` / `.nojekyll` di repository (bila ada) jangan dihapus.
 
 ---
 
@@ -157,7 +157,7 @@ Pengalihan ke `www`/`https` otomatis mati di localhost.
 | Urutan tab produk | `config.js` → `urutanProduk` |
 | Deskripsi kategori yang menimpa `setting.json` | `config.js` → `deskripsiKhusus` |
 | Jumlah ulasan awal (Testimoni / Beranda) | `config.js` → `testimoniAwal`, `testimoniBeranda` |
-| ID Google Analytics | `assets/js/core/analytics.js` |
+| ID Google Analytics yang dimuat | `assets/js/core/analytics.js` (konstanta di file ini; jangan disamakan otomatis dengan `setting.json`) |
 | Menu & footer | `partials/*.html`, lalu `python tools/sinkron-partial.py` |
 | Warna, font, radius | `assets/css/base.css` → `:root` |
 
@@ -197,8 +197,8 @@ Menu yang sedang dibuka otomatis ditandai (`aria-current="page"`) oleh `componen
 
 ## Konvensi
 
-- Semua nama folder, file, dan alamat: huruf kecil, kata dipisah `-` (`laman/cara-pesan/`). Pengecualian: dokumen `README.md`, `CHANGELOG.md`, `LAPORAN_AUDIT.md`.
-- ID elemen yang dipakai JavaScript tidak diganti tanpa memperbarui modulnya (daftar di LAPORAN_AUDIT.md).
+- Semua nama folder, file, dan alamat: huruf kecil, kata dipisah `-` (`laman/cara-pesan/`). Pengecualian: dokumen `README.md`.
+- ID elemen yang dipakai JavaScript tidak diganti tanpa memperbarui modul terkait.
 - Jangan menaruh token, private key, atau password di folder ini; semuanya publik.
 
 ---
@@ -234,11 +234,16 @@ Halaman Beranda, Katalog, Layanan, Testimoni, dan Detail Produk mencantumkan mod
 
 ### Memeriksa sebelum deploy
 ```bash
-python tools/cek-proyek.py          # tautan, aset, data, partial
+python tools/cek-proyek.py          # validasi lokal; gambar eksternal belum diverifikasi\npython tools/cek-proyek.py --cek-url-eksternal  # cek URL gambar eksternal (butuh jaringan)
 python tools/sinkron-partial.py --cek
 ```
 Pemeriksaan tambahan yang disarankan (butuh Chrome): Lighthouse di Chrome DevTools untuk tiap halaman,
 dan ekstensi axe DevTools untuk aksesibilitas.
+
+### Generator undangan: CSS dan dependensi
+File `tamu-undangan/style.css` adalah hasil kompilasi Tailwind CSS 4.1.11. Repository saat ini tidak menyediakan `input.css` maupun manifest/lockfile build untuk mereproduksinya. Pertahankan file hasil kompilasi dan jangan menjalankan build ulang sampai sumber serta versi toolchain yang benar tersedia.
+
+Generator memuat `showAlert()` dari jsDelivr. URL yang ada belum mengunci commit immutable dan tidak memiliki Subresource Integrity. Versi/commit dan hash integritas perlu diverifikasi dari sumber upstream sebelum dependensi diubah; audit ini tidak mengganti library secara spekulatif.
 
 ## Layanan eksternal
 
@@ -251,4 +256,4 @@ dan ekstensi axe DevTools untuk aksesibilitas.
 | Cloudinary (`res.cloudinary.com/ahwihzsc`) | gambar Open Graph/Twitter & apple-touch-icon |
 | `undangan.dekeku.my.id` | demo undangan web |
 | `lh3.googleusercontent.com` | foto profil pengulas |
-| jsDelivr `wahyuajismustofa/berbagi-koding/js/utils@v1.js` | `showAlert()` di tamu-undangan |
+| jsDelivr `wahyuajismustofa/berbagi-koding/js/utils@v1.js` | `showAlert()` di tamu-undangan (referensi belum dipatok ke commit immutable; evaluasi sebelum perubahan) |

@@ -209,7 +209,7 @@ def parse_args():
     )
     parser.add_argument(
         "--tulis-daftar-gambar", action="store_true",
-        help="tulis daftar URL gambar produk eksternal ke docs/daftar-gambar-produk.txt",
+        help="tulis URL gambar eksternal dari HTML dan produk.json ke docs/daftar-gambar-produk.txt",
     )
     args = parser.parse_args()
     if not 1 <= args.pekerja <= 16:

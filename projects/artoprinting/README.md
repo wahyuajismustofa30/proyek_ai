@@ -142,7 +142,9 @@ Pengalihan ke `www`/`https` otomatis mati di localhost.
 ## Sebelum deploy
 
 1. Salin foto produk ke `https://drive.dekeku.my.id/storage/old/artoprinting/` (daftar: `docs/daftar-gambar-produk.txt`).
-2. `python tools/cek-proyek.py` → memeriksa aset lokal dan melaporkan gambar eksternal sebagai belum diverifikasi (mode ini tidak mengakses jaringan).\n3. Opsional: `python tools/cek-proyek.py --cek-url-eksternal` untuk memeriksa URL gambar eksternal dengan timeout. HTTP 404/410 dilaporkan sebagai gambar hilang; gangguan jaringan dilaporkan sebagai gagal diverifikasi.\n4. Opsional: `python tools/cek-proyek.py --tulis-daftar-gambar` untuk membuat `docs/daftar-gambar-produk.txt`.
+2. Jalankan `python tools/cek-proyek.py` untuk memeriksa aset lokal dan melihat status gambar eksternal tanpa mengakses jaringan.
+3. Opsional: jalankan `python tools/cek-proyek.py --cek-url-eksternal` untuk memeriksa URL gambar eksternal dengan timeout dan maksimal 8 koneksi paralel. HTTP 404/410 dilaporkan sebagai gambar hilang; gangguan jaringan dilaporkan sebagai gagal diverifikasi.
+4. Opsional: jalankan `python tools/cek-proyek.py --tulis-daftar-gambar` untuk membuat `docs/daftar-gambar-produk.txt`.
 5. Push ke GitHub Pages. File `CNAME` / `.nojekyll` di repository (bila ada) jangan dihapus.
 
 ---
@@ -206,6 +208,7 @@ Menu yang sedang dibuka otomatis ditandai (`aria-current="page"`) oleh `componen
 ## Pemeliharaan
 
 ### Data bisnis yang tertulis di beberapa tempat
+
 Bila alamat, nomor WhatsApp, atau media sosial berubah, perbarui **semua** tempat berikut:
 
 | Data | Lokasi |
@@ -217,22 +220,26 @@ Bila alamat, nomor WhatsApp, atau media sosial berubah, perbarui **semua** tempa
 | Link Google Maps | `index.html`, `laman/kontak/index.html`, `laman/testimoni/index.html`, JSON-LD `hasMap` |
 
 ### Data terstruktur (JSON-LD)
+
 - `LocalBusiness` di Beranda dan Kontak: nama, alamat, telepon, koordinat (dari embed Google Maps), media sosial.
   **Tidak** memuat rating, harga, atau jam buka karena datanya belum ada. Jangan menambahkannya tanpa data resmi.
 - `Article` di halaman artikel: judul, tanggal terbit, gambar.
 - Cek dengan <https://search.google.com/test/rich-results> setelah deploy.
 
 ### Kerangka (skeleton) & CLS
+
 Bagian yang diisi dari JSON (katalog, layanan, testimoni, kartu beranda, detail produk) sudah berisi kerangka di HTML
 supaya tata letak tidak bergeser saat data datang. Saat menambah bagian baru yang diisi JavaScript, ikuti pola yang sama:
 beri isi kerangka (`.card.skeleton`, `.teks-skeleton`, `.pill-skeleton`) + `aria-busy="true"`, lalu set `aria-busy="false"` saat merender.
 
 ### `modulepreload`
+
 Halaman Beranda, Katalog, Layanan, Testimoni, dan Detail Produk mencantumkan modul JS yang dipakainya dengan
 `<link rel="modulepreload">` agar diunduh paralel. Bila menambah/menghapus `import`, sesuaikan daftar itu
 (salah daftar tidak merusak fungsi, hanya mengunduh file yang tidak perlu atau kehilangan percepatan).
 
 ### Memeriksa sebelum deploy
+
 ```bash
 python tools/cek-proyek.py          # validasi lokal; gambar eksternal belum diverifikasi\npython tools/cek-proyek.py --cek-url-eksternal  # cek URL gambar eksternal (butuh jaringan)
 python tools/sinkron-partial.py --cek
@@ -241,6 +248,7 @@ Pemeriksaan tambahan yang disarankan (butuh Chrome): Lighthouse di Chrome DevToo
 dan ekstensi axe DevTools untuk aksesibilitas.
 
 ### Generator undangan: CSS dan dependensi
+
 File `tamu-undangan/style.css` adalah hasil kompilasi Tailwind CSS 4.1.11. Repository saat ini tidak menyediakan `input.css` maupun manifest/lockfile build untuk mereproduksinya. Pertahankan file hasil kompilasi dan jangan menjalankan build ulang sampai sumber serta versi toolchain yang benar tersedia.
 
 Generator memuat `showAlert()` dari jsDelivr pada commit immutable `72646e89a28be53dd3127c160c855085d2617b15` dan memverifikasi file dengan Subresource Integrity (SHA-384). Jika library diperbarui, verifikasi commit dan hitung ulang hash integritas dari file upstream sebelum mengubah URL.

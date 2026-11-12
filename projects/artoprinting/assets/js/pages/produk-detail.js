@@ -40,24 +40,36 @@ function perbaruiMeta(produk, sheet) {
   canonical.searchParams.set('id', String(produk.id));
   const url = canonical.href;
   const desk = `${produk.nama} (${label(sheet)}${produk.kategori ? ', ' + produk.kategori : ''}) dari Arto Printing, Bobotsari, Purbalingga. Pesan atau tanya detailnya lewat WhatsApp.`;
-  const set = (sel, attr, val) => {
-    let el = document.querySelector(sel);
-    if (!el && sel === 'link[rel="canonical"]') {
-      el = document.createElement('link');
-      el.rel = 'canonical';
-      document.head.append(el);
-    } else if (!el && sel === 'meta[property="og:url"]') {
+  const setMeta = (jenis, key, val) => {
+    const selector = `meta[${jenis}="${key}"]`;
+    let el = document.querySelector(selector);
+    if (!el) {
       el = document.createElement('meta');
-      el.setAttribute('property', 'og:url');
+      el.setAttribute(jenis, key);
       document.head.append(el);
     }
-    if (el) el.setAttribute(attr, val);
+    el.setAttribute('content', val);
   };
-  set('meta[name="description"]', 'content', desk);
-  set('meta[property="og:title"]', 'content', document.title);
-  set('meta[property="og:description"]', 'content', desk);
-  set('meta[property="og:url"]', 'content', url);
-  set('link[rel="canonical"]', 'href', url);
+  const gambar = urlAman(produk.img) || urlAman(CONFIG.img.fallbackProduk);
+  const gambarURL = gambar ? new URL(gambar, location.origin).href : '';
+
+  setMeta('name', 'description', desk);
+  setMeta('property', 'og:title', document.title);
+  setMeta('property', 'og:description', desk);
+  setMeta('property', 'og:url', url);
+  setMeta('property', 'og:image', gambarURL);
+  setMeta('name', 'twitter:card', 'summary_large_image');
+  setMeta('name', 'twitter:title', document.title);
+  setMeta('name', 'twitter:description', desk);
+  setMeta('name', 'twitter:image', gambarURL);
+
+  let canonicalEl = document.querySelector('link[rel="canonical"]');
+  if (!canonicalEl) {
+    canonicalEl = document.createElement('link');
+    canonicalEl.rel = 'canonical';
+    document.head.append(canonicalEl);
+  }
+  canonicalEl.href = url;
 }
 
 function renderDetail(container, produk, sheet) {

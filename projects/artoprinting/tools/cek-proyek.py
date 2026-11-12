@@ -96,15 +96,23 @@ def cek_html():
         if dup:
             masalah.append(f"{rel(f)}: id ganda {sorted(dup)}")
         for tag, attr, ref in p.refs:
+            if tag in ("img", "source") and attr == "src":
+                bagian = urlsplit(ref)
+                if bagian.scheme in ("http", "https") or ref.startswith("//"):
+                    gambar_eksternal.add(ref)
+                else:
+                    gambar = resolve(ref, f)
+                    if gambar is not None:
+                        if gambar.exists():
+                            gambar_lokal_valid.add(str(gambar))
+                        else:
+                            gambar_hilang.append(ref)
+
             t = resolve(ref, f)
             if t is None:
                 continue
             if not t.exists():
-                pesan = f"{rel(f)}: <{tag} {attr}=\"{ref}\"> tidak ditemukan"
-                if "https://drive.dekeku.my.id/storage/old/artoprinting/" in ref and "/brand/" not in ref:
-                    gambar_hilang.append(ref)
-                else:
-                    masalah.append(pesan)
+                masalah.append(f"{rel(f)}: <{tag} {attr}=\"{ref}\"> tidak ditemukan")
 
 
 def cek_css_js():
@@ -137,9 +145,16 @@ def cek_produk(data):
         ids = {str(x.get("id")) for x in daftar}
         for x in daftar:
             img = x.get("img") or ""
-            t = resolve(img, ROOT / "index.html")
-            if t is not None and not t.exists():
-                gambar_hilang.append(img)
+            bagian = urlsplit(img)
+            if bagian.scheme in ("http", "https") or img.startswith("//"):
+                gambar_eksternal.add(img)
+            else:
+                t = resolve(img, ROOT / "index.html")
+                if t is not None:
+                    if t.exists():
+                        gambar_lokal_valid.add(str(t))
+                    else:
+                        gambar_hilang.append(img)
             link = x.get("link_produk") or ""
             if link.startswith("/produk.html"):
                 q = parse_qs(urlsplit(link).query)
@@ -149,6 +164,32 @@ def cek_produk(data):
         if len(ids) != len(daftar):
             masalah.append(f"produk.json {kunci}: ada id ganda")
 
+
+
+def cek_url_gambar(url):
+    """Periksa URL gambar eksternal dengan GET terbatas dan timeout."""
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "ArtoPrinting-Project-Validator/1.0", "Range": "bytes=0-0"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=6) as response:
+            status = getattr(response, "status", 200)
+            tipe = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+            if status < 200 or status >= 400:
+                gambar_eksternal_gagal[url] = f"HTTP {status}"
+            elif not tipe.startswith("image/"):
+                gambar_eksternal_gagal[url] = f"Content-Type bukan gambar ({tipe or 'tidak diketahui'})"
+            else:
+                response.read(1)
+                gambar_eksternal_valid.add(url)
+    except urllib.error.HTTPError as e:
+        if e.code in (404, 410):
+            gambar_eksternal_hilang[url] = f"HTTP {e.code}"
+        else:
+            gambar_eksternal_gagal[url] = f"HTTP {e.code}"
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
+        gambar_eksternal_gagal[url] = str(getattr(e, "reason", e))
 
 def cek_partial():
     r = subprocess.run([sys.executable, str(ROOT / "tools/sinkron-partial.py"), "--cek"], capture_output=True, text=True)

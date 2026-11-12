@@ -205,6 +205,12 @@ h2 span{color:#929292}.intro h2{max-width:790px}.section-lead{color:var(--text-s
     position: relative;
   }
 
+  .menu-toggle,
+  .theme-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
   .menu-toggle {
     display: grid;
     flex: 0 0 44px;

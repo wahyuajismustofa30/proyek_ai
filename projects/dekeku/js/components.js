@@ -98,7 +98,7 @@
         return response.text();
       })
       .then(function (html) {
-        mount.outerHTML = html.replace(/\\{\\{root\\}\\}/g, root);
+        mount.outerHTML = html.replace(/\{\{root\}\}/g, root);
       })
       .catch(function (error) {
         console.error(error);
@@ -107,7 +107,7 @@
   });
 
   Promise.all(tasks).then(function () {
-    var currentPath = window.location.pathname.replace(/\\/$/, "").split("/").pop() || "index.html";
+    var currentPath = window.location.pathname.replace(/\/$/, "").split("/").pop() || "index.html";
     var currentPage = window.location.pathname.indexOf("/pages/") !== -1
       ? "pages/" + currentPath
       : currentPath;

@@ -245,6 +245,7 @@ python tools/cek-proyek.py          # validasi lokal; gambar eksternal belum div
 python tools/cek-proyek.py --cek-url-eksternal  # cek URL gambar eksternal (butuh jaringan)
 python tools/sinkron-partial.py --cek
 ```
+
 Pemeriksaan tambahan yang disarankan (butuh Chrome): Lighthouse di Chrome DevTools untuk tiap halaman,
 dan ekstensi axe DevTools untuk aksesibilitas.
 

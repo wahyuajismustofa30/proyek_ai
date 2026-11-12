@@ -7,6 +7,8 @@ const eventFilter = document.getElementById("filter-event");
 const themeFilter = document.getElementById("filter-theme");
 const countLabel = document.getElementById("catalog-count");
 const pagination = document.getElementById("catalog-pagination");
+const resetButton = document.getElementById("catalog-reset");
+const params = new URLSearchParams(window.location.search);
 const PER_PAGE = 12;
 let products = [];
 let filtered = [];
@@ -109,6 +111,7 @@ function renderProducts() {
     image.src = /^https:\/\//i.test(product.img || "") ? product.img : "../assets/logos/dekeku-logo-horizontal.svg";
     image.alt = product.nama;
     image.loading = "lazy";
+    image.decoding = "async";
     image.onerror = () => { image.onerror = null; image.src = "../assets/logos/dekeku-logo-horizontal.svg"; };
 
     const body = node("div", "shop-card-body");
@@ -119,14 +122,14 @@ function renderProducts() {
 
     const actions = node("div", "shop-card-actions");
     if (product.link_produk && /^https:\/\//i.test(product.link_produk)) {
-      const preview = iconLink("Lihat preview produk", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>');
+      const preview = iconLink("Lihat preview produk", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span>Preview</span>');
       preview.href = product.link_produk;
       preview.target = "_blank";
       preview.rel = "noopener noreferrer";
       actions.append(preview);
     }
 
-    const order = iconLink("Pesan produk melalui WhatsApp", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h2l2.2 12.2a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6"/><circle cx="10" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>');
+    const order = iconLink("Pesan produk melalui WhatsApp", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h2l2.2 12.2a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6"/><circle cx="10" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg><span>Pesan</span>');
     order.href = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(orderMessage(product))}`;
     order.target = "_blank";
     order.rel = "noopener noreferrer";
@@ -153,6 +156,15 @@ function renderProducts() {
   }
 }
 
+if (resetButton) resetButton.addEventListener("click", () => {
+  searchInput.value = "";
+  categoryFilter.value = "";
+  eventFilter.value = "";
+  themeFilter.value = "";
+  applyFilters();
+  history.replaceState(null, "", window.location.pathname);
+});
+
 [searchInput, categoryFilter, eventFilter, themeFilter].forEach((control) => {
   control.addEventListener(control === searchInput ? "input" : "change", applyFilters);
 });
@@ -169,6 +181,9 @@ async function init() {
     fillFilter(categoryFilter, products.map((item) => item.category), "kategori");
     fillFilter(eventFilter, products.map((item) => item.event), "acara");
     fillFilter(themeFilter, products.map((item) => item.theme), "tema");
+    if (params.has("event")) eventFilter.value = params.get("event");
+    if (params.has("theme")) themeFilter.value = params.get("theme");
+    if (params.has("category")) categoryFilter.value = params.get("category");
     applyFilters();
   } catch (error) {
     grid.replaceChildren(node("p", "shop-empty", "Katalog belum dapat dimuat. Silakan muat ulang halaman atau hubungi DEKEKU."));

@@ -1,7 +1,8 @@
 // layanan.js — bagian "Layanan di toko", dikelompokkan dari data "Layanan".
 
-import { esc } from '../utils/teks.js';
+import { esc, urlAman } from '../utils/teks.js';
 import { linkProduk, pasangFallbackGambar } from '../components/product-card.js';
+import { CONFIG } from '../config.js';
 
 // Titik di depan judul kelompok memakai warna toska (lihat .service-group h3::before).
 
@@ -21,11 +22,14 @@ export function renderLayanan(layanan) {
     <div class="service-group">
       <h2>${esc(g)}</h2>
       <ul class="service-list">
-        ${groups[g].map((p) => `
+        ${groups[g].map((p) => {
+          const img = urlAman(p.img) || urlAman(CONFIG.img.fallbackProduk);
+          return `
           <li><a href="${esc(linkProduk(p))}">
-            <img src="${esc(p.img)}" alt="" loading="lazy">
+            <img src="${esc(img)}" alt="" loading="lazy">
             <span>${esc(p.nama)}</span>
-          </a></li>`).join('')}
+          </a></li>`;
+        }).join('')}
       </ul>
     </div>`).join('');
 }

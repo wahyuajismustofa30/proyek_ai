@@ -4,7 +4,7 @@
 
 import '../core/site.js';
 import { CONFIG } from '../config.js';
-import { esc, label, slug } from '../utils/teks.js';
+import { esc, label, slug, urlAman } from '../utils/teks.js';
 import { getProduk } from '../services/data.js';
 import { cardHTML, statusOf, waLink, pasangFallbackGambar } from '../components/product-card.js';
 
@@ -35,9 +35,24 @@ function renderGagal(container) {
 
 /** Meta SEO & berbagi untuk produk yang sedang dibuka (halaman ini dirender oleh JavaScript). */
 function perbaruiMeta(produk, sheet) {
-  const url = `${location.origin}${CONFIG.halaman.produk}?p=${slug(sheet)}&id=${encodeURIComponent(produk.id)}`;
+  const canonical = new URL(CONFIG.halaman.produk, location.origin);
+  canonical.searchParams.set('p', slug(sheet));
+  canonical.searchParams.set('id', String(produk.id));
+  const url = canonical.href;
   const desk = `${produk.nama} (${label(sheet)}${produk.kategori ? ', ' + produk.kategori : ''}) dari Arto Printing, Bobotsari, Purbalingga. Pesan atau tanya detailnya lewat WhatsApp.`;
-  const set = (sel, attr, val) => { const el = document.querySelector(sel); if (el) el.setAttribute(attr, val); };
+  const set = (sel, attr, val) => {
+    let el = document.querySelector(sel);
+    if (!el && sel === 'link[rel="canonical"]') {
+      el = document.createElement('link');
+      el.rel = 'canonical';
+      document.head.append(el);
+    } else if (!el && sel === 'meta[property="og:url"]') {
+      el = document.createElement('meta');
+      el.setAttribute('property', 'og:url');
+      document.head.append(el);
+    }
+    if (el) el.setAttribute(attr, val);
+  };
   set('meta[name="description"]', 'content', desk);
   set('meta[property="og:title"]', 'content', document.title);
   set('meta[property="og:description"]', 'content', desk);
@@ -63,7 +78,7 @@ function renderDetail(container, produk, sheet) {
   const ket = (produk.keterangan && !/^(ready|pre order)$/i.test(produk.keterangan)) ? produk.keterangan : '';
   container.innerHTML = `
       <div class="detail-media">
-        <img src="${esc(produk.img || CONFIG.img.fallbackProduk)}" alt="${esc(produk.nama)}">
+        <img src="${esc(urlAman(produk.img) || CONFIG.img.fallbackProduk)}" alt="${esc(produk.nama)}">
       </div>
       <div class="detail-info">
         <h1>${esc(produk.nama || '-')}</h1>

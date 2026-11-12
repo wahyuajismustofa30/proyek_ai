@@ -47,5 +47,7 @@
     }
   }
 
+  /* Handle both fast and delayed asynchronous component injection. */
+  document.addEventListener("DOMContentLoaded", initializeLayout);
   document.addEventListener("dekeku:components-loaded", initializeLayout);
 }());

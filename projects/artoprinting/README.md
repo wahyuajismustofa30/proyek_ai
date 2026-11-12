@@ -12,7 +12,7 @@ halaman layanan, cara pesan, testimoni, kontak, artikel blog, dan alat pembuat l
 
 ## Halaman & alamat
 
-Semua alamat memakai **huruf kecil**. Halaman selain beranda, `post/`, dan `tamu-undangan/` ada di folder `laman/`.
+Semua alamat memakai **huruf kecil**. Halaman profil dan katalog berada di `laman/`; indeks blog ada di `blog/`, artikel di `post/`, dan alat undangan di `tamu-undangan/`.
 
 | Halaman | Alamat | File |
 |---|---|---|
@@ -74,7 +74,7 @@ Halaman detail menerima `?p=undangan-cetak` maupun `?p=Undangan_Cetak`.
 │   │   ├── layout.css          header, navigasi, judul halaman, section, footer, WA melayang
 │   │   ├── components.css      tab, chip, pencarian, kartu produk, testimoni, bagikan, alamat & peta
 │   │   ├── pages/              satu file per halaman: beranda, katalog, layanan, cara-pesan,
-│   │   │                       testimoni, kontak, produk, artikel
+│   │   │                       testimoni, kontak, produk, artikel, blog
 │   │   └── legacy/nordic-custom.css   tema lama, tidak dipakai (arsip)
 │   ├── data/                   ⚠ path ini kontrak dengan alur data spreadsheet
 │   │   ├── produk.json · setting.json · ulasan.json

@@ -7,6 +7,7 @@ Struktur internal setiap proyek fleksibel; README bersifat opsional.
 
 | Proyek | Direktori | README |
 |---|---|---|
+| Artoprinting | [projects/artoprinting/](../projects/artoprinting/) | [README.md](../projects/artoprinting/README.md) |
 | Dekeku | [projects/dekeku/](../projects/dekeku/) | [README.md](../projects/dekeku/README.md) |
 | Preview | [projects/preview/](../projects/preview/) | [README.md](../projects/preview/README.md) |
 | Testing | [projects/testing/](../projects/testing/) | [README.md](../projects/testing/README.md) |

@@ -2,9 +2,9 @@
 // Dimuat sebagai script biasa di <head> pada setiap halaman utama.
 // (dulu: assets/js/gtag.js — logika tidak berubah)
 //
-// Catatan: setting.json menyimpan google_tag "G-7D0RLQEEQD", sedangkan ID yang
-// benar-benar terpasang sejak versi lama adalah di bawah ini. ID sengaja tidak
-// diubah; lihat LAPORAN_AUDIT.md.
+// Catatan: setting.json menyimpan google_tag "G-7D0RLQEEQD", berbeda dari ID
+// yang dimuat di bawah ini. Repository belum membuktikan properti yang benar;
+// jangan mengubah ID sampai pemilik mengonfirmasi Measurement ID aktif.
 (function () {
   var GA_MEASUREMENT_ID = 'G-RTHYD0QDMC';
 

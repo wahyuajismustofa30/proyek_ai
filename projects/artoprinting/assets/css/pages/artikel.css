@@ -16,6 +16,7 @@
 .prose a:hover{color:var(--ink)}
 .prose .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:0 0 1.2em}
 .prose .gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--r-sm);background:var(--sheet)}
+.prose .ui-table-wrap{margin:1.35em 0 1.65em}
 .prose .lihat-juga{margin:2.4em 0 0;padding:20px 24px;background:var(--teal-tint);border-radius:var(--r-lg)}
 .prose .lihat-juga h2{margin:0 0 .5em;font-size:1.3rem}
 .prose .lihat-juga ul{margin:0}

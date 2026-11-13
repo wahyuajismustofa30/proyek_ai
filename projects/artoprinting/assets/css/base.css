@@ -70,7 +70,7 @@ a { color: inherit; }
 button, input, select { font: inherit; color: inherit; }
 
 :focus-visible {
-  outline: 3px solid var(--teal);
+  outline: 3px solid var(--color-focus);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -146,7 +146,7 @@ button, input, select { font: inherit; color: inherit; }
 }
 .form-control::placeholder { color: var(--color-text-subtle); opacity: 1; }
 .form-control:focus {
-  outline: 3px solid color-mix(in srgb, var(--color-focus) 22%, transparent);
+  outline: 3px solid var(--color-focus);
   border-color: var(--color-focus);
 }
 .form-control:disabled {

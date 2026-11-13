@@ -16,6 +16,8 @@
   <style>
     /* Tata letak khusus galeri; tampilan komponen tetap berasal dari Master Theme. */
     .theme-demo { --demo-gap: 20px; padding-bottom: 72px; }
+    .demo-eyebrow { display:inline-flex; align-items:center; gap:8px; margin:0 0 12px; color:var(--color-brand-strong); font-size:.82rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .demo-eyebrow::before { content:""; width:22px; height:3px; border-radius:99px; background:var(--color-brand); }
     .demo-hero { padding: clamp(36px, 6vw, 68px) 0; background: var(--color-brand-soft); }
     .demo-hero h1 { margin: 0 0 12px; color: var(--color-text); font: 700 clamp(2rem, 5vw, 3.5rem)/1.05 var(--font-display); }
     .demo-hero p { max-width: 48rem; margin: 0; color: var(--color-text-muted); }
@@ -64,7 +66,7 @@
   <main id="main-content" class="theme-demo" tabindex="-1">
     <section class="demo-hero">
       <div class="wrap">
-        <p class="blog-eyebrow">Design system · Reference</p>
+        <p class="demo-eyebrow">Design system · Reference</p>
         <h1>Master Theme Showcase</h1>
         <p>Halaman referensi visual untuk melihat warna, tipografi, tombol, formulir, kartu, navigasi, dan komponen yang tersedia. Komponen di bawah mengambil gaya dari stylesheet utama ARTO PRINTING.</p>
       </div>
@@ -168,7 +170,7 @@
       <div class="wrap">
         <h2>05. Formulir & kontrol</h2>
         <p>Field memakai kelas <code>.form-control</code> dari Master Theme. Contoh ini tidak mengirim data ke mana pun.</p>
-        <form class="surface demo-panel demo-field" action="#" method="get" onsubmit="return false">
+        <form class="surface demo-panel demo-field" action="#" method="get">
           <div>
             <label class="demo-label" for="demo-name">Nama lengkap</label>
             <input class="form-control" id="demo-name" type="text" placeholder="Masukkan nama">
@@ -186,6 +188,7 @@
             <textarea class="form-control" id="demo-message" rows="3" placeholder="Tulis kebutuhan cetak Anda"></textarea>
           </div>
           <label><input type="checkbox"> Saya setuju dengan contoh pilihan ini</label>
+          <fieldset style="border:1px solid var(--color-border);border-radius:var(--r-sm);padding:12px"><legend class="demo-label">Pilihan contoh</legend><label><input type="radio" name="demo-choice" checked> Digital</label> &nbsp; <label><input type="radio" name="demo-choice"> Cetak</label></fieldset>
           <div class="demo-row"><button class="btn btn-ink" type="button">Contoh submit</button><button class="btn btn-line" type="reset">Reset</button></div>
           <div>
             <label class="demo-label" for="demo-disabled">Field nonaktif</label>
@@ -216,8 +219,8 @@
           <div class="demo-note">Catatan informasi menggunakan latar brand soft dan aksen brand strong.</div>
           <div class="share">
             <span>Bagikan contoh:</span>
-            <a href="#pola" aria-label="Contoh tautan berbagi">↗</a>
-            <button type="button" aria-label="Contoh tombol berbagi">+</button>
+            <a href="#pola" aria-label="Contoh tautan berbagi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 16V3m0 0L7 8m5-5 5 5M5 13v7h14v-7"/></svg></a>
+            <button type="button" aria-label="Contoh tombol berbagi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4m-6.6 9 6.6 4.4"/></svg></button>
           </div>
         </div>
       </div>

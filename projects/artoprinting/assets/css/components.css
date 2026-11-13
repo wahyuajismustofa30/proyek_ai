@@ -95,7 +95,8 @@
   background: var(--paper);
   font-size: .95rem;
 }
-.search input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(11,165,157,.2); }
+.search input:focus { outline: none; border-color: var(--teal-deep); box-shadow: 0 0 0 3px rgba(6,107,102,.2); }
+.search input::placeholder { color: var(--ink-mute); opacity: 1; }
 .search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--ink-mute); }
 @media (max-width: 640px) { .search { flex: 1 1 100%; margin-left: 0; } }
 
@@ -134,7 +135,7 @@
 }
 .card:hover .card-media img { transform: scale(1.04); }
 .card:focus-visible { outline: none; }
-.card:focus-visible .card-media { outline: 3px solid var(--teal); outline-offset: 3px; }
+.card:focus-visible .card-media { outline: 3px solid var(--teal-deep); outline-offset: 3px; }
 .badge {
   position: absolute;
   top: 10px; left: 10px;
@@ -194,6 +195,10 @@
 .share button.copy { width: auto; padding: 0 14px; border-radius: 999px; font-weight: 600; font-size: .88rem; }
 .share a:hover, .share button:hover { border-color: var(--ink); }
 .share svg { width: 18px; height: 18px; }
+
+/* Batas kontrol yang dapat dibedakan pada latar terang. */
+.tab, .chip, .search input, .share a, .share button { border-color: var(--color-control-border); }
+.share button.copy.is-copied { background: var(--color-brand-soft); border-color: var(--color-brand-strong); color: var(--color-brand-strong); }
 
 /* maskot kecil di state kosong */
 .empty-mascot { width: 72px; margin: 0 auto 8px; }

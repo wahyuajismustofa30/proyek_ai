@@ -11,6 +11,21 @@ function closeDropdowns(except = null) {
 }
 
 function initDropdowns() {
+  document.querySelectorAll(dropdownSelector).forEach((dropdown) => {
+    dropdown.addEventListener("toggle", () => {
+      if (!dropdown.open) {
+        dropdown.classList.remove("is-align-end");
+        return;
+      }
+      requestAnimationFrame(() => {
+        const menu = dropdown.querySelector(".ui-dropdown-menu");
+        if (!menu) return;
+        const bounds = menu.getBoundingClientRect();
+        dropdown.classList.toggle("is-align-end", bounds.right > window.innerWidth - 12);
+      });
+    });
+  });
+
   document.addEventListener("click", (event) => {
     const current = event.target.closest(dropdownSelector);
     closeDropdowns(current);
@@ -111,10 +126,10 @@ function initToast() {
     const trigger = event.target.closest("[data-toast-trigger]");
     if (trigger) {
       const type = trigger.dataset.toastTrigger;
-      const [title, message] = toastMessages[type] || toastMessages.info;
+      const [defaultTitle, defaultMessage] = toastMessages[type] || toastMessages.info;
       toastNode.dataset.type = type;
-      toastNode.querySelector("[data-toast-title]").textContent = title;
-      toastNode.querySelector("[data-toast-message]").textContent = message;
+      toastNode.querySelector("[data-toast-title]").textContent = trigger.dataset.toastTitle || defaultTitle;
+      toastNode.querySelector("[data-toast-message]").textContent = trigger.dataset.toastMessage || defaultMessage;
       toastNode.setAttribute("role", type === "error" ? "alert" : "status");
       toastNode.hidden = false;
       return;

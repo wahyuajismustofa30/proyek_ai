@@ -44,6 +44,38 @@
   --shadow-popover: 0 16px 40px rgba(13, 43, 92, .14);
   --motion-fast: 150ms ease;
   --motion-standard: 220ms ease;
+
+  /* Skala tipografi dan ritme jarak untuk komponen yang konsisten. */
+  --text-xs: .75rem;
+  --text-sm: .875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --leading-tight: 1.2;
+  --leading-normal: 1.6;
+  --leading-loose: 1.8;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --r-pill: 999px;
+
+  /* Elevasi dan warna status; pasangan soft dipakai untuk latar notifikasi. */
+  --shadow-soft: 0 4px 16px rgba(13, 43, 92, .06);
+  --shadow-raised: 0 18px 48px rgba(13, 43, 92, .16);
+  --color-success: #176b45;
+  --color-success-soft: #e8f5ee;
+  --color-warning: #875500;
+  --color-warning-soft: #fff5dc;
+  --color-danger: #a52b35;
+  --color-danger-soft: #fff0f0;
+  --color-info: #24558b;
+  --color-info-soft: #edf5ff;
 }
 
 *, *::before, *::after { box-sizing: border-box; }

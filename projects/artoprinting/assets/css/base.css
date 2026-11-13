@@ -26,6 +26,24 @@
   --r-sm: 6px;
   --r-md: 12px;
   --r-lg: 22px;
+
+  /* Master Theme: semantic tokens untuk semua halaman dan komponen. */
+  --color-brand: var(--teal);
+  --color-brand-strong: var(--teal-deep);
+  --color-brand-soft: var(--teal-tint);
+  --color-accent: var(--royal);
+  --color-text: var(--ink);
+  --color-text-muted: var(--ink-soft);
+  --color-text-subtle: var(--ink-mute);
+  --color-surface: var(--paper);
+  --color-surface-muted: var(--sheet);
+  --color-border: var(--line);
+  --color-focus: var(--teal-deep);
+  --color-on-brand: #ffffff;
+  --shadow-card: 0 12px 32px rgba(13, 43, 92, .08);
+  --shadow-popover: 0 16px 40px rgba(13, 43, 92, .14);
+  --motion-fast: 150ms ease;
+  --motion-standard: 220ms ease;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -95,4 +113,47 @@ button, input, select { font: inherit; color: inherit; }
 .btn-line:hover { background: var(--ink); color: #fff; }
 .btn-wa { background: var(--teal-deep); color: #fff; }
 .btn-wa:hover { background: var(--ink); }
+.btn:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: .58;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 .btn-sm { padding: 9px 16px; font-size: .9rem; }
+
+
+/* ---------- Fondasi komponen lintas halaman ---------- */
+.surface {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card);
+}
+
+.form-control {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 13px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+.form-control::placeholder { color: var(--color-text-subtle); opacity: 1; }
+.form-control:focus {
+  outline: 3px solid color-mix(in srgb, var(--color-focus) 22%, transparent);
+  border-color: var(--color-focus);
+}
+.form-control:disabled {
+  background: var(--color-surface-muted);
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+}
+
+.text-muted { color: var(--color-text-muted); }
+.text-subtle { color: var(--color-text-subtle); }

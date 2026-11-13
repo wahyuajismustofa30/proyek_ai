@@ -49,7 +49,8 @@ export function setLoadingState(target, loading, { statusText } = {}) {
  */
 export async function runWithLoadingState(target, task, {
   loadingText = "Sedang memuat konten.",
-  doneText = "Pemuatan selesai."
+  doneText = "Pemuatan selesai.",
+  errorText = "Pemuatan gagal."
 } = {}) {
   if (typeof task !== "function") throw new TypeError("task harus berupa fungsi.");
 
@@ -58,8 +59,11 @@ export async function runWithLoadingState(target, task, {
 
   setLoadingState(container, true, { statusText: loadingText });
   try {
-    return await task();
-  } finally {
+    const result = await task();
     setLoadingState(container, false, { statusText: doneText });
+    return result;
+  } catch (error) {
+    setLoadingState(container, false, { statusText: errorText });
+    throw error;
   }
 }

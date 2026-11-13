@@ -333,7 +333,7 @@
               <span class="ui-state-icon" aria-hidden="true">⌕</span>
               <h3 id="empty-search-title">Hasil tidak ditemukan</h3>
               <p>Pencarian tidak menemukan produk. Ubah kata kunci atau pilih kategori lain.</p>
-              <div class="ui-state-actions"><button class="btn btn-line btn-sm" type="button" data-demo-reset-search>Ulangi pencarian contoh</button></div>
+              <div class="ui-state-actions"><a class="btn btn-line btn-sm" href="#formulir">Ubah kriteria contoh</a></div>
             </article>
             <article class="ui-empty-state" aria-labelledby="empty-data-title">
               <span class="ui-state-icon" aria-hidden="true">…</span>
@@ -534,13 +534,6 @@
       }
     });
 
-    document.querySelector("[data-demo-reset-search]")?.addEventListener("click", () => {
-      showToast({
-        type: "info",
-        title: "Pencarian direset",
-        message: "Contoh ini siap menerima kata kunci pencarian baru."
-      });
-    });
   </script>
 </body>
 </html>

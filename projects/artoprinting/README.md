@@ -179,7 +179,9 @@ Pengalihan ke `www`/`https` otomatis mati di localhost.
 ### Master Theme dan penggunaan ulang
 
 `assets/css/base.css` adalah **sumber kebenaran tema** dan wajib dimuat pertama pada setiap halaman.
-Galeri contoh visual seluruh komponen tersedia di `master-theme.html` (akses langsung melalui `/master-theme.html` setelah deploy). Halaman ini bersifat referensi internal dan tidak ditambahkan ke navigasi publik.\n\nGunakan token semantik seperti `--color-brand`, `--color-text`, `--color-surface`,
+Galeri contoh visual seluruh komponen tersedia di `master-theme.html` (akses langsung melalui `/master-theme.html` setelah deploy). Halaman ini bersifat referensi internal dan tidak ditambahkan ke navigasi publik.
+
+Gunakan token semantik seperti `--color-brand`, `--color-text`, `--color-surface`,
 `--color-border`, dan `--color-focus` untuk warna komponen. Token tersebut merujuk pada
 palet identitas resmi di bagian `:root`, sehingga perubahan tema dapat dilakukan terpusat.
 

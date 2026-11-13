@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Master Theme Showcase - Arto Printing</title>
+  <meta name="description" content="Galeri referensi visual komponen, warna, tipografi, tombol, formulir, dan elemen antarmuka Master Theme Arto Printing.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0ba59d">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <style>
+    /* Tata letak khusus galeri; tampilan komponen tetap berasal dari Master Theme. */
+    .theme-demo { --demo-gap: 20px; padding-bottom: 72px; }
+    .demo-hero { padding: clamp(36px, 6vw, 68px) 0; background: var(--color-brand-soft); }
+    .demo-hero h1 { margin: 0 0 12px; color: var(--color-text); font: 700 clamp(2rem, 5vw, 3.5rem)/1.05 var(--font-display); }
+    .demo-hero p { max-width: 48rem; margin: 0; color: var(--color-text-muted); }
+    .demo-section { padding: 42px 0; border-bottom: 1px solid var(--color-border); }
+    .demo-section h2 { margin: 0 0 8px; font: 700 clamp(1.45rem, 3vw, 2rem)/1.2 var(--font-display); color: var(--color-text); }
+    .demo-section > .wrap > p { margin: 0 0 22px; color: var(--color-text-muted); }
+    .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: var(--demo-gap); }
+    .demo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .demo-stack { display: grid; gap: 12px; }
+    .demo-swatch { overflow: hidden; border: 1px solid var(--color-border); border-radius: var(--r-md); background: var(--color-surface); }
+    .demo-swatch-color { min-height: 76px; }
+    .demo-swatch p { margin: 0; padding: 10px 12px; font-size: .84rem; }
+    .demo-swatch code { display: block; color: var(--color-text-subtle); font-size: .78rem; }
+    .demo-panel { padding: 20px; }
+    .demo-panel h3 { margin: 0 0 8px; color: var(--color-text); font-size: 1.05rem; }
+    .demo-panel p:last-child { margin-bottom: 0; }
+    .demo-label { display: block; margin-bottom: 6px; color: var(--color-text); font-weight: 700; font-size: .9rem; }
+    .demo-field { display: grid; gap: 14px; }
+    .demo-note { padding: 12px 14px; border-left: 4px solid var(--color-brand-strong); background: var(--color-brand-soft); border-radius: 0 var(--r-sm) var(--r-sm) 0; color: var(--color-text); }
+    .demo-token { display: inline-block; padding: 4px 8px; border-radius: var(--r-sm); background: var(--color-surface-muted); color: var(--color-text); font: .82rem ui-monospace, monospace; }
+    .demo-footer { margin-top: 0; }
+    .demo-footer .inner { align-items: flex-start; }
+    .demo-divider { height: 1px; background: var(--color-border); margin: 16px 0; }
+    @media (max-width: 520px) { .demo-panel { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
+
+  <header class="site-header">
+    <div class="wrap bar">
+      <a class="brand" href="/" aria-label="Arto Printing, ke beranda">
+        <img class="brand-logo" src="https://drive.dekeku.my.id/storage/old/artoprinting/brand/logo-mark.png" alt="" width="40" height="40">
+        <span class="brand-text"><span class="brand-name">Arto Printing</span><span class="brand-tag">memberi kemudahan</span></span>
+      </a>
+      <nav class="nav" aria-label="Navigasi contoh">
+        <a href="#warna">Warna</a>
+        <a href="#tombol">Tombol</a>
+        <a href="#komponen">Komponen</a>
+      </nav>
+      <a class="btn btn-wa btn-sm" href="#formulir">Contoh formulir</a>
+    </div>
+    <div class="colorbar" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  </header>
+
+  <main id="main-content" class="theme-demo" tabindex="-1">
+    <section class="demo-hero">
+      <div class="wrap">
+        <p class="blog-eyebrow">Design system · Reference</p>
+        <h1>Master Theme Showcase</h1>
+        <p>Halaman referensi visual untuk melihat warna, tipografi, tombol, formulir, kartu, navigasi, dan komponen yang tersedia. Komponen di bawah mengambil gaya dari stylesheet utama ARTO PRINTING.</p>
+      </div>
+    </section>
+
+    <section class="demo-section" id="warna">
+      <div class="wrap">
+        <h2>01. Palet warna & token</h2>
+        <p>Palet identitas dan token semantik yang menjadi sumber warna antarmuka.</p>
+        <div class="demo-grid">
+          <div class="demo-swatch"><div class="demo-swatch-color" style="background:var(--teal)"></div><p>Teal / Brand<code>--teal · #0ba59d</code></p></div>
+          <div class="demo-swatch"><div class="demo-swatch-color" style="background:var(--teal-deep)"></div><p>Teal Deep<code>--teal-deep · #066b66</code></p></div>
+          <div class="demo-swatch"><div class="demo-swatch-color" style="background:var(--teal-tint)"></div><p>Teal Tint<code>--teal-tint · #e7f6f5</code></p></div>
+          <div class="demo-swatch"><div class="demo-swatch-color" style="background:var(--royal)"></div><p>Royal Blue<code>--royal · #263a8b</code></p></div>
+          <div class="demo-swatch"><div class="demo-swatch-color" style="background:var(--ink)"></div><p>Ink / Navy<code>--ink · #0d2b5c</code></p></div>
+          <div class="demo-swatch"><div class="demo-swatch-color" style="background:var(--ink-soft)"></div><p>Ink Soft<code>--ink-soft · #3b4c6b</code></p></div>
+          <div class="demo-swatch"><div class="demo-swatch-color" style="background:var(--ink-mute)"></div><p>Ink Muted<code>--ink-mute · #5f6875</code></p></div>
+          <div class="demo-swatch"><div class="demo-swatch-color" style="background:var(--sheet)"></div><p>Sheet<code>--sheet · #f2f5f7</code></p></div>
+          <div class="demo-swatch"><div class="demo-swatch-color" style="background:var(--line)"></div><p>Border<code>--line · #dde3e8</code></p></div>
+          <div class="demo-swatch"><div class="demo-swatch-color" style="background:var(--paper)"></div><p>Paper<code>--paper · #ffffff</code></p></div>
+        </div>
+        <div class="demo-divider"></div>
+        <div class="demo-stack">
+          <p><span class="demo-token">--color-brand</span> <span class="demo-token">--color-brand-strong</span> <span class="demo-token">--color-brand-soft</span> <span class="demo-token">--color-accent</span></p>
+          <p><span class="demo-token">--color-text</span> <span class="demo-token">--color-text-muted</span> <span class="demo-token">--color-text-subtle</span></p>
+          <p><span class="demo-token">--color-surface</span> <span class="demo-token">--color-surface-muted</span> <span class="demo-token">--color-border</span> <span class="demo-token">--color-focus</span></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="tipografi">
+      <div class="wrap">
+        <h2>02. Tipografi</h2>
+        <p>Fredoka untuk display/heading dan Plus Jakarta Sans untuk teks antarmuka.</p>
+        <div class="demo-panel surface demo-stack">
+          <h1 style="font:700 clamp(2rem,5vw,3rem)/1.1 var(--font-display);margin:0;color:var(--color-text)">Heading 1 · Arto Printing</h1>
+          <h2 style="font:700 2rem/1.2 var(--font-display);margin:0;color:var(--color-text)">Heading 2 · Memberi kemudahan</h2>
+          <h3 style="font:700 1.35rem/1.3 var(--font-display);margin:0;color:var(--color-text)">Heading 3 · Solusi cetak</h3>
+          <p style="margin:0">Body text: Kami membantu kebutuhan cetak dengan proses yang mudah, hasil rapi, dan layanan yang ramah.</p>
+          <p class="text-muted" style="margin:0">Muted text: Informasi pendukung, keterangan, dan metadata.</p>
+          <small class="text-subtle">Subtle text: Label kecil atau informasi sekunder.</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="tombol">
+      <div class="wrap">
+        <h2>03. Tombol & tautan</h2>
+        <p>Variasi tombol utama, sekunder, WhatsApp, ukuran kecil, serta kondisi disabled.</p>
+        <div class="demo-panel surface demo-stack">
+          <div class="demo-row">
+            <a class="btn btn-ink" href="#komponen">Primary / Ink</a>
+            <a class="btn btn-line" href="#komponen">Secondary / Outline</a>
+            <a class="btn btn-wa" href="#formulir">WhatsApp / Brand</a>
+          </div>
+          <div class="demo-row">
+            <a class="btn btn-ink btn-sm" href="#komponen">Small primary</a>
+            <a class="btn btn-line btn-sm" href="#komponen">Small outline</a>
+            <button class="btn btn-ink" type="button" disabled>Disabled</button>
+          </div>
+          <p style="margin:0"><a class="link-more" href="#formulir">Contoh tautan lanjutan</a></p>
+          <p class="text-subtle" style="margin:0">Coba navigasi dengan tombol Tab untuk melihat focus ring.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="komponen">
+      <div class="wrap">
+        <h2>04. Surface, kartu & badge</h2>
+        <p>Contoh panel, kartu, label status, dan chip dari komponen katalog.</p>
+        <div class="demo-grid">
+          <article class="surface demo-panel">
+            <span class="badge ready">Siap cetak</span>
+            <h3 style="margin-top:18px">Kartu produk</h3>
+            <p class="text-muted">Contoh surface dengan border, radius, dan bayangan dari token tema.</p>
+            <a class="link-more" href="#tombol">Lihat detail</a>
+          </article>
+          <article class="surface demo-panel">
+            <span class="blog-category">Kategori artikel</span>
+            <h3 style="margin-top:16px">Kartu informasi</h3>
+            <p class="text-muted">Label kategori dan teks sekunder untuk konten editorial.</p>
+            <span class="demo-token">.surface</span>
+          </article>
+          <article class="surface demo-panel">
+            <div class="demo-row"><span class="badge">Pre-order</span><span class="badge ready">Ready</span></div>
+            <h3 style="margin-top:16px">Status & badge</h3>
+            <p class="text-muted">Gunakan badge singkat untuk menandai status atau kategori.</p>
+          </article>
+        </div>
+        <div class="demo-divider"></div>
+        <div class="demo-row">
+          <button class="tab" type="button" aria-selected="true">Semua <span class="count">12</span></button>
+          <button class="tab" type="button" aria-selected="false">Undangan <span class="count">8</span></button>
+          <button class="chip" type="button" aria-pressed="true">Pernikahan <span class="chip-count">4</span></button>
+          <button class="chip" type="button" aria-pressed="false">Ulang tahun</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="formulir">
+      <div class="wrap">
+        <h2>05. Formulir & kontrol</h2>
+        <p>Field memakai kelas <code>.form-control</code> dari Master Theme. Contoh ini tidak mengirim data ke mana pun.</p>
+        <form class="surface demo-panel demo-field" action="#" method="get" onsubmit="return false">
+          <div>
+            <label class="demo-label" for="demo-name">Nama lengkap</label>
+            <input class="form-control" id="demo-name" type="text" placeholder="Masukkan nama">
+          </div>
+          <div>
+            <label class="demo-label" for="demo-email">Alamat email</label>
+            <input class="form-control" id="demo-email" type="email" placeholder="nama@email.com">
+          </div>
+          <div>
+            <label class="demo-label" for="demo-service">Jenis layanan</label>
+            <select class="form-control" id="demo-service"><option>Pilih layanan</option><option>Cetak undangan</option><option>Banner</option><option>Stiker</option></select>
+          </div>
+          <div>
+            <label class="demo-label" for="demo-message">Catatan</label>
+            <textarea class="form-control" id="demo-message" rows="3" placeholder="Tulis kebutuhan cetak Anda"></textarea>
+          </div>
+          <label><input type="checkbox"> Saya setuju dengan contoh pilihan ini</label>
+          <div class="demo-row"><button class="btn btn-ink" type="button">Contoh submit</button><button class="btn btn-line" type="reset">Reset</button></div>
+          <div>
+            <label class="demo-label" for="demo-disabled">Field nonaktif</label>
+            <input class="form-control" id="demo-disabled" type="text" value="Tidak dapat diedit" disabled>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="demo-section" id="pola">
+      <div class="wrap">
+        <h2>06. Pola layout & konten</h2>
+        <p>Komponen yang sudah digunakan lintas halaman situs.</p>
+        <div class="demo-panel surface demo-stack">
+          <div class="cta-band">
+            <div><h2>Butuh bantuan cetak?</h2><p>Konsultasikan kebutuhan Anda bersama tim Arto Printing.</p></div>
+            <div class="cta-actions"><a class="btn btn-wa" href="#tombol">Hubungi admin</a><a class="btn btn-line" href="#warna">Pelajari tema</a></div>
+          </div>
+          <div>
+            <h3>Langkah pemesanan</h3>
+            <ol class="steps">
+              <li><h3>Konsultasi</h3><p>Ceritakan kebutuhan cetak.</p></li>
+              <li><h3>Pilih desain</h3><p>Tentukan ukuran dan bahan.</p></li>
+              <li><h3>Produksi</h3><p>Pesanan mulai dikerjakan.</p></li>
+              <li><h3>Selesai</h3><p>Ambil atau kirim pesanan.</p></li>
+            </ol>
+          </div>
+          <div class="demo-note">Catatan informasi menggunakan latar brand soft dan aksen brand strong.</div>
+          <div class="share">
+            <span>Bagikan contoh:</span>
+            <a href="#pola" aria-label="Contoh tautan berbagi">↗</a>
+            <button type="button" aria-label="Contoh tombol berbagi">+</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="ulasan">
+      <div class="wrap">
+        <h2>07. Testimoni & skeleton</h2>
+        <p>Contoh kartu ulasan dan placeholder saat data sedang dimuat.</p>
+        <div class="demo-grid">
+          <figure class="review">
+            <blockquote>“Pelayanan ramah, proses mudah, dan hasil cetaknya rapi.”</blockquote>
+            <figcaption><span class="avatar-fallback">AP</span> Pelanggan Arto Printing</figcaption>
+          </figure>
+          <div class="surface demo-panel">
+            <span class="teks-skeleton judul-besar" aria-hidden="true"></span>
+            <span class="teks-skeleton" aria-hidden="true"></span>
+            <span class="teks-skeleton pendek" aria-hidden="true"></span>
+            <span class="teks-skeleton blok" aria-hidden="true"></span>
+            <p class="text-subtle">Skeleton state · animasi mengikuti prefers-reduced-motion.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="aksesibilitas">
+      <div class="wrap">
+        <h2>08. Radius, bayangan & aksesibilitas</h2>
+        <p>Token ukuran dan status interaksi untuk menjaga konsistensi.</p>
+        <div class="demo-grid">
+          <div class="surface demo-panel"><h3>Radius kecil</h3><p class="text-muted"><code>--r-sm</code> · 6px</p></div>
+          <div class="surface demo-panel" style="border-radius:var(--r-md)"><h3>Radius medium</h3><p class="text-muted"><code>--r-md</code> · 12px</p></div>
+          <div class="surface demo-panel" style="border-radius:var(--r-lg)"><h3>Radius besar</h3><p class="text-muted"><code>--r-lg</code> · 22px</p></div>
+        </div>
+        <p class="demo-note" style="margin-top:20px">Gunakan keyboard untuk menguji focus-visible. Gerakan animasi dinonaktifkan saat pengguna mengaktifkan preferensi reduced motion.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer demo-footer">
+    <div class="colorbar" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <div class="wrap inner">
+      <div>
+        <a class="brand" href="/">
+          <img class="brand-logo" src="https://drive.dekeku.my.id/storage/old/artoprinting/brand/logo-mark.png" alt="" width="40" height="40">
+          <span class="brand-text"><span class="brand-name">Arto Printing</span><span class="brand-tag">memberi kemudahan</span></span>
+        </a>
+        <p class="footer-copy">Master Theme Showcase · Halaman referensi internal</p>
+      </div>
+      <nav aria-label="Navigasi bagian showcase">
+        <a href="#warna">Warna</a><a href="#tipografi">Tipografi</a><a href="#tombol">Tombol</a><a href="#komponen">Komponen</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

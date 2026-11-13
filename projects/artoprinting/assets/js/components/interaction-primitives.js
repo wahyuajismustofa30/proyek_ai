@@ -128,8 +128,11 @@ function initToast() {
       const type = trigger.dataset.toastTrigger;
       const [defaultTitle, defaultMessage] = toastMessages[type] || toastMessages.info;
       toastNode.dataset.type = type;
-      toastNode.querySelector("[data-toast-title]").textContent = trigger.dataset.toastTitle || defaultTitle;
-      toastNode.querySelector("[data-toast-message]").textContent = trigger.dataset.toastMessage || defaultMessage;
+      const titleNode = toastNode.querySelector("[data-toast-title]");
+      const messageNode = toastNode.querySelector("[data-toast-message]");
+      if (!titleNode || !messageNode) return;
+      titleNode.textContent = trigger.dataset.toastTitle || defaultTitle;
+      messageNode.textContent = trigger.dataset.toastMessage || defaultMessage;
       toastNode.setAttribute("role", type === "error" ? "alert" : "status");
       toastNode.hidden = false;
       return;

@@ -38,6 +38,7 @@
   --color-surface: var(--paper);
   --color-surface-muted: var(--sheet);
   --color-border: var(--line);
+  --color-control-border: #8793a0; /* batas kontrol: kontras >= 3:1 pada surface putih */
   --color-focus: var(--teal-deep);
   --color-on-brand: #ffffff;
   --shadow-card: 0 12px 32px rgba(13, 43, 92, .08);

@@ -185,6 +185,51 @@ Gunakan token semantik seperti `--color-brand`, `--color-text`, `--color-surface
 `--color-border`, dan `--color-focus` untuk warna komponen. Token tersebut merujuk pada
 palet identitas resmi di bagian `:root`, sehingga perubahan tema dapat dilakukan terpusat.
 
+#### Referensi komponen
+
+| Kelompok | Class / struktur HTML | JavaScript dan aksesibilitas | Perilaku responsif |
+|---|---|---|---|
+| Design tokens | Token warna, tipografi, spacing, radius, dan shadow di `:root` pada `base.css` | Gunakan token semantik; jangan mengulang nilai warna global di CSS halaman | Gunakan ukuran berbasis `rem`, `clamp()`, dan gutter tema |
+| Typography | Heading semantik `h1–h6`, teks biasa, `.text-muted`, `.text-subtle` | Urutan heading mengikuti struktur konten, bukan ukuran visual | Heading showcase menggunakan `clamp()` |
+| Buttons | `.btn`, `.btn-ink`, `.btn-line`, `.btn-wa`, `.btn-sm` | Gunakan `a` untuk navigasi dan `button` untuk aksi; beri nama aksesibel dan status disabled yang benar | Gunakan `flex-wrap` pada kelompok tombol |
+| Forms | `.form-control`, `label[for]`, `fieldset`, dan `legend` | Setiap field memiliki label; pertahankan validasi native dan tampilkan kesalahan secara jelas | Field mengisi lebar container dan mengikuti gutter |
+| Alerts | `.alert`, `.alert-success`, `.alert-info`, `.alert-warning`, `.alert-danger` | Gunakan `role="status"` untuk pesan non-urgent dan `role="alert"` hanya untuk pesan penting yang perlu segera diumumkan | Isi dapat membungkus; jangan mengandalkan warna saja |
+| Cards & badges | `.surface`, `.card`, `.badge`, `.review`, `.tab`, `.chip` | Link kartu harus memiliki nama yang jelas; tab/chip interaktif memerlukan state dan perilaku yang sesuai | Gunakan grid adaptif dan rasio media yang konsisten |
+| Navigation | `.ui-breadcrumb`, `.ui-pagination` | Breadcrumb memakai `nav` berlabel dan `aria-current="page"`; pagination mengumumkan halaman aktif | Pagination membungkus kontrol; ukuran target sentuh dipertahankan |
+| Interaction | `.ui-dropdown`, `.ui-dialog`, `.ui-tooltip`, `.ui-toast` | Dropdown memakai `details/summary`; dialog memakai `dialog` native; tooltip harus dapat difokuskan; toast memakai role status/alert yang tepat | Menu dan dialog harus tetap muat di viewport; toast berpindah ke bawah pada layar sempit |
+| Empty / Error | `.ui-empty-state`, `.ui-error-state`, `.ui-state-icon`, `.ui-state-actions` | Hubungkan judul dengan `aria-labelledby`; tindakan opsional harus benar-benar berfungsi | Padding dan tombol menyesuaikan lebar layar |
+| Loading | `.ui-loading`, `.ui-loading-indicator`, `.ui-loading-content`, `.ui-spinner`, `.teks-skeleton` | Gunakan `setLoadingState()` atau `runWithLoadingState()`; `aria-busy` hanya aktif selama task berjalan dan status diumumkan lewat live region | Skeleton mempertahankan ruang konten; animasi menghormati `prefers-reduced-motion` |
+| Tables | `.ui-table-wrap`, `.ui-table` | Gunakan `thead`, `th scope`, dan nama region jika tabel perlu digeser secara horizontal | Wrapper menyediakan horizontal scroll pada layar kecil |
+| Responsive patterns | `.grid`, `.demo-grid`, `.demo-row`, `.cta-actions` | Struktur HTML tetap logis saat elemen membungkus atau bertumpuk | Gunakan breakpoint yang telah ada dan uji pada viewport kecil hingga desktop |
+
+Contoh pemuatan data:
+
+```js
+import { runWithLoadingState } from "../components/state-primitives.js";
+
+await runWithLoadingState(container, () => loadData(), {
+  loadingText: "Sedang memuat data.",
+  doneText: "Data berhasil dimuat.",
+  errorText: "Data gagal dimuat."
+});
+```
+
+Contoh pagination dan notifikasi:
+
+```js
+import {
+  onPaginationChange,
+  setPaginationPage,
+  showToast
+} from "../components/interaction-primitives.js";
+
+onPaginationChange(nav, ({ page }) => renderPage(page));
+setPaginationPage(nav, 2);
+showToast({ type: "success", title: "Berhasil", message: "Perubahan disimpan." });
+```
+
+Showcase memakai contoh lokal untuk demonstrasi. Tindakan yang memerlukan server, seperti mengambil data katalog atau mengirim formulir, tetap harus dihubungkan dengan fungsi halaman pemakai; Showcase tidak menyediakan backend.
+
 Aturan pemeliharaan:
 
 - Jangan mendefinisikan ulang palet global di CSS halaman.

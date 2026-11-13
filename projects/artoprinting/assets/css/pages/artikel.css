@@ -55,3 +55,7 @@
 .prose .share a:focus-visible,
 .prose .share button:focus-visible{outline:3px solid var(--color-brand-strong);outline-offset:3px}
 .prose .share svg{display:block;width:19px;height:19px}
+
+
+/* Breadcrumb artikel menggunakan komponen navigasi Master Theme. */
+.article-breadcrumb { max-width: 46rem; margin: 24px auto 0; }

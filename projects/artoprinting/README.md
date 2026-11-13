@@ -167,7 +167,26 @@ Pengalihan ke `www`/`https` otomatis mati di localhost.
 | Jumlah ulasan awal (Testimoni / Beranda) | `config.js` → `testimoniAwal`, `testimoniBeranda` |
 | ID Google Analytics yang dimuat | `assets/js/core/analytics.js` (konstanta di file ini; jangan disamakan otomatis dengan `setting.json`) |
 | Menu & footer | `partials/*.html`, lalu `python tools/sinkron-partial.py` |
-| Warna, font, radius | `assets/css/base.css` → `:root` |
+| Tema utama (palet, tipografi, radius, surface, bayangan, motion) | `assets/css/base.css` → `:root` |
+| Tombol, kontrol formulir, utilitas tema | `assets/css/base.css` |
+| Tata letak global | `assets/css/layout.css` |
+| Komponen lintas halaman | `assets/css/components.css` |
+| Penyesuaian khusus halaman | `assets/css/pages/<halaman>.css` |
+
+### Master Theme dan penggunaan ulang
+
+`assets/css/base.css` adalah **sumber kebenaran tema** dan wajib dimuat pertama pada setiap halaman.
+Gunakan token semantik seperti `--color-brand`, `--color-text`, `--color-surface`,
+`--color-border`, dan `--color-focus` untuk warna komponen. Token tersebut merujuk pada
+palet identitas resmi di bagian `:root`, sehingga perubahan tema dapat dilakukan terpusat.
+
+Aturan pemeliharaan:
+- Jangan mendefinisikan ulang palet global di CSS halaman.
+- Hindari nilai warna hex langsung untuk komponen baru; gunakan token tema.
+- Komponen yang dipakai beberapa halaman ditempatkan di `components.css` atau `base.css`,
+  bukan disalin ke stylesheet halaman.
+- CSS `pages/*.css` hanya mengatur susunan dan kebutuhan unik halaman.
+- `tamu-undangan/style.css` tetap terpisah karena merupakan hasil kompilasi Tailwind dan bukan bagian dari tema situs utama.
 
 ## Data
 

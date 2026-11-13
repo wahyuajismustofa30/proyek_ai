@@ -271,9 +271,10 @@
               <button class="ui-page-button" type="button" data-page="3">3</button>
               <button class="ui-page-button" type="button" data-page="4">4</button>
               <button class="ui-page-button" type="button" data-page-next aria-label="Halaman berikutnya">›</button>
-              <p class="ui-pagination-status" data-page-status aria-live="polite">Menampilkan contoh halaman 1 dari 4.</p>
+              <p class="ui-pagination-status" data-page-status aria-live="polite">Menampilkan halaman 1 dari 4.</p>
             </nav>
-            <p class="text-subtle">Class: <code>.ui-pagination</code> dan <code>.ui-page-button</code></p>
+            <p data-pagination-content>Konten contoh untuk halaman 1.</p>
+            <p class="text-subtle">Klik nomor halaman untuk mengubah konten melalui callback <code>onPaginationChange()</code>. Modul juga menyediakan <code>setPaginationPage()</code> untuk mengubah halaman melalui JavaScript.</p>
           </article>
           <article class="surface demo-panel demo-stack">
             <h3>Dropdown</h3>
@@ -285,12 +286,12 @@
                 <a href="#aksesibilitas">Panduan aksesibilitas</a>
               </div>
             </details>
-            <p class="text-subtle">Class: <code>.ui-dropdown</code>, memakai <code>details/summary</code> untuk perilaku dasar yang native.</p>
+            <p class="text-subtle">Class: <code>.ui-dropdown</code>. Gunakan Tab, Enter, ArrowUp, ArrowDown, Home, End, dan Escape untuk menguji navigasi keyboard.</p>
           </article>
           <article class="surface demo-panel demo-stack">
             <h3>Modal / Dialog</h3>
             <div class="demo-row"><button class="btn btn-ink" type="button" data-dialog-open="demo-dialog">Buka dialog contoh</button></div>
-            <p class="text-subtle">Class: <code>.ui-dialog</code>. Coba tombol Escape untuk menutup dan periksa fokus setelah dialog ditutup.</p>
+            <p class="text-subtle">Class: <code>.ui-dialog</code>. Coba Escape, tombol tutup, klik backdrop, lalu periksa apakah fokus kembali ke tombol pembuka.</p>
           </article>
           <article class="surface demo-panel demo-stack">
             <h3>Tooltip</h3>
@@ -330,8 +331,7 @@
             <article class="ui-error-state" role="alert">
               <span class="ui-state-icon" aria-hidden="true">!</span>
               <h3>Data belum dapat dimuat</h3>
-              <p>Terjadi kendala saat mengambil data. Silakan coba kembali beberapa saat lagi.</p>
-              <button class="btn btn-ink btn-sm" type="button" data-toast-trigger="info">Simulasikan coba lagi</button>
+              <p>Data contoh belum tersedia. Komponen ini hanya menampilkan keadaan error; tindakan pemulihan harus disediakan oleh halaman pemakai sesuai proses datanya.</p>
             </article>
           </div>
           <article class="surface demo-panel demo-stack" role="status" aria-live="polite" aria-busy="true">
@@ -352,20 +352,16 @@
     <section class="demo-section" id="toast">
       <div class="wrap">
         <h2>11. Toast / feedback interaktif</h2>
-        <p>Notifikasi dapat ditutup secara manual dan tidak menghilang otomatis sebelum sempat dibaca.</p>
+        <p>Notifikasi dapat ditumpuk, ditutup manual, atau menghilang otomatis. Arahkan pointer atau fokuskan notifikasi untuk menghentikan sementara hitung mundurnya.</p>
         <div class="demo-row">
           <button class="btn btn-ink" type="button" data-toast-trigger="success" data-toast-title="Berhasil" data-toast-message="Contoh tindakan berhasil diselesaikan.">Success</button>
           <button class="btn btn-line" type="button" data-toast-trigger="info" data-toast-title="Informasi" data-toast-message="Ini adalah informasi tambahan untuk pengguna.">Info</button>
           <button class="btn btn-line" type="button" data-toast-trigger="warning" data-toast-title="Perhatian" data-toast-message="Periksa kembali informasi sebelum melanjutkan.">Warning</button>
-          <button class="btn btn-line" type="button" data-toast-trigger="error" data-toast-title="Terjadi kendala" data-toast-message="Permintaan belum berhasil. Silakan coba kembali.">Error</button>
+          <button class="btn btn-line" type="button" data-toast-trigger="danger" data-toast-title="Terjadi kendala" data-toast-message="Permintaan belum berhasil. Silakan coba kembali.">Danger</button>
+          <button class="btn btn-line" type="button" data-toast-api>Toast via API</button>
         </div>
-        <p class="text-subtle">Class: <code>.ui-toast</code>. Gunakan tombol di atas untuk mencoba setiap varian.</p>
-        <div class="ui-toast-region" data-ui-toast-region aria-live="polite" aria-atomic="true">
-          <div class="ui-toast" data-ui-toast data-type="info" role="status" hidden>
-            <div><strong data-toast-title>Informasi</strong><p data-toast-message>Pesan contoh.</p></div>
-            <button class="ui-toast-close" type="button" data-toast-close aria-label="Tutup notifikasi">×</button>
-          </div>
-        </div>
+        <p class="text-subtle">API modul: <code>showToast({ type, title, message, duration })</code>. Setiap notifikasi memiliki tombol tutup dan live role sesuai tingkat urgensinya.</p>
+        <div class="ui-toast-region" data-ui-toast-region role="region" aria-label="Notifikasi"></div>
       </div>
     </section>
 
@@ -423,5 +419,30 @@
     </div>
   </footer>
   <script type="module" src="/assets/js/components/interaction-primitives.js"></script>
+  <script type="module">
+    import { onPaginationChange, showToast } from "/assets/js/components/interaction-primitives.js";
+
+    const pagination = document.querySelector("[data-ui-pagination]");
+    const paginationContent = document.querySelector("[data-pagination-content]");
+    const pageContent = {
+      "1": "Konten contoh untuk halaman 1.",
+      "2": "Konten contoh untuk halaman 2.",
+      "3": "Konten contoh untuk halaman 3.",
+      "4": "Konten contoh untuk halaman 4."
+    };
+
+    onPaginationChange(pagination, ({ page }) => {
+      paginationContent.textContent = pageContent[page] || "Konten halaman " + page + ".";
+    });
+
+    document.querySelector("[data-toast-api]")?.addEventListener("click", () => {
+      showToast({
+        type: "success",
+        title: "API berhasil dipanggil",
+        message: "Modul lain dapat menampilkan notifikasi tanpa bergantung pada tombol pemicu.",
+        duration: 6000
+      });
+    });
+  </script>
 </body>
 </html>

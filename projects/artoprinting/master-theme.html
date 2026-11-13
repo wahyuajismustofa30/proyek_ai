@@ -133,7 +133,7 @@
     <section class="demo-section" id="tombol">
       <div class="wrap">
         <h2>03. Tombol &amp; tautan</h2>
-        <p>Variasi tombol utama, sekunder, WhatsApp, ukuran kecil, serta kondisi disabled.</p>
+        <p>Variasi tombol utama, sekunder, WhatsApp, ukuran kecil, serta kondisi disabled. Class: <code>.btn</code>, <code>.btn-ink</code>, <code>.btn-line</code>, <code>.btn-wa</code>, dan <code>.btn-sm</code>.</p>
         <div class="demo-panel surface demo-stack">
           <div class="demo-row">
             <a class="btn btn-ink" href="#komponen">Primary / Ink</a>
@@ -153,8 +153,8 @@
 
     <section class="demo-section" id="formulir">
       <div class="wrap">
-        <h2>05. Formulir &amp; kontrol</h2>
-        <p>Field memakai kelas <code>.form-control</code> dari Master Theme. Formulir hanya menguji validasi browser dan tidak mengirim data ke server.</p>
+        <h2>04. Forms &amp; controls</h2>
+        <p>Field memakai kelas <code>.form-control</code> dari Master Theme. Hubungkan label dengan ID field; formulir ini hanya menguji validasi browser dan tidak mengirim data ke server.</p>
         <form class="surface demo-panel demo-field" action="#" method="get" data-demo-form>
           <div>
             <label class="demo-label" for="demo-name">Nama lengkap</label>
@@ -186,7 +186,7 @@
     <section class="demo-section" id="alerts">
       <div class="wrap">
         <h2>05. Alerts &amp; feedback</h2>
-        <p>Gunakan warna status semantik untuk menyampaikan hasil dan kondisi tanpa bergantung pada warna saja.</p>
+        <p>Gunakan <code>.alert</code> dengan modifier success, info, warning, atau danger. Sertakan teks yang menjelaskan status; jangan mengandalkan warna saja.</p>
         <div class="demo-stack">
           <div class="alert alert-success" role="status"><div><strong>Berhasil</strong><p>Permintaan Anda berhasil diproses. Informasi sudah tersimpan.</p></div></div>
           <div class="alert alert-info" role="status"><div><strong>Informasi</strong><p>Periksa kembali detail ukuran dan bahan sebelum melanjutkan.</p></div></div>
@@ -219,6 +219,7 @@
             <p class="text-muted">Gunakan badge singkat untuk menandai status atau kategori.</p>
           </article>
         </div>
+        <p class="text-subtle">Class: <code>.surface</code>, <code>.badge</code>, <code>.tab</code>, dan <code>.chip</code>. Tab dan chip di sini adalah sampel visual statis.</p>
         <div class="demo-divider"></div>
         <div class="demo-row">
           <span class="tab demo-static-control">Semua <span class="count">12</span></span>
@@ -232,7 +233,7 @@
     <section class="demo-section" id="ulasan">
       <div class="wrap">
         <h2>06.1 Testimonial card</h2>
-        <p>Contoh kartu ulasan dengan struktur kutipan dan atribusi penulis.</p>
+        <p>Class: <code>.review</code>. Gunakan <code>blockquote</code> untuk kutipan dan <code>figcaption</code> untuk atribusi penulis.</p>
         <div class="demo-grid">
           <figure class="review">
             <blockquote>“Pelayanan ramah, proses mudah, dan hasil cetaknya rapi.”</blockquote>
@@ -408,20 +409,20 @@
         <h2>10. Tables</h2>
         <p>Tabel menggunakan header semantik dan pembungkus yang memungkinkan scroll horizontal pada layar sempit.</p>
         <div class="demo-stack">
-                    <article class="surface demo-panel demo-stack">
-                      <h3>Tabel responsif</h3>
-                      <div class="ui-table-wrap" tabindex="0" role="region" aria-label="Contoh tabel produk, geser horizontal jika diperlukan">
-                        <table class="ui-table">
-                          <thead><tr><th scope="col">Produk</th><th scope="col">Kategori</th><th scope="col">Status</th><th scope="col">Keterangan</th></tr></thead>
-                          <tbody>
+          <article class="surface demo-panel demo-stack">
+            <h3>Tabel responsif</h3>
+            <div class="ui-table-wrap" tabindex="0" role="region" aria-label="Contoh tabel produk, geser horizontal jika diperlukan">
+              <table class="ui-table">
+                <thead><tr><th scope="col">Produk</th><th scope="col">Kategori</th><th scope="col">Status</th><th scope="col">Keterangan</th></tr></thead>
+                <tbody>
                             <tr><th scope="row">Undangan A</th><td>Pernikahan</td><td><span class="badge ready">Tersedia</span></td><td>Contoh data katalog</td></tr>
                             <tr><th scope="row">Banner B</th><td>Promosi</td><td><span class="badge">Konsultasi</span></td><td>Sesuaikan ukuran</td></tr>
                             <tr><th scope="row">Stiker C</th><td>Label</td><td><span class="badge ready">Tersedia</span></td><td>Contoh data katalog</td></tr>
-                          </tbody>
-                        </table>
-                      </div>
-                      <p class="text-subtle">Class: <code>.ui-table-wrap</code> dan <code>.ui-table</code></p>
-                    </article>
+                </tbody>
+              </table>
+            </div>
+            <p class="text-subtle">Class: <code>.ui-table-wrap</code> dan <code>.ui-table</code></p>
+          </article>
         </div>
       </div>
     </section>
@@ -429,7 +430,7 @@
     <section class="demo-section" id="responsive">
       <div class="wrap">
         <h2>11. Responsive layout patterns</h2>
-        <p>Contoh layout yang menyesuaikan ruang tersedia melalui grid auto-fit, flex-wrap, dan pola konten yang dapat ditumpuk pada layar sempit.</p>
+        <p>Contoh layout yang menyesuaikan ruang tersedia melalui grid auto-fit, flex-wrap, dan pola konten yang dapat ditumpuk pada layar sempit. Class: <code>.demo-grid</code>, <code>.demo-row</code>, dan <code>.cta-actions</code>.</p>
         <p class="demo-note">Class showcase: <code>.demo-grid</code> menggunakan grid adaptif; <code>.demo-row</code> dan <code>.cta-actions</code> dapat membungkus elemen ketika ruang menyempit. Gunakan pola ini sebagai referensi, lalu validasi breakpoint halaman pemakai.</p>
         <div class="demo-panel surface demo-stack">
           <div class="cta-band">
@@ -448,7 +449,6 @@
           <div class="demo-note">Catatan informasi menggunakan latar brand soft dan aksen brand strong.</div>
           <div class="share">
             <span>Bagikan Showcase:</span>
-            <a href="#responsive" aria-label="Contoh tautan berbagi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 16V3m0 0L7 8m5-5 5 5M5 13v7h14v-7"/></svg></a>
             <button type="button" aria-label="Bagikan atau salin tautan Showcase" data-demo-copy><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4m-6.6 9 6.6 4.4"/></svg></button>
           </div>
         </div>

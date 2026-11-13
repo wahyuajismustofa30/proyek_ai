@@ -261,9 +261,9 @@ Format, nama field, dan lokasi file tidak diubah.
 ## Menambah artikel blog
 
 Blog tetap memakai HTML statis tanpa CMS, database, generator, atau dependensi tambahan.
-Untuk menambah artikel, gunakan artikel yang sudah ada sebagai pola:
+Untuk menambah artikel, gunakan artikel terbaru yang sudah ada sebagai pola:
 
-1. Salin `post/percetakan-murah-purbalingga.html` ke `post/<slug-artikel>.html`.
+1. Salin `post/cetak-kalender-2027-purbalingga.html` ke `post/<slug-artikel>.html`.
 2. Perbarui isi artikel, judul, deskripsi, canonical, Open Graph/Twitter, tanggal terbit,
    gambar, dan JSON-LD `Article`. Pertahankan pola URL `/post/<slug-artikel>.html`.
 3. Tambahkan satu kartu `.blog-card` di `blog/index.html`, termasuk tautan, gambar,
@@ -271,7 +271,9 @@ Untuk menambah artikel, gunakan artikel yang sudah ada sebagai pola:
 4. Tambahkan satu `ListItem` ke `mainEntity.itemListElement` pada JSON-LD
    `CollectionPage`, lalu sesuaikan `numberOfItems`.
 5. Tambahkan URL artikel ke `sitemap.xml` dengan `lastmod` sesuai tanggal perubahan konten.
-6. Jalankan pemeriksaan dari direktori proyek:
+6. Tambahkan path artikel baru ke daftar `HALAMAN` di `tools/sinkron-partial.py`
+   agar header/footer artikel ikut diperiksa dan disinkronkan dari `partials/`.
+7. Jalankan pemeriksaan dari direktori proyek:
 
    ```bash
    python tools/cek-proyek.py

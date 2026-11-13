@@ -33,6 +33,7 @@ HALAMAN = [
     "laman/testimoni/index.html",
     "laman/kontak/index.html",
     "laman/produk/index.html",
+    "post/cetak-kalender-2027-purbalingga.html",
     "post/percetakan-murah-purbalingga.html",
     "404.html",
 ]

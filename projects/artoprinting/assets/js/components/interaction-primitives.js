@@ -250,13 +250,30 @@ function clearToastTimer(toast) {
   const state = toastTimers.get(toast);
   if (!state?.timer) return;
   clearTimeout(state.timer);
+  state.timer = null;
+}
+
+function pauseToastTimer(toast, reason) {
+  const state = toastTimers.get(toast);
+  if (!state) return;
+  state.paused[reason] = true;
+  if (!state.timer) return;
+  clearTimeout(state.timer);
   state.remaining = Math.max(0, state.deadline - Date.now());
   state.timer = null;
 }
 
+function resumeToastTimer(toast, reason) {
+  const state = toastTimers.get(toast);
+  if (!state) return;
+  state.paused[reason] = false;
+  if (!Object.values(state.paused).some(Boolean)) startToastTimer(toast);
+}
+
 function startToastTimer(toast) {
   const state = toastTimers.get(toast);
-  if (!state || state.duration <= 0 || state.timer || toast.hidden) return;
+  if (!state || state.duration <= 0 || state.timer || toast.hidden
+    || Object.values(state.paused).some(Boolean)) return;
   if (state.remaining <= 0) {
     toast.remove();
     toastTimers.delete(toast);
@@ -311,14 +328,15 @@ export function showToast({ type = "info", title, message, duration = 6000 } = {
     duration: safeDuration,
     remaining: safeDuration,
     deadline: 0,
-    timer: null
+    timer: null,
+    paused: { pointer: false, focus: false }
   });
 
-  toast.addEventListener("pointerenter", () => clearToastTimer(toast));
-  toast.addEventListener("pointerleave", () => startToastTimer(toast));
-  toast.addEventListener("focusin", () => clearToastTimer(toast));
+  toast.addEventListener("pointerenter", () => pauseToastTimer(toast, "pointer"));
+  toast.addEventListener("pointerleave", () => resumeToastTimer(toast, "pointer"));
+  toast.addEventListener("focusin", () => pauseToastTimer(toast, "focus"));
   toast.addEventListener("focusout", (event) => {
-    if (!toast.contains(event.relatedTarget)) startToastTimer(toast);
+    if (!toast.contains(event.relatedTarget)) resumeToastTimer(toast, "focus");
   });
 
   getToastRegion().append(toast);

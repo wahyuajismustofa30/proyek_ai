@@ -321,30 +321,80 @@
             </div>
             <p class="text-subtle">Class: <code>.ui-table-wrap</code> dan <code>.ui-table</code></p>
           </article>
+          <h3>Empty State</h3>
           <div class="demo-grid">
-            <article class="ui-empty-state">
-              <span class="ui-state-icon" aria-hidden="true">⌕</span>
-              <h3>Belum ada hasil</h3>
-              <p>Pencarian contoh tidak menemukan produk. Ubah kata kunci atau pilih kategori lain.</p>
-              <a class="btn btn-line btn-sm" href="#formulir">Lihat formulir contoh</a>
+            <article class="ui-empty-state" aria-labelledby="empty-no-content-title">
+              <span class="ui-state-icon" aria-hidden="true">□</span>
+              <h3 id="empty-no-content-title">Belum ada konten</h3>
+              <p>Bagian ini belum memiliki konten untuk ditampilkan.</p>
+              <div class="ui-state-actions"><a class="btn btn-line btn-sm" href="#formulir">Pelajari layanan</a></div>
             </article>
-            <article class="ui-error-state" role="alert">
-              <span class="ui-state-icon" aria-hidden="true">!</span>
-              <h3>Data belum dapat dimuat</h3>
-              <p>Data contoh belum tersedia. Komponen ini hanya menampilkan keadaan error; tindakan pemulihan harus disediakan oleh halaman pemakai sesuai proses datanya.</p>
+            <article class="ui-empty-state ui-empty-state--search" aria-labelledby="empty-search-title">
+              <span class="ui-state-icon" aria-hidden="true">⌕</span>
+              <h3 id="empty-search-title">Hasil tidak ditemukan</h3>
+              <p>Pencarian tidak menemukan produk. Ubah kata kunci atau pilih kategori lain.</p>
+              <div class="ui-state-actions"><button class="btn btn-line btn-sm" type="button" data-demo-reset-search>Ulangi pencarian contoh</button></div>
+            </article>
+            <article class="ui-empty-state" aria-labelledby="empty-data-title">
+              <span class="ui-state-icon" aria-hidden="true">…</span>
+              <h3 id="empty-data-title">Data belum tersedia</h3>
+              <p>Data untuk bagian ini belum ditambahkan. Silakan periksa kembali nanti.</p>
+            </article>
+            <article class="ui-empty-state ui-empty-state--not-created" aria-labelledby="empty-list-title">
+              <span class="ui-state-icon" aria-hidden="true">＋</span>
+              <h3 id="empty-list-title">Daftar belum dibuat</h3>
+              <p>Belum ada item di dalam daftar. Mulai dengan menambahkan item pertama.</p>
+              <div class="ui-state-actions"><a class="btn btn-ink btn-sm" href="#formulir">Buat item pertama</a></div>
             </article>
           </div>
-          <article class="surface demo-panel demo-stack" role="status" aria-live="polite" aria-busy="true">
-            <h3>Loading / skeleton</h3>
-            <div class="ui-loading">
-              <span class="sr-only">Contoh konten sedang dimuat</span>
+          <p class="text-subtle">Gunakan modifier <code>.ui-empty-state--search</code> atau <code>.ui-empty-state--not-created</code> bila konteks membutuhkan penekanan visual khusus. Tombol tindakan bersifat opsional.</p>
+
+          <h3>Error State</h3>
+          <div class="demo-grid">
+            <article class="ui-error-state" role="group" aria-labelledby="error-load-title">
+              <span class="ui-state-icon" aria-hidden="true">!</span>
+              <h3 id="error-load-title">Gagal memuat data</h3>
+              <p>Permintaan data belum berhasil diproses. Periksa kembali beberapa saat lagi.</p>
+            </article>
+            <article class="ui-error-state ui-error-state--network" role="group" aria-labelledby="error-network-title">
+              <span class="ui-state-icon" aria-hidden="true">↯</span>
+              <h3 id="error-network-title">Koneksi bermasalah</h3>
+              <p>Perangkat tidak dapat terhubung. Periksa jaringan sebelum mencoba kembali.</p>
+            </article>
+            <article class="ui-error-state" role="group" aria-labelledby="error-unavailable-title">
+              <span class="ui-state-icon" aria-hidden="true">×</span>
+              <h3 id="error-unavailable-title">Konten tidak tersedia</h3>
+              <p>Konten yang diminta tidak tersedia atau sudah dipindahkan.</p>
+            </article>
+            <article class="surface demo-panel demo-stack" id="demo-retry-state" aria-busy="false">
+              <div class="ui-error-state">
+                <span class="ui-state-icon" aria-hidden="true">!</span>
+                <h3>Contoh pemulihan data</h3>
+                <p>Tekan tombol untuk menjalankan ulang pemuatan data contoh lokal. Demo ini tidak menghubungi server.</p>
+                <div class="ui-state-actions"><button class="btn btn-line btn-sm" type="button" data-demo-retry>Coba muat data contoh lagi</button></div>
+              </div>
+              <p class="ui-state-status" data-demo-retry-status role="status" aria-live="polite">Belum ada percobaan pemuatan.</p>
+              <div class="alert alert-success" data-demo-retry-success role="status" hidden><div><strong>Data berhasil dimuat</strong><p>Konten contoh sudah tersedia kembali.</p></div></div>
+            </article>
+          </div>
+          <p class="text-subtle">Tombol coba lagi harus menjalankan ulang proses yang relevan pada halaman pemakai. Contoh ini menjalankan simulasi lokal yang memperbarui state, bukan sekadar menampilkan notifikasi.</p>
+
+          <h3>Loading State</h3>
+          <article class="surface demo-panel demo-stack ui-loading" id="demo-loading" aria-busy="false">
+            <div class="demo-row"><button class="btn btn-ink btn-sm" type="button" data-demo-load>Simulasikan pemuatan data</button></div>
+            <div class="ui-loading-indicator" data-ui-loading-indicator hidden>
+              <span class="sr-only">Konten sedang dimuat</span>
               <span class="teks-skeleton judul" aria-hidden="true"></span>
               <span class="teks-skeleton" aria-hidden="true"></span>
               <span class="teks-skeleton pendek" aria-hidden="true"></span>
               <span class="ui-spinner" aria-hidden="true"></span>
             </div>
-            <p class="text-subtle">Menggunakan skeleton yang sudah tersedia dan indikator spinner. Status pemuatan disampaikan melalui <code>aria-busy</code>.</p>
+            <div class="ui-loading-content" data-ui-loading-content>
+              <p>Konten contoh siap dimuat. Tekan tombol untuk melihat skeleton dan spinner selama proses berjalan.</p>
+            </div>
+            <p class="ui-loading-status" data-ui-loading-status role="status" aria-live="polite">Data contoh siap dimuat.</p>
           </article>
+          <p class="text-subtle">Gunakan <code>setLoadingState()</code> atau <code>runWithLoadingState()</code> dari <code>state-primitives.js</code>. <code>aria-busy</code> bernilai <code>true</code> hanya selama task berjalan dan dikembalikan ke <code>false</code> setelah selesai maupun gagal.</p>
         </div>
       </div>
     </section>
@@ -421,6 +471,7 @@
   <script type="module" src="/assets/js/components/interaction-primitives.js"></script>
   <script type="module">
     import { onPaginationChange, showToast } from "/assets/js/components/interaction-primitives.js";
+    import { runWithLoadingState } from "/assets/js/components/state-primitives.js";
 
     const pagination = document.querySelector("[data-ui-pagination]");
     const paginationContent = document.querySelector("[data-pagination-content]");
@@ -441,6 +492,53 @@
         title: "API berhasil dipanggil",
         message: "Modul lain dapat menampilkan notifikasi tanpa bergantung pada tombol pemicu.",
         duration: 6000
+      });
+    });
+
+    const loadingDemo = document.querySelector("#demo-loading");
+    const loadButton = document.querySelector("[data-demo-load]");
+    loadButton?.addEventListener("click", async () => {
+      loadButton.disabled = true;
+      try {
+        await runWithLoadingState(loadingDemo, () => new Promise((resolve) => {
+          window.setTimeout(() => {
+            loadingDemo.querySelector("[data-ui-loading-content] p").textContent =
+              "Data contoh berhasil dimuat. Anda dapat menjalankan simulasi kembali.";
+            resolve();
+          }, 900);
+        }), {
+          loadingText: "Sedang memuat data contoh.",
+          doneText: "Data contoh berhasil dimuat."
+        });
+      } finally {
+        loadButton.disabled = false;
+      }
+    });
+
+    const retryContainer = document.querySelector("#demo-retry-state");
+    const retryButton = document.querySelector("[data-demo-retry]");
+    const retryStatus = document.querySelector("[data-demo-retry-status]");
+    const retrySuccess = document.querySelector("[data-demo-retry-success]");
+    retryButton?.addEventListener("click", async () => {
+      retryButton.disabled = true;
+      retryContainer.setAttribute("aria-busy", "true");
+      retryStatus.textContent = "Sedang mencoba memuat ulang data contoh.";
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 900));
+        retrySuccess.hidden = false;
+        retryContainer.querySelector(".ui-error-state").hidden = true;
+        retryStatus.textContent = "Data contoh berhasil dimuat kembali.";
+      } finally {
+        retryContainer.setAttribute("aria-busy", "false");
+        retryButton.disabled = false;
+      }
+    });
+
+    document.querySelector("[data-demo-reset-search]")?.addEventListener("click", () => {
+      showToast({
+        type: "info",
+        title: "Pencarian direset",
+        message: "Contoh ini siap menerima kata kunci pencarian baru."
       });
     });
   </script>

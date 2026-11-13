@@ -34,7 +34,7 @@ function initDropdowns() {
       event.preventDefault();
       dropdown.open = true;
       const items = [...dropdown.querySelectorAll(".ui-dropdown-menu a[href], .ui-dropdown-menu button:not(:disabled)")];
-      (event.key === "ArrowDown" ? items[0] : items.at(-1))?.focus();
+      (event.key === "ArrowDown" ? items[0] : items[items.length - 1])?.focus();
       return;
     }
 
@@ -103,7 +103,8 @@ const toastMessages = {
 };
 
 function initToast() {
-  const toastNode = document.getElementById("demo-toast");
+  const toastRegion = document.querySelector("[data-ui-toast-region]");
+  const toastNode = toastRegion?.querySelector("[data-ui-toast]");
   if (!toastNode) return;
 
   document.addEventListener("click", (event) => {

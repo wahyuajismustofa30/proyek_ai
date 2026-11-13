@@ -45,13 +45,13 @@
 
 /* Kontras CTA artikel dan tombol berbagi berbasis ikon */
 .prose a.btn.btn-wa,
-.prose a.btn.btn-wa:visited{background:#066b66;border-color:#066b66;color:#fff}
-.prose a.btn.btn-wa:hover{background:#0d2b5c;border-color:#0d2b5c;color:#fff}
-.prose a.btn.btn-wa:focus-visible{outline:3px solid #0d2b5c;outline-offset:3px}
+.prose a.btn.btn-wa:visited{background:var(--color-brand-strong);border-color:var(--color-brand-strong);color:#fff}
+.prose a.btn.btn-wa:hover{background:var(--color-text);border-color:var(--color-text);color:#fff}
+.prose a.btn.btn-wa:focus-visible{outline:3px solid var(--color-text);outline-offset:3px}
 .prose .share a,
-.prose .share button{width:42px;height:42px;flex:0 0 42px;padding:0;border-radius:50%;background:#fff;color:#0d2b5c;border:1px solid #b8c4cf}
+.prose .share button{width:42px;height:42px;flex:0 0 42px;padding:0;border-radius:50%;background:#fff;color:var(--color-text);border:1px solid var(--color-border)}
 .prose .share a:hover,
-.prose .share button:hover{background:#e7f6f5;border-color:#066b66;color:#066b66}
+.prose .share button:hover{background:var(--color-brand-soft);border-color:var(--color-brand-strong);color:var(--color-brand-strong)}
 .prose .share a:focus-visible,
-.prose .share button:focus-visible{outline:3px solid #066b66;outline-offset:3px}
+.prose .share button:focus-visible{outline:3px solid var(--color-brand-strong);outline-offset:3px}
 .prose .share svg{display:block;width:19px;height:19px}

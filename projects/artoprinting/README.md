@@ -186,6 +186,7 @@ Gunakan token semantik seperti `--color-brand`, `--color-text`, `--color-surface
 palet identitas resmi di bagian `:root`, sehingga perubahan tema dapat dilakukan terpusat.
 
 Aturan pemeliharaan:
+
 - Jangan mendefinisikan ulang palet global di CSS halaman.
 - Hindari nilai warna hex langsung untuk komponen baru; gunakan token tema.
 - Komponen yang dipakai beberapa halaman ditempatkan di `components.css` atau `base.css`,

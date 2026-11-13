@@ -27,7 +27,7 @@
 .article-back a:hover{text-decoration:underline}
 .article-back a:focus-visible{outline:2px solid currentColor;outline-offset:4px}
 @media(max-width:640px){
- .article-head{padding:32px 0 18px}
+ .article-head{padding:14px 0 18px}
  .article-cover{margin-bottom:24px;border-radius:var(--r-md)}
  .prose{font-size:1rem;line-height:1.8;padding-bottom:56px}
  .prose>p:first-child{font-size:1.04rem}

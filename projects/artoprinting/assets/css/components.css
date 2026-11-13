@@ -417,6 +417,7 @@
 .ui-dropdown > summary::-webkit-details-marker { display: none; }
 .ui-dropdown > summary::after { content: ""; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform var(--motion-fast); }
 .ui-dropdown[open] > summary::after { transform: rotate(225deg) translate(-2px, -1px); }
+.ui-dropdown:not([open]) > .ui-dropdown-menu { display: none; }
 .ui-dropdown-menu {
   position: absolute; z-index: 70; top: calc(100% + 8px); left: 0;
   display: grid; gap: 2px; min-width: 210px; max-width: min(280px, calc(100vw - 32px));
@@ -432,7 +433,7 @@
 
 /* ---------- Dialog / modal native ---------- */
 .ui-dialog {
-  width: min(560px, calc(100% - 32px)); max-width: 560px; max-height: min(80vh, calc(100dvh - 32px));
+  width: min(560px, calc(100% - 32px)); max-width: 560px; max-height: 80vh; max-height: min(80vh, calc(100vh - 32px)); max-height: min(80vh, calc(100dvh - 32px));
   padding: 0; border: 1px solid var(--color-border); border-radius: var(--r-lg);
   background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-raised);
   overflow: auto;

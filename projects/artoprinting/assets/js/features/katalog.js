@@ -10,7 +10,7 @@
 import { CONFIG } from '../config.js';
 import { esc, label, slug, angka } from '../utils/teks.js';
 import { deskripsiProduk } from '../services/data.js';
-import { cardHTML, emptyHTML, statusOf, pasangFallbackGambar } from '../components/product-card.js';
+import { cardHTML, statusOf, pasangFallbackGambar } from '../components/product-card.js';
 
 const PER_HALAMAN = CONFIG.katalog.perHalaman;
 const STATUS = {
@@ -274,6 +274,17 @@ export function createKatalog() {
     }));
   }
 
+  function stateHTML({ error = false, variant = '', title, message, action = '' }) {
+    const stateClass = error ? 'ui-error-state' : 'ui-empty-state';
+    const modifier = variant ? ` ${stateClass}--${variant}` : '';
+    return `<section class="${stateClass}${modifier}" ${error ? 'role="alert"' : ''} aria-labelledby="katalog-state-title">
+      <span class="ui-state-icon" aria-hidden="true">${error ? '!' : '⌕'}</span>
+      <h3 id="katalog-state-title">${title}</h3>
+      <p>${message}</p>
+      ${action ? `<div class="ui-state-actions">${action}</div>` : ''}
+    </section>`;
+  }
+
   function renderProduk(reset) {
     if (!el.grid) return;
     const unit = satuan(state.produk);
@@ -287,14 +298,18 @@ export function createKatalog() {
     }
 
     if (!currentList.length && !state.q) {
-      el.grid.innerHTML = emptyHTML(`<p>Belum ada ${unit} dengan pilihan ini. Coba pilih "Semua", atau tanyakan model terbarunya ke admin lewat WhatsApp.</p>`);
+      el.grid.innerHTML = stateHTML({
+        title: `Belum ada ${unit} pada pilihan ini`,
+        message: 'Coba pilih "Semua" atau tanyakan model terbaru langsung kepada admin melalui WhatsApp.'
+      });
     } else if (!currentList.length) {
-      el.grid.innerHTML = emptyHTML(`
-        <p>Tidak ada ${esc(label(state.produk).toLowerCase())} dengan kata "${esc(state.q)}"${state.kategori || state.status ? ' pada filter ini' : ''}.</p>
-        <p>Coba kata lain, atau tanyakan modelnya langsung ke admin.</p>
-        <button class="btn btn-line btn-sm" type="button" id="reset-cari">Hapus pencarian</button>`);
-      const r = document.getElementById('reset-cari');
-      if (r) r.addEventListener('click', () => setCari('', true));
+      el.grid.innerHTML = stateHTML({
+        variant: 'search',
+        title: 'Hasil tidak ditemukan',
+        message: `Tidak ada ${esc(label(state.produk).toLowerCase())} dengan kata "${esc(state.q)}"${state.kategori || state.status ? ' pada filter ini' : ''}. Coba kata lain atau hapus pencarian.`,
+        action: '<button class="btn btn-line btn-sm" type="button" id="reset-cari">Hapus pencarian</button>'
+      });
+      el.grid.querySelector('#reset-cari')?.addEventListener('click', () => setCari('', true));
     } else {
       const batch = currentList.slice(currentIndex, currentIndex + PER_HALAMAN);
       el.grid.insertAdjacentHTML('beforeend', batch.map((p) => cardHTML(p, state.produk)).join(''));
@@ -302,7 +317,9 @@ export function createKatalog() {
     }
 
     if (el.meta) {
-      el.meta.textContent = currentList.length ? `Menampilkan ${angka(currentIndex)} dari ${angka(currentList.length)} ${unit}` : '';
+      el.meta.textContent = currentList.length
+        ? `Menampilkan ${angka(currentIndex)} dari ${angka(currentList.length)} ${unit}`
+        : state.q ? 'Tidak ada hasil yang cocok.' : 'Belum ada hasil untuk pilihan ini.';
     }
     if (el.loadMore) {
       const sisa = currentList.length - currentIndex;
@@ -315,12 +332,16 @@ export function createKatalog() {
   /** Tampilkan pesan bila data gagal dimuat, dengan tombol coba lagi. */
   function renderGagal(onRetry) {
     if (!el.grid) return;
-    el.grid.innerHTML = emptyHTML(`
-      <p>Katalog belum bisa dimuat. Periksa koneksi internet, lalu coba lagi.</p>
-      <button class="btn btn-line btn-sm" type="button" id="muat-ulang-katalog">Coba lagi</button>`);
-    const b = document.getElementById('muat-ulang-katalog');
-    if (b) b.addEventListener('click', onRetry);
-    if (el.meta) el.meta.textContent = '';
+    el.grid.setAttribute('aria-busy', 'false');
+    el.grid.innerHTML = stateHTML({
+      error: true,
+      variant: 'network',
+      title: 'Katalog belum bisa dimuat',
+      message: 'Periksa koneksi internet, lalu coba muat katalog kembali.',
+      action: '<button class="btn btn-line btn-sm" type="button" id="muat-ulang-katalog">Coba lagi</button>'
+    });
+    el.grid.querySelector('#muat-ulang-katalog')?.addEventListener('click', onRetry);
+    if (el.meta) el.meta.textContent = 'Katalog gagal dimuat.';
   }
 
   /** Dipanggil setelah data siap. */

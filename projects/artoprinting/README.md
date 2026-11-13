@@ -169,7 +169,7 @@ Pengalihan ke `www`/`https` otomatis mati di localhost.
 | Menu & footer | `partials/*.html`, lalu `python tools/sinkron-partial.py` |
 | Tema utama (palet, token semantik, skala tipografi/jarak, radius, surface, bayangan, motion, warna status) | `assets/css/base.css` → `:root` |
 | Notifikasi status (success, info, warning, danger) | `assets/css/components.css` → `.alert` dan modifier `.alert-*` |
-| Interaksi reusable (breadcrumb, pagination, dropdown, dialog, tooltip, toast) | `assets/css/components.css`; perilaku demo di `assets/js/components/interaction-primitives.js` |
+| Interaksi reusable (breadcrumb, pagination, dropdown, dialog, tooltip, toast) | `assets/css/components.css` dan API `assets/js/components/interaction-primitives.js` |
 | Tabel, empty/error state, loading | `assets/css/components.css`; skeleton dasar tetap memakai class yang sudah tersedia |
 | Tombol, kontrol formulir, utilitas tema | `assets/css/base.css` |
 | Tata letak global | `assets/css/layout.css` |
@@ -193,6 +193,7 @@ Aturan pemeliharaan:
   bukan disalin ke stylesheet halaman.
 - Komponen interaksi lintas halaman menggunakan class `ui-*` di `assets/css/components.css`.
 - Modul `interaction-primitives.js` menyediakan perilaku untuk elemen yang memakai atribut `data-*`; halaman yang memerlukan interaksi harus memuat modul tersebut secara eksplisit.
+- API modul yang dapat diimpor: `showToast({ type, title, message, duration })` untuk notifikasi bertumpuk (tipe `success`, `info`, `warning`, `danger`; `error` menjadi alias `danger`), `setPaginationPage(nav, page)` untuk memilih halaman berdasarkan nilai `data-page`, dan `onPaginationChange(nav, callback)` untuk menerima perubahan halaman. Callback menerima objek `{ page, previousPage, totalPages, element }`; elemen navigasi juga memancarkan event `ui:pagechange`.
 - Dropdown menggunakan `details/summary`, dialog menggunakan elemen `dialog` native, dan tooltip berbasis CSS agar semantik browser tetap dimanfaatkan.
 - Showcase `master-theme.html` menjadi contoh markup dan class; jangan menyalin CSS komponennya ke stylesheet halaman.
 - CSS `pages/*.css` hanya mengatur susunan dan kebutuhan unik halaman.

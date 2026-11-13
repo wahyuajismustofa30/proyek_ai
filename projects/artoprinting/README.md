@@ -89,7 +89,7 @@ Halaman detail menerima `?p=undangan-cetak` maupun `?p=Undangan_Cetak`.
 │       │   └── site.js            menu (+ tanda halaman aktif) & tombol bagikan
 │       ├── services/data.js    ambil produk.json / setting.json / ulasan.json (dengan cache)
 │       ├── utils/teks.js       esc, label, slug, rapikanTeks, angka
-│       ├── components/         product-card.js, site-menu.js, share-links.js, interaction-primitives.js
+│       ├── components/         product-card.js, site-menu.js, share-links.js, interaction-primitives.js, state-primitives.js
 │       ├── features/           hero, katalog, kategori-ringkas, layanan, testimoni
 │       └── pages/              titik masuk per halaman: beranda, katalog, layanan, testimoni, produk-detail
 │
@@ -170,7 +170,7 @@ Pengalihan ke `www`/`https` otomatis mati di localhost.
 | Tema utama (palet, token semantik, skala tipografi/jarak, radius, surface, bayangan, motion, warna status) | `assets/css/base.css` → `:root` |
 | Notifikasi status (success, info, warning, danger) | `assets/css/components.css` → `.alert` dan modifier `.alert-*` |
 | Interaksi reusable (breadcrumb, pagination, dropdown, dialog, tooltip, toast) | `assets/css/components.css` dan API `assets/js/components/interaction-primitives.js` |
-| Tabel, empty/error state, loading | `assets/css/components.css`; skeleton dasar tetap memakai class yang sudah tersedia |
+| Tabel, empty/error state, loading | `assets/css/components.css`; API loading di `assets/js/components/state-primitives.js` |
 | Tombol, kontrol formulir, utilitas tema | `assets/css/base.css` |
 | Tata letak global | `assets/css/layout.css` |
 | Komponen lintas halaman | `assets/css/components.css` |
@@ -193,6 +193,8 @@ Aturan pemeliharaan:
   bukan disalin ke stylesheet halaman.
 - Komponen interaksi lintas halaman menggunakan class `ui-*` di `assets/css/components.css`.
 - Modul `interaction-primitives.js` menyediakan perilaku untuk elemen yang memakai atribut `data-*`; halaman yang memerlukan interaksi harus memuat modul tersebut secara eksplisit.
+- Modul `state-primitives.js` menyediakan `setLoadingState(container, loading, options)` dan `runWithLoadingState(container, task, options)` untuk mengelola skeleton/indikator, konten, pesan status `aria-live`, dan atribut `aria-busy`. Container dapat memakai `data-ui-loading-indicator`, `data-ui-loading-content`, dan `data-ui-loading-status`.
+- Empty State menggunakan `.ui-empty-state` dengan opsi modifier `.ui-empty-state--search` dan `.ui-empty-state--not-created`; Error State menggunakan `.ui-error-state` dengan modifier `.ui-error-state--network`. Slot tindakan opsional memakai `.ui-state-actions`.
 - API modul yang dapat diimpor: `showToast({ type, title, message, duration })` untuk notifikasi bertumpuk (tipe `success`, `info`, `warning`, `danger`; `error` menjadi alias `danger`), `setPaginationPage(nav, page)` untuk memilih halaman berdasarkan nilai `data-page`, dan `onPaginationChange(nav, callback)` untuk menerima perubahan halaman. Callback menerima objek `{ page, previousPage, totalPages, element }`; elemen navigasi juga memancarkan event `ui:pagechange`.
 - Dropdown menggunakan `details/summary`, dialog menggunakan elemen `dialog` native, dan tooltip berbasis CSS agar semantik browser tetap dimanfaatkan.
 - Showcase `master-theme.html` menjadi contoh markup dan class; jangan menyalin CSS komponennya ke stylesheet halaman.

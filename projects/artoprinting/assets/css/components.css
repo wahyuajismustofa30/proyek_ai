@@ -505,11 +505,7 @@
 }
 @keyframes ui-spin { to { transform: rotate(360deg); } }
 
-@media (max-width: 480px) {
-  .ui-empty-state, .ui-error-state { padding: 28px 16px; }
-  .ui-state-actions { width: 100%; }
-  .ui-state-actions .btn { max-width: 100%; }
-}
+
 
 /* ---------- Toast / feedback ---------- */
 .ui-toast-region { position: fixed; z-index: 100; top: 16px; right: 16px; width: min(390px, calc(100vw - 32px)); display: grid; gap: 10px; pointer-events: none; }
@@ -532,6 +528,9 @@
   .ui-pagination { gap: 6px; }
   .ui-page-button { min-width: 40px; min-height: 40px; padding: 7px 10px; }
   .ui-toast-region { top: auto; right: 12px; bottom: 12px; width: calc(100vw - 24px); }
+  .ui-empty-state, .ui-error-state { padding: 28px 16px; }
+  .ui-state-actions { width: 100%; }
+  .ui-state-actions .btn { max-width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ui-tooltip::after { transition: none; }

@@ -1,70 +1,25 @@
-/* =========================================================
-   Halaman artikel (post/*.html)
-   Judul, sampul, isi artikel (prose), galeri.
-   ========================================================= */
-
-/* ---------- Artikel ---------- */
-.article-head { max-width: 42rem; margin: 0 auto; padding: 48px 0 28px; }
-.article-head h1 {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.1rem, 5vw, 3.4rem);
-  line-height: 1.04;
-  letter-spacing: -0.01em;
-  margin: 0 0 16px;
-}
-.article-meta { color: var(--ink-mute); font-size: .95rem; }
-.article-cover { max-width: 60rem; margin: 0 auto 40px; }
-.article-cover img { width: 100%; max-height: 460px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--r-lg); background: var(--sheet); }
-.prose { max-width: 42rem; margin: 0 auto; padding-bottom: 72px; font-size: 1.07rem; line-height: 1.75; color: #33334f; }
-.prose h2 {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.7rem;
-  line-height: 1.15;
-  letter-spacing: -0.005em;
-  color: var(--ink);
-  margin: 2.2em 0 .6em;
-}
-.prose p, .prose ul, .prose ol { margin: 0 0 1.1em; }
-.prose li { margin-bottom: .45em; }
-.prose strong { color: var(--ink); }
-.prose a { color: var(--teal-deep); font-weight: 700; }
-.prose .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin: 0 0 1.2em; }
-.prose .gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-sm); background: var(--sheet); }
-
-@media (max-width: 640px) {
-  .article-head { padding: 32px 0 20px; }
-  .article-cover { margin-bottom: 24px; }
-  .prose { font-size: 1rem; line-height: 1.8; padding-bottom: 56px; }
-  .prose .lihat-juga { padding: 18px; }
-}
-
-/* ---------- Lihat juga (tautan internal) ---------- */
-.prose .lihat-juga {
-  margin: 2.4em 0 0;
-  padding: 20px 24px;
-  background: var(--teal-tint);
-  border-radius: var(--r-lg);
-}
-.prose .lihat-juga h2 { margin: 0 0 .5em; font-size: 1.3rem; }
-.prose .lihat-juga ul { margin: 0; }
-
-
-/* ---------- Navigasi kembali ke indeks blog ---------- */
-.article-back {
-  margin-top: 2rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--line, #e5e7eb);
-}
-.article-back a {
-  display: inline-flex;
-  align-items: center;
-  gap: .4rem;
-  text-decoration: none;
-}
-.article-back a:hover { text-decoration: underline; }
-.article-back a:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 4px;
-}
+/* Artikel Arto Printing — typography, media, and responsive tables */
+.article-head{max-width:46rem;margin:0 auto;padding:clamp(36px,5vw,64px) 0 24px}
+.article-head h1{font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,4.6vw,3.25rem);line-height:1.12;letter-spacing:-.02em;text-wrap:balance;margin:0 0 14px}
+.article-meta{color:var(--ink-mute);font-size:.92rem}
+.article-cover{max-width:60rem;margin:0 auto clamp(28px,4vw,48px)}
+.article-cover img{width:100%;height:auto;aspect-ratio:3/2;max-height:none;object-fit:cover;object-position:center;border-radius:var(--r-lg);background:var(--sheet)}
+.prose{max-width:44rem;min-width:0;margin:0 auto;padding-bottom:72px;font-size:1.06rem;line-height:1.78;color:#33334f}
+.prose h2{font-family:var(--font-display);font-weight:800;font-size:clamp(1.45rem,3vw,1.8rem);line-height:1.2;letter-spacing:-.005em;color:var(--ink);margin:2.15em 0 .65em;text-wrap:balance;scroll-margin-top:90px}
+.prose h3{color:var(--ink);font-size:clamp(1.12rem,2.4vw,1.3rem);line-height:1.35;margin:1.6em 0 .55em;scroll-margin-top:90px}
+.prose p,.prose ul,.prose ol{margin:0 0 1.1em}.prose li{margin-bottom:.5em}.prose strong{color:var(--ink)}
+.prose a{color:var(--teal-deep);font-weight:700;text-underline-offset:.18em}
+.prose .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:0 0 1.2em}
+.prose .gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--r-sm);background:var(--sheet)}
+.prose .table-scroll{max-width:100%;margin:1.35em 0 1.65em;overflow-x:auto;overscroll-behavior-inline:contain;border:1px solid var(--line);border-radius:var(--r-md);-webkit-overflow-scrolling:touch}
+.prose .table-scroll table{width:100%;min-width:560px;border-collapse:collapse;margin:0;font-size:.92em;line-height:1.55}
+.prose .table-scroll th,.prose .table-scroll td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.prose .table-scroll th{background:var(--teal-tint);color:var(--ink);font-weight:800;white-space:nowrap}
+.prose .table-scroll tbody tr:nth-child(even){background:#f8fafb}.prose .table-scroll tbody tr:last-child td{border-bottom:0}
+.prose .table-scroll:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+.prose .lihat-juga{margin:2.4em 0 0;padding:20px 24px;background:var(--teal-tint);border-radius:var(--r-lg)}
+.prose .lihat-juga h2{margin:0 0 .5em;font-size:1.3rem}.prose .lihat-juga ul{margin:0}
+.article-back{margin-top:2rem;padding-top:1.25rem;border-top:1px solid var(--line,#e5e7eb)}
+.article-back a{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none}.article-back a:hover{text-decoration:underline}
+.article-back a:focus-visible{outline:2px solid currentColor;outline-offset:4px}
+@media(max-width:640px){.article-head{padding:32px 0 18px}.article-cover{margin-bottom:24px}.article-cover img{border-radius:var(--r-md)}.prose{font-size:1rem;line-height:1.8;padding-bottom:56px}.prose .lihat-juga{padding:18px}.prose .table-scroll table{min-width:520px;font-size:.88em}.prose .table-scroll th,.prose .table-scroll td{padding:10px 12px}}

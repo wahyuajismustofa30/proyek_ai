@@ -281,7 +281,7 @@
               <summary>Menu tindakan</summary>
               <div class="ui-dropdown-menu">
                 <a href="#formulir">Lihat formulir</a>
-                <button type="button" data-dropdown-demo>Contoh tindakan</button>
+                <button type="button" data-toast-trigger="info">Contoh tindakan</button>
                 <a href="#aksesibilitas">Panduan aksesibilitas</a>
               </div>
             </details>
@@ -325,16 +325,16 @@
               <span class="ui-state-icon" aria-hidden="true">⌕</span>
               <h3>Belum ada hasil</h3>
               <p>Pencarian contoh tidak menemukan produk. Ubah kata kunci atau pilih kategori lain.</p>
-              <button class="btn btn-line btn-sm" type="button">Ubah pencarian</button>
+              <a class="btn btn-line btn-sm" href="#formulir">Lihat formulir contoh</a>
             </article>
             <article class="ui-error-state" role="alert">
               <span class="ui-state-icon" aria-hidden="true">!</span>
               <h3>Data belum dapat dimuat</h3>
               <p>Terjadi kendala saat mengambil data. Silakan coba kembali beberapa saat lagi.</p>
-              <button class="btn btn-ink btn-sm" type="button">Coba lagi</button>
+              <button class="btn btn-ink btn-sm" type="button" data-toast-trigger="info">Simulasikan coba lagi</button>
             </article>
           </div>
-          <article class="surface demo-panel demo-stack" aria-busy="true">
+          <article class="surface demo-panel demo-stack" role="status" aria-live="polite" aria-busy="true">
             <h3>Loading / skeleton</h3>
             <div class="ui-loading">
               <span class="sr-only">Contoh konten sedang dimuat</span>
@@ -360,8 +360,8 @@
           <button class="btn btn-line" type="button" data-toast-trigger="error">Error</button>
         </div>
         <p class="text-subtle">Class: <code>.ui-toast</code>. Gunakan tombol di atas untuk mencoba setiap varian.</p>
-        <div class="ui-toast-region" aria-live="polite" aria-atomic="true">
-          <div class="ui-toast" id="demo-toast" data-type="info" role="status" hidden>
+        <div class="ui-toast-region" data-ui-toast-region aria-live="polite" aria-atomic="true">
+          <div class="ui-toast" data-ui-toast data-type="info" role="status" hidden>
             <div><strong data-toast-title>Informasi</strong><p data-toast-message>Pesan contoh.</p></div>
             <button class="ui-toast-close" type="button" data-toast-close aria-label="Tutup notifikasi">×</button>
           </div>

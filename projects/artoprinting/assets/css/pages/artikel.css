@@ -1,5 +1,5 @@
 /* Artikel Arto Printing — readable editorial layout and responsive media/tables */
-.article-head{max-width:46rem;margin:0 auto;padding:clamp(36px,5vw,64px) 0 22px}
+.article-head{max-width:46rem;margin:0 auto;padding:clamp(18px,2.5vw,28px) 0 22px}
 .article-head h1{font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,4.6vw,3.25rem);line-height:1.12;letter-spacing:-.02em;text-wrap:balance;margin:0 0 14px;color:var(--ink)}
 .article-meta{margin:0;color:var(--ink-mute);font-size:.9rem}
 .article-cover{max-width:60rem;margin:0 auto clamp(30px,4vw,48px);overflow:hidden;border-radius:var(--r-lg);background:var(--sheet)}
@@ -50,4 +50,4 @@
 
 
 /* Breadcrumb artikel menggunakan komponen navigasi Master Theme. */
-.article-breadcrumb { max-width: 46rem; margin: 24px auto 0; }
+.article-breadcrumb { max-width: 46rem; margin: 16px auto 0; }

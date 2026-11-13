@@ -72,7 +72,7 @@ Halaman detail menerima `?p=undangan-cetak` maupun `?p=Undangan_Cetak`.
 │   ├── css/
 │   │   ├── base.css            token warna & font (palet logo), reset, utilitas, tombol
 │   │   ├── layout.css          header, navigasi, judul halaman, section, footer, WA melayang
-│   │   ├── components.css      tab, chip, pencarian, kartu produk, testimoni, bagikan, alamat & peta
+│   │   ├── components.css      komponen katalog, interaksi, tabel, status, testimoni, bagikan, alamat & peta
 │   │   ├── pages/              satu file per halaman: beranda, katalog, layanan, cara-pesan,
 │   │   │                       testimoni, kontak, produk, artikel, blog
 │   │   └── legacy/nordic-custom.css   tema lama, tidak dipakai (arsip)
@@ -89,7 +89,7 @@ Halaman detail menerima `?p=undangan-cetak` maupun `?p=Undangan_Cetak`.
 │       │   └── site.js            menu (+ tanda halaman aktif) & tombol bagikan
 │       ├── services/data.js    ambil produk.json / setting.json / ulasan.json (dengan cache)
 │       ├── utils/teks.js       esc, label, slug, rapikanTeks, angka
-│       ├── components/         product-card.js (kartu + linkProduk), site-menu.js, share-links.js
+│       ├── components/         product-card.js, site-menu.js, share-links.js, interaction-primitives.js
 │       ├── features/           hero, katalog, kategori-ringkas, layanan, testimoni
 │       └── pages/              titik masuk per halaman: beranda, katalog, layanan, testimoni, produk-detail
 │

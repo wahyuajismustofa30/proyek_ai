@@ -38,6 +38,7 @@
     .demo-field { display: grid; gap: 14px; }
     .demo-note { padding: 12px 14px; border-left: 4px solid var(--color-brand-strong); background: var(--color-brand-soft); border-radius: 0 var(--r-sm) var(--r-sm) 0; color: var(--color-text); }
     .demo-token { display: inline-block; padding: 4px 8px; border-radius: var(--r-sm); background: var(--color-surface-muted); color: var(--color-text); font: .82rem ui-monospace, monospace; }
+    .demo-static-control { cursor: default; }
     .demo-footer { margin-top: 0; }
     .demo-footer .inner { align-items: flex-start; }
     .demo-divider { height: 1px; background: var(--color-border); margin: 16px 0; }
@@ -54,11 +55,11 @@
         <span class="brand-text"><span class="brand-name">Arto Printing</span><span class="brand-tag">memberi kemudahan</span></span>
       </a>
       <nav class="nav" aria-label="Navigasi contoh">
-        <a href="#warna">Warna</a>
+        <a href="#warna">Tokens</a>
         <a href="#tombol">Tombol</a>
-        <a href="#komponen">Komponen</a>
+        <a href="#komponen">Cards</a>
         <a href="#interaksi">Interaksi</a>
-        <a href="#data-state">Data &amp; state</a>
+        <a href="#data-state">States</a>
       </nav>
       <a class="btn btn-wa btn-sm" href="#formulir">Contoh formulir</a>
     </div>
@@ -70,7 +71,7 @@
       <div class="wrap">
         <p class="demo-eyebrow">Design system · Reference</p>
         <h1>Master Theme Showcase</h1>
-        <p>Halaman referensi visual untuk melihat warna, tipografi, tombol, formulir, kartu, navigasi, dan komponen yang tersedia. Komponen di bawah mengambil gaya dari stylesheet utama ARTO PRINTING.</p>
+        <p>Referensi visual dan teknis untuk design tokens, tipografi, kontrol, feedback, cards, navigasi, interaksi, state data, tabel, dan pola responsif. Gaya komponen berasal dari stylesheet utama ARTO PRINTING.</p>
       </div>
     </section>
 
@@ -98,6 +99,19 @@
           <p><span class="demo-token">--color-success</span> <span class="demo-token">--color-warning</span> <span class="demo-token">--color-danger</span> <span class="demo-token">--color-info</span></p>
           <p><span class="demo-token">--text-sm</span> <span class="demo-token">--text-base</span> <span class="demo-token">--text-lg</span> <span class="demo-token">--space-2</span> <span class="demo-token">--space-4</span> <span class="demo-token">--space-8</span></p>
         </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="aksesibilitas">
+      <div class="wrap">
+        <h2>01.1 Radius, bayangan &amp; accessibility</h2>
+        <p>Token ukuran dan status interaksi untuk menjaga konsistensi.</p>
+        <div class="demo-grid">
+          <div class="surface demo-panel"><h3>Radius kecil</h3><p class="text-muted"><code>--r-sm</code> · 6px</p></div>
+          <div class="surface demo-panel" style="border-radius:var(--r-md)"><h3>Radius medium</h3><p class="text-muted"><code>--r-md</code> · 12px</p></div>
+          <div class="surface demo-panel" style="border-radius:var(--r-lg)"><h3>Radius besar</h3><p class="text-muted"><code>--r-lg</code> · 22px</p></div>
+        </div>
+        <p class="demo-note" style="margin-top:20px">Gunakan keyboard untuk menguji focus-visible. Gerakan animasi dinonaktifkan saat pengguna mengaktifkan preferensi reduced motion.</p>
       </div>
     </section>
 
@@ -137,9 +151,54 @@
       </div>
     </section>
 
+    <section class="demo-section" id="formulir">
+      <div class="wrap">
+        <h2>05. Formulir &amp; kontrol</h2>
+        <p>Field memakai kelas <code>.form-control</code> dari Master Theme. Formulir hanya menguji validasi browser dan tidak mengirim data ke server.</p>
+        <form class="surface demo-panel demo-field" action="#" method="get" data-demo-form>
+          <div>
+            <label class="demo-label" for="demo-name">Nama lengkap</label>
+            <input class="form-control" id="demo-name" type="text" placeholder="Masukkan nama">
+          </div>
+          <div>
+            <label class="demo-label" for="demo-email">Alamat email</label>
+            <input class="form-control" id="demo-email" type="email" placeholder="nama@email.com">
+          </div>
+          <div>
+            <label class="demo-label" for="demo-service">Jenis layanan</label>
+            <select class="form-control" id="demo-service"><option>Pilih layanan</option><option>Cetak undangan</option><option>Banner</option><option>Stiker</option></select>
+          </div>
+          <div>
+            <label class="demo-label" for="demo-message">Catatan</label>
+            <textarea class="form-control" id="demo-message" rows="3" placeholder="Tulis kebutuhan cetak Anda"></textarea>
+          </div>
+          <label><input type="checkbox"> Saya setuju dengan contoh pilihan ini</label>
+          <fieldset style="border:1px solid var(--color-border);border-radius:var(--r-sm);padding:12px"><legend class="demo-label">Pilihan contoh</legend><label><input type="radio" name="demo-choice" checked> Digital</label> &amp;nbsp; <label><input type="radio" name="demo-choice"> Cetak</label></fieldset>
+          <div class="demo-row"><button class="btn btn-ink" type="submit">Uji validasi formulir</button><button class="btn btn-line" type="reset">Reset</button></div>
+          <div>
+            <label class="demo-label" for="demo-disabled">Field nonaktif</label>
+            <input class="form-control" id="demo-disabled" type="text" value="Tidak dapat diedit" disabled>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="demo-section" id="alerts">
+      <div class="wrap">
+        <h2>05. Alerts &amp; feedback</h2>
+        <p>Gunakan warna status semantik untuk menyampaikan hasil dan kondisi tanpa bergantung pada warna saja.</p>
+        <div class="demo-stack">
+          <div class="alert alert-success" role="status"><div><strong>Berhasil</strong><p>Permintaan Anda berhasil diproses. Informasi sudah tersimpan.</p></div></div>
+          <div class="alert alert-info" role="status"><div><strong>Informasi</strong><p>Periksa kembali detail ukuran dan bahan sebelum melanjutkan.</p></div></div>
+          <div class="alert alert-warning" role="alert"><div><strong>Perlu diperhatikan</strong><p>Waktu produksi dapat berubah mengikuti antrean pesanan.</p></div></div>
+          <div class="alert alert-danger" role="alert"><div><strong>Terjadi kendala</strong><p>Data belum dapat diproses. Silakan periksa isian dan coba lagi.</p></div></div>
+        </div>
+      </div>
+    </section>
+
     <section class="demo-section" id="komponen">
       <div class="wrap">
-        <h2>04. Surface, kartu &amp; badge</h2>
+        <h2>06. Cards, surface &amp; badges</h2>
         <p>Contoh panel, kartu, label status, dan chip dari komponen katalog.</p>
         <div class="demo-grid">
           <article class="surface demo-panel">
@@ -162,97 +221,30 @@
         </div>
         <div class="demo-divider"></div>
         <div class="demo-row">
-          <button class="tab" type="button" aria-selected="true">Semua <span class="count">12</span></button>
-          <button class="tab" type="button" aria-selected="false">Undangan <span class="count">8</span></button>
-          <button class="chip" type="button" aria-pressed="true">Pernikahan <span class="chip-count">4</span></button>
-          <button class="chip" type="button" aria-pressed="false">Ulang tahun</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="demo-section" id="formulir">
-      <div class="wrap">
-        <h2>05. Formulir &amp; kontrol</h2>
-        <p>Field memakai kelas <code>.form-control</code> dari Master Theme. Contoh ini tidak mengirim data ke mana pun.</p>
-        <form class="surface demo-panel demo-field" action="#" method="get">
-          <div>
-            <label class="demo-label" for="demo-name">Nama lengkap</label>
-            <input class="form-control" id="demo-name" type="text" placeholder="Masukkan nama">
-          </div>
-          <div>
-            <label class="demo-label" for="demo-email">Alamat email</label>
-            <input class="form-control" id="demo-email" type="email" placeholder="nama@email.com">
-          </div>
-          <div>
-            <label class="demo-label" for="demo-service">Jenis layanan</label>
-            <select class="form-control" id="demo-service"><option>Pilih layanan</option><option>Cetak undangan</option><option>Banner</option><option>Stiker</option></select>
-          </div>
-          <div>
-            <label class="demo-label" for="demo-message">Catatan</label>
-            <textarea class="form-control" id="demo-message" rows="3" placeholder="Tulis kebutuhan cetak Anda"></textarea>
-          </div>
-          <label><input type="checkbox"> Saya setuju dengan contoh pilihan ini</label>
-          <fieldset style="border:1px solid var(--color-border);border-radius:var(--r-sm);padding:12px"><legend class="demo-label">Pilihan contoh</legend><label><input type="radio" name="demo-choice" checked> Digital</label> &amp;nbsp; <label><input type="radio" name="demo-choice"> Cetak</label></fieldset>
-          <div class="demo-row"><button class="btn btn-ink" type="button">Contoh submit</button><button class="btn btn-line" type="reset">Reset</button></div>
-          <div>
-            <label class="demo-label" for="demo-disabled">Field nonaktif</label>
-            <input class="form-control" id="demo-disabled" type="text" value="Tidak dapat diedit" disabled>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <section class="demo-section" id="pola">
-      <div class="wrap">
-        <h2>06. Pola layout &amp; konten</h2>
-        <p>Komponen yang sudah digunakan lintas halaman situs.</p>
-        <div class="demo-panel surface demo-stack">
-          <div class="cta-band">
-            <div><h2>Butuh bantuan cetak?</h2><p>Konsultasikan kebutuhan Anda bersama tim Arto Printing.</p></div>
-            <div class="cta-actions"><a class="btn btn-wa" href="#tombol">Hubungi admin</a><a class="btn btn-line" href="#warna">Pelajari tema</a></div>
-          </div>
-          <div>
-            <h3>Langkah pemesanan</h3>
-            <ol class="steps">
-              <li><h3>Konsultasi</h3><p>Ceritakan kebutuhan cetak.</p></li>
-              <li><h3>Pilih desain</h3><p>Tentukan ukuran dan bahan.</p></li>
-              <li><h3>Produksi</h3><p>Pesanan mulai dikerjakan.</p></li>
-              <li><h3>Selesai</h3><p>Ambil atau kirim pesanan.</p></li>
-            </ol>
-          </div>
-          <div class="demo-note">Catatan informasi menggunakan latar brand soft dan aksen brand strong.</div>
-          <div class="share">
-            <span>Bagikan contoh:</span>
-            <a href="#pola" aria-label="Contoh tautan berbagi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 16V3m0 0L7 8m5-5 5 5M5 13v7h14v-7"/></svg></a>
-            <button type="button" aria-label="Contoh tombol berbagi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4m-6.6 9 6.6 4.4"/></svg></button>
-          </div>
+          <span class="tab demo-static-control">Semua <span class="count">12</span></span>
+          <span class="tab demo-static-control">Undangan <span class="count">8</span></span>
+          <span class="chip demo-static-control">Pernikahan <span class="chip-count">4</span></span>
+          <span class="chip demo-static-control">Ulang tahun</span>
         </div>
       </div>
     </section>
 
     <section class="demo-section" id="ulasan">
       <div class="wrap">
-        <h2>07. Testimoni &amp; skeleton</h2>
-        <p>Contoh kartu ulasan dan placeholder saat data sedang dimuat.</p>
+        <h2>06.1 Testimonial card</h2>
+        <p>Contoh kartu ulasan dengan struktur kutipan dan atribusi penulis.</p>
         <div class="demo-grid">
           <figure class="review">
             <blockquote>“Pelayanan ramah, proses mudah, dan hasil cetaknya rapi.”</blockquote>
             <figcaption><span class="avatar-fallback">AP</span> Pelanggan Arto Printing</figcaption>
           </figure>
-          <div class="surface demo-panel">
-            <span class="teks-skeleton judul-besar" aria-hidden="true"></span>
-            <span class="teks-skeleton" aria-hidden="true"></span>
-            <span class="teks-skeleton pendek" aria-hidden="true"></span>
-            <span class="teks-skeleton blok" aria-hidden="true"></span>
-            <p class="text-subtle">Skeleton state · animasi mengikuti prefers-reduced-motion.</p>
-          </div>
-        </div>
+       </div>
       </div>
     </section>
 
     <section class="demo-section" id="interaksi">
       <div class="wrap">
-        <h2>09. Navigasi &amp; interaksi</h2>
+        <h2>07. Navigation &amp; interaction components</h2>
         <p>Contoh komponen navigasi dan bantuan. Dropdown memakai elemen native, dialog memakai <code>&lt;dialog&gt;</code>, dan pagination memiliki state interaktif.</p>
         <div class="demo-stack">
           <article class="surface demo-panel demo-stack">
@@ -300,27 +292,39 @@
           </article>
         </div>
       </div>
+      <dialog class="ui-dialog" id="demo-dialog" aria-labelledby="demo-dialog-title">
+      <div class="ui-dialog-panel">
+        <div class="ui-dialog-header">
+          <h3 id="demo-dialog-title">Dialog Master Theme</h3>
+          <button class="ui-dialog-close" type="button" data-dialog-close aria-label="Tutup dialog">×</button>
+        </div>
+        <p>Dialog native mengelola fokus modal dan dapat ditutup dengan tombol Escape. Gunakan untuk konfirmasi atau konten singkat yang membutuhkan perhatian.</p>
+        <div class="ui-dialog-actions"><button class="btn btn-line" type="button" data-dialog-close>Tutup</button><button class="btn btn-ink" type="button" data-dialog-close>Mengerti</button></div>
+      </div>
+      </dialog>
+    </section>
+
+    <section class="demo-section" id="toast">
+      <div class="wrap">
+        <h2>08. Toast notifications</h2>
+        <p>Notifikasi dapat ditumpuk, ditutup manual, atau menghilang otomatis. Arahkan pointer atau fokuskan notifikasi untuk menghentikan sementara hitung mundurnya.</p>
+        <div class="demo-row">
+          <button class="btn btn-ink" type="button" data-toast-trigger="success" data-toast-title="Berhasil" data-toast-message="Contoh tindakan berhasil diselesaikan.">Success</button>
+          <button class="btn btn-line" type="button" data-toast-trigger="info" data-toast-title="Informasi" data-toast-message="Ini adalah informasi tambahan untuk pengguna.">Info</button>
+          <button class="btn btn-line" type="button" data-toast-trigger="warning" data-toast-title="Perhatian" data-toast-message="Periksa kembali informasi sebelum melanjutkan.">Warning</button>
+          <button class="btn btn-line" type="button" data-toast-trigger="danger" data-toast-title="Terjadi kendala" data-toast-message="Permintaan belum berhasil. Silakan coba kembali.">Danger</button>
+          <button class="btn btn-line" type="button" data-toast-api>Toast via API</button>
+        </div>
+        <p class="text-subtle">API modul: <code>showToast({ type, title, message, duration })</code>. Setiap notifikasi memiliki tombol tutup dan live role sesuai tingkat urgensinya.</p>
+        <div class="ui-toast-region" data-ui-toast-region role="region" aria-label="Notifikasi"></div>
+      </div>
     </section>
 
     <section class="demo-section" id="data-state">
       <div class="wrap">
-        <h2>10. Data, empty, error &amp; loading state</h2>
+        <h2>09. Empty, error &amp; loading states</h2>
         <p>Komponen untuk menyajikan data, kondisi tanpa hasil, kegagalan, dan proses pemuatan.</p>
         <div class="demo-stack">
-          <article class="surface demo-panel demo-stack">
-            <h3>Tabel responsif</h3>
-            <div class="ui-table-wrap" tabindex="0" role="region" aria-label="Contoh tabel produk, geser horizontal jika diperlukan">
-              <table class="ui-table">
-                <thead><tr><th scope="col">Produk</th><th scope="col">Kategori</th><th scope="col">Status</th><th scope="col">Keterangan</th></tr></thead>
-                <tbody>
-                  <tr><th scope="row">Undangan A</th><td>Pernikahan</td><td><span class="badge ready">Tersedia</span></td><td>Contoh data katalog</td></tr>
-                  <tr><th scope="row">Banner B</th><td>Promosi</td><td><span class="badge">Konsultasi</span></td><td>Sesuaikan ukuran</td></tr>
-                  <tr><th scope="row">Stiker C</th><td>Label</td><td><span class="badge ready">Tersedia</span></td><td>Contoh data katalog</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <p class="text-subtle">Class: <code>.ui-table-wrap</code> dan <code>.ui-table</code></p>
-          </article>
           <h3>Empty State</h3>
           <div class="demo-grid">
             <article class="ui-empty-state" aria-labelledby="empty-no-content-title">
@@ -399,56 +403,55 @@
       </div>
     </section>
 
-    <section class="demo-section" id="toast">
+    <section class="demo-section" id="tables">
       <div class="wrap">
-        <h2>11. Toast / feedback interaktif</h2>
-        <p>Notifikasi dapat ditumpuk, ditutup manual, atau menghilang otomatis. Arahkan pointer atau fokuskan notifikasi untuk menghentikan sementara hitung mundurnya.</p>
-        <div class="demo-row">
-          <button class="btn btn-ink" type="button" data-toast-trigger="success" data-toast-title="Berhasil" data-toast-message="Contoh tindakan berhasil diselesaikan.">Success</button>
-          <button class="btn btn-line" type="button" data-toast-trigger="info" data-toast-title="Informasi" data-toast-message="Ini adalah informasi tambahan untuk pengguna.">Info</button>
-          <button class="btn btn-line" type="button" data-toast-trigger="warning" data-toast-title="Perhatian" data-toast-message="Periksa kembali informasi sebelum melanjutkan.">Warning</button>
-          <button class="btn btn-line" type="button" data-toast-trigger="danger" data-toast-title="Terjadi kendala" data-toast-message="Permintaan belum berhasil. Silakan coba kembali.">Danger</button>
-          <button class="btn btn-line" type="button" data-toast-api>Toast via API</button>
-        </div>
-        <p class="text-subtle">API modul: <code>showToast({ type, title, message, duration })</code>. Setiap notifikasi memiliki tombol tutup dan live role sesuai tingkat urgensinya.</p>
-        <div class="ui-toast-region" data-ui-toast-region role="region" aria-label="Notifikasi"></div>
-      </div>
-    </section>
-
-    <dialog class="ui-dialog" id="demo-dialog" aria-labelledby="demo-dialog-title">
-      <div class="ui-dialog-panel">
-        <div class="ui-dialog-header">
-          <h3 id="demo-dialog-title">Dialog Master Theme</h3>
-          <button class="ui-dialog-close" type="button" data-dialog-close aria-label="Tutup dialog">×</button>
-        </div>
-        <p>Dialog native mengelola fokus modal dan dapat ditutup dengan tombol Escape. Gunakan untuk konfirmasi atau konten singkat yang membutuhkan perhatian.</p>
-        <div class="ui-dialog-actions"><button class="btn btn-line" type="button" data-dialog-close>Tutup</button><button class="btn btn-ink" type="button" data-dialog-close>Mengerti</button></div>
-      </div>
-    </dialog>
-
-    <section class="demo-section" id="feedback">
-      <div class="wrap">
-        <h2>12. Feedback &amp; status</h2>
-        <p>Gunakan warna status semantik untuk menyampaikan hasil dan kondisi tanpa bergantung pada warna saja.</p>
+        <h2>10. Tables</h2>
+        <p>Tabel menggunakan header semantik dan pembungkus yang memungkinkan scroll horizontal pada layar sempit.</p>
         <div class="demo-stack">
-          <div class="alert alert-success" role="status"><div><strong>Berhasil</strong><p>Permintaan Anda berhasil diproses. Informasi sudah tersimpan.</p></div></div>
-          <div class="alert alert-info" role="status"><div><strong>Informasi</strong><p>Periksa kembali detail ukuran dan bahan sebelum melanjutkan.</p></div></div>
-          <div class="alert alert-warning" role="alert"><div><strong>Perlu diperhatikan</strong><p>Waktu produksi dapat berubah mengikuti antrean pesanan.</p></div></div>
-          <div class="alert alert-danger" role="alert"><div><strong>Terjadi kendala</strong><p>Data belum dapat diproses. Silakan periksa isian dan coba lagi.</p></div></div>
+                    <article class="surface demo-panel demo-stack">
+                      <h3>Tabel responsif</h3>
+                      <div class="ui-table-wrap" tabindex="0" role="region" aria-label="Contoh tabel produk, geser horizontal jika diperlukan">
+                        <table class="ui-table">
+                          <thead><tr><th scope="col">Produk</th><th scope="col">Kategori</th><th scope="col">Status</th><th scope="col">Keterangan</th></tr></thead>
+                          <tbody>
+                            <tr><th scope="row">Undangan A</th><td>Pernikahan</td><td><span class="badge ready">Tersedia</span></td><td>Contoh data katalog</td></tr>
+                            <tr><th scope="row">Banner B</th><td>Promosi</td><td><span class="badge">Konsultasi</span></td><td>Sesuaikan ukuran</td></tr>
+                            <tr><th scope="row">Stiker C</th><td>Label</td><td><span class="badge ready">Tersedia</span></td><td>Contoh data katalog</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <p class="text-subtle">Class: <code>.ui-table-wrap</code> dan <code>.ui-table</code></p>
+                    </article>
         </div>
       </div>
     </section>
 
-    <section class="demo-section" id="aksesibilitas">
+    <section class="demo-section" id="responsive">
       <div class="wrap">
-        <h2>08. Radius, bayangan &amp; aksesibilitas</h2>
-        <p>Token ukuran dan status interaksi untuk menjaga konsistensi.</p>
-        <div class="demo-grid">
-          <div class="surface demo-panel"><h3>Radius kecil</h3><p class="text-muted"><code>--r-sm</code> · 6px</p></div>
-          <div class="surface demo-panel" style="border-radius:var(--r-md)"><h3>Radius medium</h3><p class="text-muted"><code>--r-md</code> · 12px</p></div>
-          <div class="surface demo-panel" style="border-radius:var(--r-lg)"><h3>Radius besar</h3><p class="text-muted"><code>--r-lg</code> · 22px</p></div>
+        <h2>11. Responsive layout patterns</h2>
+        <p>Contoh layout yang menyesuaikan ruang tersedia melalui grid auto-fit, flex-wrap, dan pola konten yang dapat ditumpuk pada layar sempit.</p>
+        <p class="demo-note">Class showcase: <code>.demo-grid</code> menggunakan grid adaptif; <code>.demo-row</code> dan <code>.cta-actions</code> dapat membungkus elemen ketika ruang menyempit. Gunakan pola ini sebagai referensi, lalu validasi breakpoint halaman pemakai.</p>
+        <div class="demo-panel surface demo-stack">
+          <div class="cta-band">
+            <div><h2>Butuh bantuan cetak?</h2><p>Konsultasikan kebutuhan Anda bersama tim Arto Printing.</p></div>
+            <div class="cta-actions"><a class="btn btn-wa" href="#tombol">Hubungi admin</a><a class="btn btn-line" href="#warna">Pelajari tema</a></div>
+          </div>
+          <div>
+            <h3>Langkah pemesanan</h3>
+            <ol class="steps">
+              <li><h3>Konsultasi</h3><p>Ceritakan kebutuhan cetak.</p></li>
+              <li><h3>Pilih desain</h3><p>Tentukan ukuran dan bahan.</p></li>
+              <li><h3>Produksi</h3><p>Pesanan mulai dikerjakan.</p></li>
+              <li><h3>Selesai</h3><p>Ambil atau kirim pesanan.</p></li>
+            </ol>
+          </div>
+          <div class="demo-note">Catatan informasi menggunakan latar brand soft dan aksen brand strong.</div>
+          <div class="share">
+            <span>Bagikan Showcase:</span>
+            <a href="#responsive" aria-label="Contoh tautan berbagi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 16V3m0 0L7 8m5-5 5 5M5 13v7h14v-7"/></svg></a>
+            <button type="button" aria-label="Bagikan atau salin tautan Showcase" data-demo-copy><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4m-6.6 9 6.6 4.4"/></svg></button>
+          </div>
         </div>
-        <p class="demo-note" style="margin-top:20px">Gunakan keyboard untuk menguji focus-visible. Gerakan animasi dinonaktifkan saat pengguna mengaktifkan preferensi reduced motion.</p>
       </div>
     </section>
   </main>
@@ -464,7 +467,7 @@
         <p class="footer-copy">Master Theme Showcase · Halaman referensi internal</p>
       </div>
       <nav aria-label="Navigasi bagian showcase">
-        <a href="#warna">Warna</a><a href="#tipografi">Tipografi</a><a href="#tombol">Tombol</a><a href="#komponen">Komponen</a>
+        <a href="#warna">Tokens</a><a href="#tipografi">Tipografi</a><a href="#tombol">Tombol</a><a href="#tables">Tables</a><a href="#responsive">Responsive</a>
       </nav>
     </div>
   </footer>
@@ -512,6 +515,25 @@
         });
       } finally {
         loadButton.disabled = false;
+      }
+    });
+
+    const demoForm = document.querySelector("[data-demo-form]");
+    demoForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      showToast({ type: "success", title: "Validasi formulir berhasil", message: "Contoh ini hanya berjalan di browser; tidak ada data yang dikirim ke server." });
+    });
+
+    const copyButton = document.querySelector("[data-demo-copy]");
+    copyButton?.addEventListener("click", async () => {
+      try {
+        if (navigator.share) await navigator.share({ title: document.title, url: window.location.href });
+        else if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(window.location.href);
+          showToast({ type: "success", title: "Tautan disalin", message: "Alamat Showcase berhasil disalin." });
+        } else throw new Error("Fitur berbagi tidak tersedia.");
+      } catch (error) {
+        if (error.name !== "AbortError") showToast({ type: "warning", title: "Berbagi tidak tersedia", message: "Salin alamat halaman melalui bilah alamat browser." });
       }
     });
 

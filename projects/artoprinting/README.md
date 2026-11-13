@@ -167,7 +167,8 @@ Pengalihan ke `www`/`https` otomatis mati di localhost.
 | Jumlah ulasan awal (Testimoni / Beranda) | `config.js` → `testimoniAwal`, `testimoniBeranda` |
 | ID Google Analytics yang dimuat | `assets/js/core/analytics.js` (konstanta di file ini; jangan disamakan otomatis dengan `setting.json`) |
 | Menu & footer | `partials/*.html`, lalu `python tools/sinkron-partial.py` |
-| Tema utama (palet, tipografi, radius, surface, bayangan, motion) | `assets/css/base.css` → `:root` |
+| Tema utama (palet, token semantik, skala tipografi/jarak, radius, surface, bayangan, motion, warna status) | `assets/css/base.css` → `:root` |
+| Notifikasi status (success, info, warning, danger) | `assets/css/components.css` → `.alert` dan modifier `.alert-*` |
 | Tombol, kontrol formulir, utilitas tema | `assets/css/base.css` |
 | Tata letak global | `assets/css/layout.css` |
 | Komponen lintas halaman | `assets/css/components.css` |

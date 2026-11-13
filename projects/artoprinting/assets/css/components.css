@@ -349,11 +349,10 @@
 .cta-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
 /* ---------- Kerangka (skeleton) sebelum data dimuat — mencegah tata letak bergeser (CLS) ---------- */
-/* kerangka kartu saat data dimuat */
 .card.skeleton .card-media,
 .card.skeleton .card-title,
 .card.skeleton .card-sub {
-  background: linear-gradient(90deg, var(--sheet) 25%, #e7ebf0 50%, var(--sheet) 75%);
+  background: linear-gradient(90deg, var(--color-surface-muted) 25%, var(--color-border) 50%, var(--color-surface-muted) 75%);
   background-size: 200% 100%;
   animation: kilau 1.2s ease-in-out infinite;
   border-radius: var(--r-sm);
@@ -368,11 +367,11 @@
   display: inline-block;
   flex: none;
   border-radius: 999px;
-  background: linear-gradient(90deg, #e6eaef 25%, #eef1f4 50%, #e6eaef 75%);
+  background: linear-gradient(90deg, var(--color-surface-muted) 25%, var(--color-border) 50%, var(--color-surface-muted) 75%);
   background-size: 200% 100%;
   animation: kilau 1.2s ease-in-out infinite;
 }
-.teks-skeleton { display: block; height: 1em; width: 92%; margin: .45em 0; border-radius: 6px; }
+.teks-skeleton { display: block; height: 1em; width: 92%; margin: .45em 0; border-radius: var(--r-sm); }
 .teks-skeleton.pendek { width: 60%; }
 .teks-skeleton.judul { height: 1.3em; width: 70%; margin-bottom: 1em; }
 .teks-skeleton.nama { width: 40%; margin-top: 1em; }
@@ -477,9 +476,10 @@
 
 /* ---------- Empty, error, dan loading state ---------- */
 .ui-empty-state, .ui-error-state {
-  display: grid; justify-items: center; gap: 10px; padding: clamp(28px, 5vw, 48px) 20px;
+  display: grid; justify-items: center; gap: 10px; min-width: 0;
+  padding: clamp(28px, 5vw, 48px) 20px;
   border: 1px dashed var(--color-border); border-radius: var(--r-lg);
-  background: var(--color-surface); text-align: center;
+  background: var(--color-surface); color: var(--color-text); text-align: center;
 }
 .ui-state-icon {
   display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%;
@@ -487,14 +487,29 @@
 }
 .ui-empty-state h3, .ui-error-state h3 { margin: 0; color: var(--color-text); font: 700 var(--text-xl)/var(--leading-tight) var(--font-display); }
 .ui-empty-state p, .ui-error-state p { max-width: 38rem; margin: 0; color: var(--color-text-muted); }
+.ui-empty-state--search .ui-state-icon { background: var(--color-info-soft); color: var(--color-info); }
+.ui-empty-state--not-created .ui-state-icon { background: var(--color-surface-muted); color: var(--color-text-muted); }
+.ui-state-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 6px; }
 .ui-error-state { border-style: solid; border-color: var(--color-danger); }
 .ui-error-state .ui-state-icon { background: var(--color-danger-soft); color: var(--color-danger); }
-.ui-loading { display: grid; gap: 12px; }
+.ui-error-state--network { border-color: var(--color-warning); }
+.ui-error-state--network .ui-state-icon { background: var(--color-warning-soft); color: var(--color-warning); }
+.ui-state-status { min-height: 1.5em; margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); text-align: center; }
+.ui-loading { display: grid; gap: 12px; min-width: 0; }
+.ui-loading-indicator { display: grid; gap: 12px; }
+.ui-loading-content { min-width: 0; }
+.ui-loading-status { margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); }
 .ui-spinner {
   width: 28px; height: 28px; border: 3px solid var(--color-border); border-top-color: var(--color-brand-strong);
   border-radius: 50%; animation: ui-spin .8s linear infinite;
 }
 @keyframes ui-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 480px) {
+  .ui-empty-state, .ui-error-state { padding: 28px 16px; }
+  .ui-state-actions { width: 100%; }
+  .ui-state-actions .btn { max-width: 100%; }
+}
 
 /* ---------- Toast / feedback ---------- */
 .ui-toast-region { position: fixed; z-index: 100; top: 16px; right: 16px; width: min(390px, calc(100vw - 32px)); display: grid; gap: 10px; pointer-events: none; }

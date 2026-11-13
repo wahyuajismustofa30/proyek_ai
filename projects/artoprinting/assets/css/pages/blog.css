@@ -164,3 +164,7 @@
   .blog-intro { padding-top: 40px; }
   .blog-card-content { padding: 20px; }
 }
+
+
+/* Breadcrumb menggunakan komponen navigasi Master Theme. */
+.blog-breadcrumb { margin-top: 24px; }

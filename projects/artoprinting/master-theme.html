@@ -57,6 +57,8 @@
         <a href="#warna">Warna</a>
         <a href="#tombol">Tombol</a>
         <a href="#komponen">Komponen</a>
+        <a href="#interaksi">Interaksi</a>
+        <a href="#data-state">Data & state</a>
       </nav>
       <a class="btn btn-wa btn-sm" href="#formulir">Contoh formulir</a>
     </div>
@@ -248,9 +250,139 @@
       </div>
     </section>
 
+    <section class="demo-section" id="interaksi">
+      <div class="wrap">
+        <h2>09. Navigasi & interaksi</h2>
+        <p>Contoh komponen navigasi dan bantuan. Dropdown memakai elemen native, dialog memakai <code>&lt;dialog&gt;</code>, dan pagination memiliki state interaktif.</p>
+        <div class="demo-stack">
+          <article class="surface demo-panel demo-stack">
+            <h3>Breadcrumb</h3>
+            <nav class="ui-breadcrumb" aria-label="Breadcrumb contoh">
+              <ol><li><a href="#warna">Beranda</a></li><li><a href="#komponen">Katalog</a></li><li><span aria-current="page">Undangan</span></li></ol>
+            </nav>
+            <p class="text-subtle">Class: <code>.ui-breadcrumb</code></p>
+          </article>
+          <article class="surface demo-panel demo-stack">
+            <h3>Pagination</h3>
+            <nav class="ui-pagination" aria-label="Pagination contoh" data-ui-pagination>
+              <button class="ui-page-button" type="button" data-page-prev disabled aria-label="Halaman sebelumnya">‹</button>
+              <button class="ui-page-button" type="button" data-page="1" aria-current="page">1</button>
+              <button class="ui-page-button" type="button" data-page="2">2</button>
+              <button class="ui-page-button" type="button" data-page="3">3</button>
+              <button class="ui-page-button" type="button" data-page="4">4</button>
+              <button class="ui-page-button" type="button" data-page-next aria-label="Halaman berikutnya">›</button>
+              <p class="ui-pagination-status" data-page-status aria-live="polite">Menampilkan contoh halaman 1 dari 4.</p>
+            </nav>
+            <p class="text-subtle">Class: <code>.ui-pagination</code> dan <code>.ui-page-button</code></p>
+          </article>
+          <article class="surface demo-panel demo-stack">
+            <h3>Dropdown</h3>
+            <details class="ui-dropdown" data-ui-dropdown>
+              <summary>Menu tindakan</summary>
+              <div class="ui-dropdown-menu">
+                <a href="#formulir">Lihat formulir</a>
+                <button type="button" data-dropdown-demo>Contoh tindakan</button>
+                <a href="#aksesibilitas">Panduan aksesibilitas</a>
+              </div>
+            </details>
+            <p class="text-subtle">Class: <code>.ui-dropdown</code>, memakai <code>details/summary</code> untuk perilaku dasar yang native.</p>
+          </article>
+          <article class="surface demo-panel demo-stack">
+            <h3>Modal / Dialog</h3>
+            <div class="demo-row"><button class="btn btn-ink" type="button" data-dialog-open="demo-dialog">Buka dialog contoh</button></div>
+            <p class="text-subtle">Class: <code>.ui-dialog</code>. Coba tombol Escape untuk menutup dan periksa fokus setelah dialog ditutup.</p>
+          </article>
+          <article class="surface demo-panel demo-stack">
+            <h3>Tooltip</h3>
+            <div class="demo-row"><span>Ukuran jadi</span><button class="ui-tooltip" type="button" aria-label="Informasi ukuran jadi" aria-describedby="demo-tooltip-description" data-tooltip="Ukuran akhir produk setelah proses potong.">i</button><span id="demo-tooltip-description" class="sr-only">Ukuran akhir produk setelah proses potong.</span></div>
+            <p class="text-subtle">Class: <code>.ui-tooltip</code>. Arahkan pointer atau fokuskan tombol dengan keyboard.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="data-state">
+      <div class="wrap">
+        <h2>10. Data, empty, error & loading state</h2>
+        <p>Komponen untuk menyajikan data, kondisi tanpa hasil, kegagalan, dan proses pemuatan.</p>
+        <div class="demo-stack">
+          <article class="surface demo-panel demo-stack">
+            <h3>Tabel responsif</h3>
+            <div class="ui-table-wrap" tabindex="0" role="region" aria-label="Contoh tabel produk, geser horizontal jika diperlukan">
+              <table class="ui-table">
+                <thead><tr><th scope="col">Produk</th><th scope="col">Kategori</th><th scope="col">Status</th><th scope="col">Keterangan</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">Undangan A</th><td>Pernikahan</td><td><span class="badge ready">Tersedia</span></td><td>Contoh data katalog</td></tr>
+                  <tr><th scope="row">Banner B</th><td>Promosi</td><td><span class="badge">Konsultasi</span></td><td>Sesuaikan ukuran</td></tr>
+                  <tr><th scope="row">Stiker C</th><td>Label</td><td><span class="badge ready">Tersedia</span></td><td>Contoh data katalog</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="text-subtle">Class: <code>.ui-table-wrap</code> dan <code>.ui-table</code></p>
+          </article>
+          <div class="demo-grid">
+            <article class="ui-empty-state">
+              <span class="ui-state-icon" aria-hidden="true">⌕</span>
+              <h3>Belum ada hasil</h3>
+              <p>Pencarian contoh tidak menemukan produk. Ubah kata kunci atau pilih kategori lain.</p>
+              <button class="btn btn-line btn-sm" type="button">Ubah pencarian</button>
+            </article>
+            <article class="ui-error-state" role="alert">
+              <span class="ui-state-icon" aria-hidden="true">!</span>
+              <h3>Data belum dapat dimuat</h3>
+              <p>Terjadi kendala saat mengambil data. Silakan coba kembali beberapa saat lagi.</p>
+              <button class="btn btn-ink btn-sm" type="button">Coba lagi</button>
+            </article>
+          </div>
+          <article class="surface demo-panel demo-stack" aria-busy="true">
+            <h3>Loading / skeleton</h3>
+            <div class="ui-loading">
+              <span class="sr-only">Contoh konten sedang dimuat</span>
+              <span class="teks-skeleton judul" aria-hidden="true"></span>
+              <span class="teks-skeleton" aria-hidden="true"></span>
+              <span class="teks-skeleton pendek" aria-hidden="true"></span>
+              <span class="ui-spinner" aria-hidden="true"></span>
+            </div>
+            <p class="text-subtle">Menggunakan skeleton yang sudah tersedia dan indikator spinner. Status pemuatan disampaikan melalui <code>aria-busy</code>.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="toast">
+      <div class="wrap">
+        <h2>11. Toast / feedback interaktif</h2>
+        <p>Notifikasi dapat ditutup secara manual dan tidak menghilang otomatis sebelum sempat dibaca.</p>
+        <div class="demo-row">
+          <button class="btn btn-ink" type="button" data-toast-trigger="success">Success</button>
+          <button class="btn btn-line" type="button" data-toast-trigger="info">Info</button>
+          <button class="btn btn-line" type="button" data-toast-trigger="warning">Warning</button>
+          <button class="btn btn-line" type="button" data-toast-trigger="error">Error</button>
+        </div>
+        <p class="text-subtle">Class: <code>.ui-toast</code>. Gunakan tombol di atas untuk mencoba setiap varian.</p>
+        <div class="ui-toast-region" aria-live="polite" aria-atomic="true">
+          <div class="ui-toast" id="demo-toast" data-type="info" role="status" hidden>
+            <div><strong data-toast-title>Informasi</strong><p data-toast-message>Pesan contoh.</p></div>
+            <button class="ui-toast-close" type="button" data-toast-close aria-label="Tutup notifikasi">×</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <dialog class="ui-dialog" id="demo-dialog" aria-labelledby="demo-dialog-title">
+      <div class="ui-dialog-panel">
+        <div class="ui-dialog-header">
+          <h3 id="demo-dialog-title">Dialog Master Theme</h3>
+          <button class="ui-dialog-close" type="button" data-dialog-close aria-label="Tutup dialog">×</button>
+        </div>
+        <p>Dialog native mengelola fokus modal dan dapat ditutup dengan tombol Escape. Gunakan untuk konfirmasi atau konten singkat yang membutuhkan perhatian.</p>
+        <div class="ui-dialog-actions"><button class="btn btn-line" type="button" data-dialog-close>Tutup</button><button class="btn btn-ink" type="button" data-dialog-close>Mengerti</button></div>
+      </div>
+    </dialog>
+
     <section class="demo-section" id="feedback">
       <div class="wrap">
-        <h2>09. Feedback & status</h2>
+        <h2>12. Feedback & status</h2>
         <p>Gunakan warna status semantik untuk menyampaikan hasil dan kondisi tanpa bergantung pada warna saja.</p>
         <div class="demo-stack">
           <div class="alert alert-success" role="status"><div><strong>Berhasil</strong><p>Permintaan Anda berhasil diproses. Informasi sudah tersimpan.</p></div></div>
@@ -290,5 +422,6 @@
       </nav>
     </div>
   </footer>
+  <script type="module" src="/assets/js/components/interaction-primitives.js"></script>
 </body>
 </html>

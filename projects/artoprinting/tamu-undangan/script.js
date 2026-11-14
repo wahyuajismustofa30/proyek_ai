@@ -99,6 +99,8 @@
     toolbar.appendChild(hapusSemua);
     hasil.appendChild(toolbar);
 
+    hasil.appendChild(el('p', 'invite-table-hint', 'Geser tabel ke samping untuk melihat semua aksi.'));
+
     var tableWrap = el('div', 'ui-table-wrap');
     tableWrap.tabIndex = 0;
     tableWrap.setAttribute('role', 'region');

@@ -30,6 +30,16 @@ while true; do
         -print0 | sort -z
     )
 
+    # Audit Termux berupa Python script; tampilkan meski file mirror belum executable.
+    AUDIT_SCRIPT="$BIN/termux-audit.py"
+    if [[ -f "$AUDIT_SCRIPT" ]]; then
+        audit_found=0
+        for program in "${PROGRAMS[@]}"; do
+            [[ "$program" == "$AUDIT_SCRIPT" ]] && audit_found=1 && break
+        done
+        (( audit_found )) || PROGRAMS+=("$AUDIT_SCRIPT")
+    fi
+
     if [[ ${#PROGRAMS[@]} -eq 0 ]]; then
         echo "  Belum ada program yang ditemukan."
     else
@@ -90,8 +100,13 @@ while true; do
                 echo "------------------------------------------------"
 
                 set +e
-                "$selected"
-                result=$?
+                if [[ "$selected" == "$AUDIT_SCRIPT" ]]; then
+                    python3 "$selected"
+                    result=$?
+                else
+                    "$selected"
+                    result=$?
+                fi
                 set -e
 
                 echo

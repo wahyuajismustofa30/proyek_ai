@@ -12,7 +12,7 @@ declare -a NEED_REMOTE=()
 # Fail closed: protect the user index and inspect only files that can enter this commit.
 security_check_repo() {
     local repo="$1" path base grep_status
-    local secret_pattern='-----BEGIN (OPENSSH|RSA|EC|DSA|PRIVATE) KEY-----|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|-----BEGIN PGP PRIVATE KEY BLOCK-----'
+    local secret_pattern='-----BEGIN (OPENSSH|RSA|EC|DSA|PRIVATE)( PRIVATE)? KEY-----|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|-----BEGIN PGP PRIVATE KEY BLOCK-----'
 
     if ! git -C "$repo" diff --cached --quiet; then
         echo "[BLOCK] Staged changes already exist; index preserved."

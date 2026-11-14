@@ -158,7 +158,8 @@ def get_project_port(folder):
         print("Nomor port tidak valid.")
         return None
     try:
-        atomic_write(os.path.join(folder, "PORT"), f"{port}\n", mode=None)
+        with open(os.path.join(folder, "PORT"), "w", encoding="utf-8") as stream:
+            stream.write(f"{port}\n")
     except OSError as error:
         print(f"Port valid, tetapi gagal menyimpan file PORT: {error}")
         return None
@@ -245,7 +246,10 @@ def process_identity(pid, token):
 
     marker = b"--webport-worker"
     expected = token.encode("ascii", errors="ignore")
-    return marker in arguments and expected in arguments
+    return any(
+        argument == marker and arguments[index + 1] == expected
+        for index, argument in enumerate(arguments[:-1])
+    )
 
 
 def process_is_alive(pid):

@@ -9,28 +9,51 @@ declare -a URLS=()
 declare -a BRANCHES=()
 declare -a NEED_REMOTE=()
 
-# Fail closed: protect user index and reject likely secret files/content.
+# Fail closed: protect the user index and inspect only files that can enter this commit.
 security_check_repo() {
-    local repo="$1" path base
+    local repo="$1" path base grep_status
+    local secret_pattern='-----BEGIN (OPENSSH|RSA|EC|DSA|PRIVATE) KEY-----|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|-----BEGIN PGP PRIVATE KEY BLOCK-----'
+
     if ! git -C "$repo" diff --cached --quiet; then
         echo "[BLOCK] Staged changes already exist; index preserved."
-        printf "       Repository: %s\n" "$repo"
+        printf "       Repository: %s\\n" "$repo"
         return 1
     fi
+
+    # Check the Git query first so an enumeration failure cannot silently pass.
+    if ! git -C "$repo" ls-files --modified --others --exclude-standard -z >/dev/null 2>&1; then
+        echo "[BLOCK] Unable to enumerate changed files; repository operation stopped."
+        return 1
+    fi
+
     while IFS= read -r -d '' path; do
         base="${path##*/}"
-        if [[ "$base" =~ ^(\.env($|\.)|.*(credential|secret|token|password|auth|cookie|session).*|id_(rsa|dsa|ecdsa|ed25519)(.*)|.*\.(pem|key|p12|pfx|keystore|jks|kdbx|ovpn)$|\.netrc$|\.npmrc$|\.pypirc$|terraform\.tfstate) ]]; then
-            printf '[BLOCK] Suspected sensitive path: %s\n' "$path"
+        base="${base,,}"
+
+        # Match known credential filenames, not arbitrary words such as "token".
+        if [[ "$base" =~ ^(\\.env($|\\.)|credentials?([._-].*)?|secrets?([._-].*)?|passwords?([._-].*)?|api[-_.]?key([._-].*)?|access[-_.]?token([._-].*)?|refresh[-_.]?token([._-].*)?|auth[-_.]?(token|credentials?)([._-].*)?|cookie[-_.]?(jar|data)([._-].*)?|session[-_.]?(token|cookie|data)([._-].*)?|tokens?(\\.(txt|json|ya?ml|env|conf|config))?|id_(rsa|dsa|ecdsa|ed25519)(.*)|.*\\.(pem|key|p12|pfx|keystore|jks|kdbx|ovpn)$|\\.netrc$|\\.npmrc$|\\.pypirc$|terraform\\.tfstate(\\..*)?)$ ]]; then
+            printf '[BLOCK] Suspected sensitive path: %s\\n' "$path"
             echo "       Contents are not displayed; repository operation stopped."
             return 1
         fi
-        if [[ -f "$repo/$path" && ! -L "$repo/$path" ]] &&
-           grep -I -E -q -- '-----BEGIN (OPENSSH|RSA|EC|DSA|PRIVATE) KEY-----|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|-----BEGIN PGP PRIVATE KEY BLOCK-----' "$repo/$path" 2>/dev/null; then
-            printf '[BLOCK] Secret/private-key pattern detected: %s\n' "$path"
-            echo "       Contents are not displayed; repository operation stopped."
-            return 1
+
+        # Skip symlinks to avoid following paths outside the repository.
+        if [[ -f "$repo/$path" && ! -L "$repo/$path" ]]; then
+            if grep -a -E -q -- "$secret_pattern" "$repo/$path" 2>/dev/null; then
+                printf '[BLOCK] Secret/private-key pattern detected: %s\\n' "$path"
+                echo "       Contents are not displayed; repository operation stopped."
+                return 1
+            else
+                grep_status=$?
+                if (( grep_status > 1 )); then
+                    printf '[BLOCK] Unable to inspect file safely: %s\\n' "$path"
+                    echo "       Contents are not displayed; repository operation stopped."
+                    return 1
+                fi
+            fi
         fi
-    done < <(git -C "$repo" ls-files -co --exclude-standard -z)
+    done < <(git -C "$repo" ls-files --modified --others --exclude-standard -z)
+
     return 0
 }
 

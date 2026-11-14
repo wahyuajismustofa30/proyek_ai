@@ -195,3 +195,37 @@
 .alasan p { margin: 0; color: var(--ink-soft); font-size: .95rem; }
 
 .cta-alamat { margin: 0; color: var(--ink-soft); max-width: 34rem; }
+
+
+/* ---------- Sejarah ARTO PRINTING ---------- */
+.sejarah-content { max-width: 850px; margin-inline: auto; }
+.sejarah-intro { color: var(--ink-soft); line-height: 1.75; margin: 0 0 28px; }
+.sejarah-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 24px;
+  border-left: 2px solid var(--line);
+  display: grid;
+  gap: 24px;
+}
+.sejarah-timeline li { position: relative; padding: 0 0 0 20px; }
+.sejarah-timeline li::before {
+  content: "";
+  position: absolute;
+  left: -31px;
+  top: .35em;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--teal);
+  border: 3px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--teal);
+}
+.sejarah-timeline time { display: block; color: var(--royal); font-weight: 700; font-size: .9rem; margin-bottom: 4px; }
+.sejarah-timeline h3 { margin: 0 0 6px; font-size: 1.08rem; }
+.sejarah-timeline p { margin: 0; color: var(--ink-soft); line-height: 1.65; }
+@media (max-width: 480px) {
+  .sejarah-timeline { padding-left: 18px; }
+  .sejarah-timeline li { padding-left: 14px; }
+  .sejarah-timeline li::before { left: -25px; }
+}

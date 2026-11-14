@@ -84,6 +84,12 @@
                         <label for="link" class="label">Link undangan</label>
                         <input type="url" id="link" placeholder="https://contoh-undangan.my.id" class="input" inputmode="url">
                     </div>
+                    <div class="form-group invite-template-group">
+                        <label for="template-pesan" class="label">Format pesan WhatsApp</label>
+                        <textarea id="template-pesan" class="input invite-template" rows="9" aria-describedby="template-pesan-help" spellcheck="true"></textarea>
+                        <p id="template-pesan-help" class="invite-hint invite-template-help">Pesan ini bisa diedit. Gunakan <code>{{nama}}</code>, <code>{{link}}</code>, dan <code>{{pengundang}}</code> agar detail tiap tamu terisi otomatis.</p>
+                        <button type="button" id="reset-template" class="btn btn-line btn-sm invite-reset-template">Pulihkan template awal</button>
+                    </div>
                     <button type="button" id="buat-link" data-mode="pesan" class="tombol btn btn-ink">Buat Pesan</button>
                 </div>
                 <p class="invite-hint">Periksa kembali nama dan alamat undangan sebelum membuat tautan.</p>

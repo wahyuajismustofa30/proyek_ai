@@ -85,7 +85,7 @@
 
     var toolbar = el('div', 'invite-results-toolbar');
     var ringkasan = el('p', 'invite-results-count', namaArray.length + ' tamu tersimpan');
-    var hapusSemua = el('button', 'invite-delete-all', 'Hapus semua');
+    var hapusSemua = el('button', 'btn btn-line btn-sm invite-delete-all', 'Hapus semua');
     hapusSemua.type = 'button';
     hapusSemua.addEventListener('click', function () {
       if (!window.confirm('Hapus seluruh daftar tamu tersimpan?')) return;
@@ -141,7 +141,7 @@
 
       var tdAksi = el('td', 'invite-guest-actions');
       
-      var btnSalin = el('button', 'invite-action invite-copy', 'Salin');
+      var btnSalin = el('button', 'btn btn-line btn-sm invite-copy', 'Salin');
       btnSalin.type = 'button';
       btnSalin.addEventListener('click', function () {
         var teks = pesan;
@@ -152,12 +152,12 @@
         }, gagal);
       });
 
-      var a = el('a', 'invite-action invite-whatsapp', 'Kirim via WhatsApp');
+      var a = el('a', 'btn btn-wa btn-sm invite-whatsapp', 'Kirim');
       a.href = 'https://wa.me/?text=' + encodeURIComponent(pesan);
       a.target = '_blank';
       a.rel = 'noopener';
 
-      var btnHapus = el('button', 'invite-action invite-delete', 'Hapus');
+      var btnHapus = el('button', 'btn btn-line btn-sm invite-delete', 'Hapus');
       btnHapus.type = 'button';
       btnHapus.setAttribute('aria-label', 'Hapus ' + nama + ' dari daftar');
       btnHapus.addEventListener('click', function () {

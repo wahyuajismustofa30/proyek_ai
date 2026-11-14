@@ -1,44 +1,166 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-if [ -z "${OPENAI_API_KEY:-}" ] && [ -f "$HOME/.config/openai.env" ]; then
-  source "$HOME/.config/openai.env"
+set -o pipefail
+
+PROGRAM_NAME=${0##*/}
+CONFIG_FILE="${HOME:?HOME belum ditetapkan}/.config/openai.env"
+API_KEY=''
+MODEL=${OPENAI_MODEL:-gpt-6-luna}
+PREVIOUS_ID=''
+
+error() {
+    printf 'chatGPT: %s\n' "$1" >&2
+}
+
+cleanup() {
+    unset API_KEY
+}
+
+handle_signal() {
+    printf '\n\nChatGPT dihentikan.\n'
+    exit 130
+}
+
+trap cleanup EXIT
+trap handle_signal INT TERM HUP
+
+for command_name in curl jq id stat; do
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        error "Perintah wajib tidak tersedia: $command_name"
+        exit 1
+    fi
+done
+
+if [[ ! -t 0 || ! -t 1 ]]; then
+    error 'Jalankan dari terminal interaktif.'
+    exit 1
 fi
 
-if [ -z "${OPENAI_API_KEY:-}" ]; then
-  echo "API key belum ditemukan."
-  exit 1
+if [[ -n ${OPENAI_MODEL+x} && -z $OPENAI_MODEL ]]; then
+    error 'OPENAI_MODEL tidak boleh kosong.'
+    exit 1
+fi
+if [[ ! $MODEL =~ ^[A-Za-z0-9._-]+$ ]]; then
+    error 'OPENAI_MODEL berisi karakter yang tidak didukung.'
+    exit 1
 fi
 
-MODEL="gpt-6-luna"
-previous_id=""
+if [[ ${OPENAI_API_KEY+x} ]]; then
+    API_KEY=$OPENAI_API_KEY
+    unset OPENAI_API_KEY
+else
+    if [[ -L $CONFIG_FILE || ! -f $CONFIG_FILE ]]; then
+        error 'API key tidak ditemukan di environment atau file konfigurasi biasa.'
+        exit 1
+    fi
 
-echo "Chat dengan $MODEL. Ketik /keluar untuk berhenti."
+    current_uid=$(id -u) || {
+        error 'Tidak dapat memeriksa UID pengguna.'
+        exit 1
+    }
+    file_meta=$(stat -c '%u %a' "$CONFIG_FILE" 2>/dev/null) || {
+        error 'Tidak dapat memeriksa keamanan file konfigurasi.'
+        exit 1
+    }
+    read -r file_uid file_mode <<< "$file_meta"
+    if [[ $file_uid != "$current_uid" || ! $file_mode =~ ^[0-7]{3,4}$ ]]; then
+        error 'File konfigurasi harus dimiliki pengguna saat ini.'
+        exit 1
+    fi
+    permissions=$((8#$file_mode))
+    if (( permissions & 044 )); then
+        error 'File konfigurasi dapat dibaca group/pengguna lain; periksa permission secara manual.'
+        exit 1
+    fi
+
+    key_count=0
+    while IFS= read -r line || [[ -n $line ]]; do
+        [[ $line =~ ^[[:space:]]*$ || $line =~ ^[[:space:]]*# ]] && continue
+        if [[ $line =~ ^[[:space:]]*(export[[:space:]]+)?OPENAI_API_KEY=([^[:space:]]+)[[:space:]]*$ ]]; then
+            ((key_count += 1))
+            API_KEY=${BASH_REMATCH[2]}
+        else
+            error 'Format openai.env tidak didukung; gunakan OPENAI_API_KEY=nilai atau export OPENAI_API_KEY=nilai.'
+            exit 1
+        fi
+    done < "$CONFIG_FILE"
+
+    if (( key_count != 1 )); then
+        error 'File konfigurasi harus berisi tepat satu deklarasi OPENAI_API_KEY.'
+        exit 1
+    fi
+fi
+
+if [[ -z $API_KEY || ! $API_KEY =~ ^[A-Za-z0-9._~-]+$ ]]; then
+    error 'API key kosong atau formatnya tidak valid.'
+    exit 1
+fi
+
+printf 'Chat dengan %s. Ketik /keluar untuk berhenti.\n' "$MODEL"
 
 while true; do
-  read -r -p "Anda: " prompt
-  [ "$prompt" = "/keluar" ] && break
-  [ -z "$prompt" ] && continue
+    prompt=''
+    if ! IFS= read -r -p 'Anda: ' prompt; then
+        printf '\nSesi selesai.\n'
+        break
+    fi
+    [[ $prompt == '/keluar' ]] && break
+    [[ -z $prompt ]] && continue
 
-  body=$(jq -n \
-    --arg model "$MODEL" \
-    --arg p "$prompt" \
-    --arg prev "$previous_id" \
-    'if $prev == "" then
-       {model:$model, input:$p}
-     else
-       {model:$model, previous_response_id:$prev, input:$p}
-     end')
+    if ! body=$(jq -cn \
+        --arg model "$MODEL" \
+        --arg input "$prompt" \
+        --arg previous "$PREVIOUS_ID" \
+        'if $previous == "" then {model:$model,input:$input} else {model:$model,previous_response_id:$previous,input:$input} end'); then
+        error 'Gagal membentuk JSON permintaan.'
+        continue
+    fi
 
-  response=$(curl -sS https://api.openai.com/v1/responses \
-    -H "Authorization: Bearer $OPENAI_API_KEY" \
-    -H "Content-Type: application/json" \
-    --data "$body")
+    response_and_status=$(printf 'header = "Authorization: Bearer %s"\n' "$API_KEY" |
+        curl --config - --silent --show-error \
+            --connect-timeout 10 --max-time 90 \
+            --output - --write-out $'\n%{http_code}' \
+            --header 'Content-Type: application/json' \
+            --data-binary "$body" \
+            'https://api.openai.com/v1/responses' 2>/dev/null)
+    curl_status=$?
+    if (( curl_status != 0 )); then
+        error "Permintaan gagal (curl exit $curl_status). Periksa koneksi dan coba lagi."
+        continue
+    fi
 
-  if echo "$response" | jq -e '.error' >/dev/null; then
-    echo "$response" | jq -r '.error.message'
-  else
-    echo "$response" | jq -r \
-      '[.output[]?.content[]? | select(.type=="output_text") | .text] | join("\n")'
-    previous_id=$(echo "$response" | jq -r '.id // empty')
-  fi
+    http_status=${response_and_status##*$'\n'}
+    response=${response_and_status%$'\n'*}
+    if [[ ! $http_status =~ ^[0-9]{3}$ ]]; then
+        error 'Respons HTTP tidak dapat dibaca.'
+        continue
+    fi
+    if (( 10#$http_status < 200 || 10#$http_status >= 300 )); then
+        api_message=$(jq -r 'if (.error|type)=="object" then (.error.message // "") elif (.error|type)=="string" then .error else empty end' <<< "$response" 2>/dev/null)
+        if [[ -n $api_message ]]; then
+            printf 'API error (HTTP %s): %s\n' "$http_status" "$api_message" >&2
+        else
+            printf 'API error (HTTP %s).\n' "$http_status" >&2
+        fi
+        continue
+    fi
+
+    if ! jq -e 'type == "object" and (.id|type)=="string" and (.id|length)>0 and (.output|type)=="array"' >/dev/null 2>&1 <<< "$response"; then
+        error 'Respons API tidak memiliki struktur yang valid.'
+        continue
+    fi
+
+    answer=$(jq -r '[.output[]? | .content[]? | select(.type == "output_text") | .text | strings] | join("\n")' <<< "$response") || {
+        error 'Gagal membaca teks jawaban.'
+        continue
+    }
+    if [[ -z $answer ]]; then
+        error 'Respons berhasil diterima, tetapi tidak berisi teks jawaban.'
+        continue
+    fi
+
+    printf '\n%s\n\n' "$answer"
+    PREVIOUS_ID=$(jq -r '.id' <<< "$response")
 done
+
+exit 0

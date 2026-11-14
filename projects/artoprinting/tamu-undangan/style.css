@@ -2104,12 +2104,13 @@
 }
 .invite-content {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   max-width: 850px;
   padding-top: 32px;
   padding-bottom: 64px;
 }
-.invite-card { padding: clamp(20px, 4vw, 34px); }
+.invite-card { min-width: 0; padding: clamp(20px, 4vw, 34px); }
 .invite-card-heading {
   display: flex;
   align-items: flex-start;
@@ -2188,60 +2189,6 @@
   color: var(--color-text-subtle);
   font-size: var(--text-xs);
 }
-.invite-results {
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  overflow-x: auto;
-  border-radius: var(--r-md);
-  background: transparent;
-  color: var(--color-text);
-}
-.invite-results:empty { display: none; }
-.invite-results table {
-  width: 100%;
-  min-width: 470px;
-  border: 1px solid var(--color-border);
-  border-collapse: separate;
-  border-spacing: 0;
-  border-radius: var(--r-md);
-  background: var(--color-surface);
-  color: var(--color-text);
-  overflow: hidden;
-}
-.invite-results caption { padding: 12px; }
-.invite-results th {
-  padding: 13px 16px;
-  background: var(--color-brand-soft);
-  color: var(--color-brand-strong);
-  font-weight: 800;
-  text-align: left;
-}
-.invite-results td {
-  padding: 12px 16px;
-  border-top: 1px solid var(--color-border);
-  vertical-align: middle;
-}
-.invite-results td:first-child { overflow-wrap: anywhere; }
-.invite-results td button,
-.invite-results td a {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  padding: 9px 14px;
-  border: 1px solid transparent;
-  border-radius: var(--r-pill);
-  font: inherit;
-  font-size: var(--text-sm);
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-}
-.invite-results td button { background: var(--color-brand-strong); color: #fff; }
-.invite-results td a { background: #176b45; color: #fff; }
-.invite-results td button:hover { background: var(--color-text); }
-.invite-results td a:hover { background: #105334; }
 .invite-footer {
   padding: 22px 0;
   border-top: 1px solid var(--color-border);
@@ -2298,8 +2245,26 @@
 /* Daftar tamu: tabel ringkas, tindakan jelas, dan nyaman di layar sempit. */
 .invite-results {
   width: 100%;
+  min-width: 0;
   max-width: 850px;
   overflow: visible;
+}
+.invite-results .ui-table-wrap {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.invite-table-hint {
+  display: none;
+  margin: 0 0 8px;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+@media (max-width: 600px) {
+  .invite-table-hint { display: block; }
 }
 .invite-results-toolbar {
   display: flex;

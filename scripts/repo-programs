@@ -1,0 +1,167 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+# repo-programs
+# Menu untuk mendeteksi dan menjalankan program di repository proyek_ai/scripts
+
+REPO="$HOME/git-repos/proyek_ai"
+ROOT="$REPO/scripts"
+
+declare -a PROGRAM_PATHS
+declare -a PROGRAM_NAMES
+declare -a PROGRAM_TYPES
+declare -a PROGRAM_COMMANDS
+
+detect_program() {
+    local file="$1"
+    local ext first_line
+
+    ext="${file##*.}"
+    ext="${ext,,}"
+    first_line="$(head -n 1 "$file" 2>/dev/null)"
+
+    TYPE=""
+    COMMAND=""
+
+    case "$ext" in
+        sh)             TYPE="Shell"; COMMAND="bash" ;;
+        bash)           TYPE="Bash"; COMMAND="bash" ;;
+        py)             TYPE="Python"; COMMAND="python3" ;;
+        php)            TYPE="PHP"; COMMAND="php" ;;
+        js|mjs|cjs)     TYPE="JavaScript"; COMMAND="node" ;;
+        rb)             TYPE="Ruby"; COMMAND="ruby" ;;
+        pl)             TYPE="Perl"; COMMAND="perl" ;;
+        lua)            TYPE="Lua"; COMMAND="lua" ;;
+        r)              TYPE="R"; COMMAND="Rscript" ;;
+        *)              ;;
+    esac
+
+    # Jika ekstensi tidak dikenal, periksa interpreter pada shebang.
+    if [[ -z "$COMMAND" && "$first_line" == '#!'* ]]; then
+        case "$first_line" in
+            *python*)   TYPE="Python"; COMMAND="python3" ;;
+            *bash*)     TYPE="Bash"; COMMAND="bash" ;;
+            *"/sh"*)    TYPE="Shell"; COMMAND="sh" ;;
+            *php*)      TYPE="PHP"; COMMAND="php" ;;
+            *node*)     TYPE="JavaScript"; COMMAND="node" ;;
+            *ruby*)     TYPE="Ruby"; COMMAND="ruby" ;;
+            *perl*)     TYPE="Perl"; COMMAND="perl" ;;
+            *lua*)      TYPE="Lua"; COMMAND="lua" ;;
+            *Rscript*)  TYPE="R"; COMMAND="Rscript" ;;
+        esac
+    fi
+
+    [[ -n "$COMMAND" ]]
+}
+
+scan_programs() {
+    PROGRAM_PATHS=()
+    PROGRAM_NAMES=()
+    PROGRAM_TYPES=()
+    PROGRAM_COMMANDS=()
+
+    if [[ ! -d "$ROOT" ]]; then
+        echo "[ERROR] Folder scripts tidak ditemukan:"
+        echo "$ROOT"
+        return 1
+    fi
+
+    while IFS= read -r -d '' file; do
+        if detect_program "$file"; then
+            PROGRAM_PATHS+=("$file")
+            PROGRAM_NAMES+=("$(basename "$file")")
+            PROGRAM_TYPES+=("$TYPE")
+            PROGRAM_COMMANDS+=("$COMMAND")
+        fi
+    done < <(find "$ROOT" -type f -print0 | sort -z)
+}
+
+show_menu() {
+    clear 2>/dev/null || true
+
+    echo "=========================================="
+    echo "         PROYEK_AI PROGRAM MANAGER"
+    echo "=========================================="
+    echo "Repository : proyek_ai"
+    echo "Direktori  : scripts/"
+    echo "------------------------------------------"
+    echo "DAFTAR PROGRAM"
+    echo
+
+    if [[ ${#PROGRAM_PATHS[@]} -eq 0 ]]; then
+        echo "Belum ditemukan program yang didukung."
+    else
+        for i in "${!PROGRAM_PATHS[@]}"; do
+            number=$((i + 1))
+            relative="${PROGRAM_PATHS[$i]#"$ROOT"/}"
+            command="${PROGRAM_COMMANDS[$i]}"
+
+            if command -v "$command" >/dev/null 2>&1; then
+                status="Tersedia"
+            else
+                status="Interpreter tidak tersedia"
+            fi
+
+            printf "[%d] %s\n" "$number" "${PROGRAM_NAMES[$i]}"
+            printf "    Jenis  : %s\n" "${PROGRAM_TYPES[$i]}"
+            printf "    Lokasi : %s\n" "$relative"
+            printf "    Status : %s\n\n" "$status"
+        done
+    fi
+
+    echo "------------------------------------------"
+    echo "[R] Refresh daftar"
+    echo "[0] Keluar"
+    echo "=========================================="
+}
+
+while true; do
+    scan_programs
+    show_menu
+
+    read -r -p "Pilih program: " choice
+
+    case "$choice" in
+        0)
+            echo "Keluar dari repo-programs."
+            exit 0
+            ;;
+        r|R)
+            continue
+            ;;
+        *)
+            if [[ ! "$choice" =~ ^[0-9]+$ ]] ||
+               (( choice < 1 || choice > ${#PROGRAM_PATHS[@]} )); then
+                echo
+                echo "[ERROR] Pilihan tidak valid."
+                read -r -p "Tekan Enter untuk melanjutkan..."
+                continue
+            fi
+            ;;
+    esac
+
+    index=$((choice - 1))
+    file="${PROGRAM_PATHS[$index]}"
+    interpreter="${PROGRAM_COMMANDS[$index]}"
+
+    if [[ ! -f "$file" ]]; then
+        echo "[ERROR] File program sudah tidak ditemukan."
+    elif ! command -v "$interpreter" >/dev/null 2>&1; then
+        echo "[ERROR] Interpreter '$interpreter' belum tersedia."
+    else
+        echo
+        echo "=========================================="
+        echo "Menjalankan: ${PROGRAM_NAMES[$index]}"
+        echo "=========================================="
+        echo
+
+        "$interpreter" "$file"
+        result=$?
+
+        echo
+        echo "------------------------------------------"
+        echo "Program selesai dengan kode: $result"
+    fi
+
+    echo
+    read -r -p "Tekan Enter untuk kembali ke menu..."
+done

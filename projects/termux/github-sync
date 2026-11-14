@@ -9,6 +9,32 @@ declare -a URLS=()
 declare -a BRANCHES=()
 declare -a NEED_REMOTE=()
 
+# Fail closed: protect user index and reject likely secret files/content.
+security_check_repo() {
+    local repo="$1" path base
+    if ! git -C "$repo" diff --cached --quiet; then
+        echo "[BLOCK] Staged changes already exist; index preserved."
+        printf "       Repository: %s\n" "$repo"
+        return 1
+    fi
+    while IFS= read -r -d '' path; do
+        base="${path##*/}"
+        if [[ "$base" =~ ^(\.env($|\.)|.*(credential|secret|token|password|auth|cookie|session).*|id_(rsa|dsa|ecdsa|ed25519)(.*)|.*\.(pem|key|p12|pfx|keystore|jks|kdbx|ovpn)$|\.netrc$|\.npmrc$|\.pypirc$|terraform\.tfstate) ]]; then
+            printf '[BLOCK] Suspected sensitive path: %s\n' "$path"
+            echo "       Contents are not displayed; repository operation stopped."
+            return 1
+        fi
+        if [[ -f "$repo/$path" && ! -L "$repo/$path" ]] &&
+           grep -I -E -q -- '-----BEGIN (OPENSSH|RSA|EC|DSA|PRIVATE) KEY-----|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|-----BEGIN PGP PRIVATE KEY BLOCK-----' "$repo/$path" 2>/dev/null; then
+            printf '[BLOCK] Secret/private-key pattern detected: %s\n' "$path"
+            echo "       Contents are not displayed; repository operation stopped."
+            return 1
+        fi
+    done < <(git -C "$repo" ls-files -co --exclude-standard -z)
+    return 0
+}
+
+
 echo
 echo "=========================================="
 echo "       GITHUB REPOSITORY MANAGER"
@@ -116,6 +142,7 @@ if (( index >= ${#REPOS[@]} && index < ${#REPOS[@]} + ${#UNINIT[@]} )); then
 
     cd "$folder"
     git init -b main
+    security_check_repo "$folder" || exit 1
     git add -A
     if ! git diff --cached --quiet; then
         git diff --cached --check
@@ -185,6 +212,7 @@ if [[ "${NEED_REMOTE[$index]}" == "1" ]]; then
         BRANCH="$(git -C "$REPO" branch --show-current)"
     else
         # Buat repository hanya jika memang belum ada di GitHub.
+        security_check_repo "$REPO" || exit 1
         git -C "$REPO" add -A
         if ! git -C "$REPO" diff --cached --quiet; then
             git -C "$REPO" diff --cached --check
@@ -239,6 +267,7 @@ if [[ -n "$(git status --porcelain)" ]]; then
         exit 0
     }
 
+    security_check_repo "$REPO" || exit 1
     git add -A
 
     if ! git diff --cached --quiet; then

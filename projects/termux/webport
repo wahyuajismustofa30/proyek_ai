@@ -257,16 +257,55 @@ def process_identity(pid, token):
     )
 
 
-def process_is_alive(pid):
+def process_snapshot(pid):
+    """Read PID, parent PID, and kernel start time without relying on cmdline/net tables."""
     try:
         os.kill(pid, 0)
-        return True
     except ProcessLookupError:
         return False
-    except PermissionError:
+    except (PermissionError, OSError):
         return None
-    except OSError:
+
+    try:
+        with open(f"/proc/{pid}/stat", encoding="utf-8") as stream:
+            raw = stream.read().strip()
+        # The comm field is parenthesized and may itself contain spaces or ')'.
+        closing = raw.rfind(")")
+        if closing < 0:
+            return None
+        fields = raw[closing + 1:].split()
+        if len(fields) <= 19:
+            return None
+        return {"ppid": int(fields[1]), "start_ticks": int(fields[19])}
+    except (OSError, ValueError, IndexError):
         return None
+
+
+def process_is_alive(pid):
+    snapshot = process_snapshot(pid)
+    if snapshot is False:
+        return False
+    return True if isinstance(snapshot, dict) else None
+
+
+def child_process_identity(metadata):
+    """Verify server PID reuse and direct parent ownership; None means unsafe to act."""
+    pid = metadata.get("server_pid")
+    start_ticks = metadata.get("server_start_ticks")
+    if not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0:
+        return False
+    if not isinstance(start_ticks, int) or isinstance(start_ticks, bool) or start_ticks <= 0:
+        return None
+    snapshot = process_snapshot(pid)
+    if snapshot is False:
+        return False
+    if snapshot is None:
+        return None
+    if snapshot["start_ticks"] != start_ticks:
+        return False
+    if snapshot["ppid"] != metadata.get("pid"):
+        return None
+    return True
 
 
 def load_managed_servers():
@@ -287,18 +326,27 @@ def load_managed_servers():
 def describe_status(data):
     identity = process_identity(data["pid"], data["token"])
     if identity is False:
-        return "BERHENTI"
+        child_identity = child_process_identity(data)
+        return "BERHENTI" if child_identity is False else "TIDAK DAPAT DIVERIFIKASI"
     if identity is None:
         return "TIDAK DAPAT DIVERIFIKASI"
-    if data.get("state") != "RUNNING":
-        return "MEMULAI / MENGHENTIKAN"
-    child_pid = data.get("server_pid")
-    if not isinstance(child_pid, int):
-        return "MEMULAI / TIDAK DAPAT DIVERIFIKASI"
-    child_alive = process_is_alive(child_pid)
-    if child_alive is True:
+
+    state = data.get("state")
+    if state == "FAILED":
+        return "GAGAL"
+    if state == "STOPPED":
+        return "BERHENTI"
+    if state == "STARTING":
+        return "MEMULAI"
+    if state == "STOPPING":
+        return "MENGHENTIKAN"
+    if state != "RUNNING":
+        return "TIDAK DAPAT DIVERIFIKASI"
+
+    child_identity = child_process_identity(data)
+    if child_identity is True:
         return "AKTIF"
-    if child_alive is False:
+    if child_identity is False:
         return "BERHENTI"
     return "TIDAK DAPAT DIVERIFIKASI"
 
@@ -398,7 +446,15 @@ def worker_main(token, path):
                 stderr=subprocess.STDOUT,
                 close_fds=True,
             )
-            write_worker_state(path, metadata, server_pid=child.pid, state="RUNNING")
+            snapshot = process_snapshot(child.pid)
+            if not isinstance(snapshot, dict) or snapshot["ppid"] != os.getpid():
+                child.terminate()
+                child.wait()
+                raise RuntimeError("Identitas proses server anak tidak dapat diverifikasi.")
+            write_worker_state(
+                path, metadata, server_pid=child.pid,
+                server_start_ticks=snapshot["start_ticks"], state="RUNNING",
+            )
             while child.poll() is None and not stopping["requested"]:
                 time.sleep(0.2)
             if stopping["requested"] and child.poll() is None:
@@ -443,11 +499,16 @@ def load_saved_projects():
             required = ("id", "name", "path", "port", "engine", "created_at")
             if any(key not in item for key in required):
                 raise ValueError("field entri proyek tidak lengkap")
-            if not isinstance(item["id"], str) or not item["id"]:
+            if not isinstance(item["id"], str) or not item["id"].strip():
                 raise ValueError("ID proyek tidak valid")
             if not isinstance(item["name"], str) or not item["name"].strip():
                 raise ValueError("nama proyek tidak valid")
-            if not isinstance(item["path"], str) or not os.path.isabs(item["path"]):
+            if (
+                not isinstance(item["path"], str)
+                or not item["path"]
+                or "\\x00" in item["path"]
+                or not os.path.isabs(item["path"])
+            ):
                 raise ValueError("path proyek tidak valid")
             if not isinstance(item["port"], int) or isinstance(item["port"], bool) or not (1 <= item["port"] <= 65535):
                 raise ValueError("port proyek tidak valid")
@@ -467,8 +528,38 @@ def load_saved_projects():
 
 
 def save_saved_projects(data):
-    if not isinstance(data, dict) or data.get("schema") != 1 or not isinstance(data.get("projects"), list):
+    if not isinstance(data, dict) or data.get("schema") != 1 or isinstance(data.get("schema"), bool):
         raise ValueError("struktur konfigurasi proyek tidak valid")
+    # Reuse the same complete validation as reads before writing schema 1.
+    seen_ids, seen_paths, seen_ports = set(), set(), set()
+    projects = data.get("projects")
+    if not isinstance(projects, list):
+        raise ValueError("daftar proyek tidak valid")
+    for item in projects:
+        if not isinstance(item, dict):
+            raise ValueError("entri proyek bukan objek")
+        if any(key not in item for key in ("id", "name", "path", "port", "engine", "created_at")):
+            raise ValueError("field entri proyek tidak lengkap")
+        project_id, name, project_path = item["id"], item["name"], item["path"]
+        port, engine, created_at = item["port"], item["engine"], item["created_at"]
+        if not isinstance(project_id, str) or not project_id.strip():
+            raise ValueError("ID proyek tidak valid")
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("nama proyek tidak valid")
+        if not isinstance(project_path, str) or not project_path or "\\x00" in project_path or not os.path.isabs(project_path):
+            raise ValueError("path proyek tidak valid")
+        if not isinstance(port, int) or isinstance(port, bool) or not 1 <= port <= 65535:
+            raise ValueError("port proyek tidak valid")
+        if engine not in ("php", "html"):
+            raise ValueError("jenis server tidak valid")
+        if not isinstance(created_at, str) or not created_at.strip():
+            raise ValueError("waktu pembuatan proyek tidak valid")
+        normalized = os.path.realpath(project_path)
+        if project_id in seen_ids or normalized in seen_paths or port in seen_ports:
+            raise ValueError("terdapat ID, path, atau port duplikat")
+        seen_ids.add(project_id)
+        seen_paths.add(normalized)
+        seen_ports.add(port)
     atomic_write_json(PROJECTS_FILE, data)
 
 
@@ -729,33 +820,59 @@ def manage_saved_projects():
 
 def start_server(saved_project=None):
     if saved_project:
+        registry, registry_error = load_saved_projects()
+        if registry_error:
+            print(f"Registry proyek tidak dapat diverifikasi: {registry_error}")
+            return
+        current_entry = next(
+            (entry for entry in registry["projects"] if entry["id"] == saved_project.get("id")),
+            None,
+        )
+        if current_entry is None or current_entry != saved_project:
+            print("Konfigurasi proyek berubah atau tidak lagi terdaftar. Muat ulang daftar proyek.")
+            return
         folder = os.path.realpath(saved_project["path"])
         port = saved_project["port"]
         if not isinstance(port, int) or isinstance(port, bool) or not (1 <= port <= 65535):
             print("Port proyek tersimpan tidak valid.")
             return
+        if not os.path.isabs(saved_project["path"]) or not os.path.isdir(folder):
+            print("Path proyek tersimpan tidak valid atau folder tidak ditemukan. Konfigurasi dipertahankan.")
+            return
         engine = detect_engine(folder)
         if not engine:
             print("Folder proyek tidak memiliki file PHP, HTML, atau HTM.")
             return
-        config_port = None
+        if engine != saved_project["engine"]:
+            print(
+                f"Peringatan: engine tersimpan {saved_project['engine'].upper()}, "
+                f"tetapi isi folder terdeteksi {engine.upper()}."
+            )
+            if input("Lanjut menggunakan engine hasil deteksi? (y/n): ").strip().lower() != "y":
+                print("Dibatalkan.")
+                return
+        config_mismatches = []
         for filename in ("PORT", ".webport"):
             config_path = os.path.join(folder, filename)
-            if os.path.isfile(config_path):
-                try:
-                    with open(config_path, encoding="utf-8") as stream:
-                        config_port = next((parse_port_value(line) for line in stream if line.strip() and not line.lstrip().startswith("#")), None)
-                except OSError as error:
-                    print(f"Tidak dapat membaca {filename}: {error}")
-                    return
-                if config_port is None:
-                    print(f"Peringatan: konfigurasi {filename} tidak valid. Port tersimpan tetap {port}.")
-                    if input("Tetap lanjut menggunakan port tersimpan? (y/n): ").strip().lower() != "y":
-                        print("Dibatalkan.")
-                        return
-                break
-        if config_port and config_port != port:
-            print(f"Peringatan: konfigurasi tersimpan memakai port {port}, tetapi {filename} berisi port {config_port}.")
+            if not os.path.isfile(config_path):
+                continue
+            try:
+                with open(config_path, encoding="utf-8") as stream:
+                    configured = next(
+                        (parse_port_value(line) for line in stream if line.strip() and not line.lstrip().startswith("#")),
+                        None,
+                    )
+            except OSError as error:
+                print(f"Tidak dapat membaca {filename}: {error}")
+                return
+            if configured is None:
+                config_mismatches.append(f"{filename}: konfigurasi tidak valid")
+            elif configured != port:
+                config_mismatches.append(f"{filename}: port {configured}")
+        if config_mismatches:
+            print(f"Peringatan: port tersimpan adalah {port}, sedangkan konfigurasi proyek berbeda:")
+            for mismatch in config_mismatches:
+                print(" -", mismatch)
             if input("Tetap jalankan menggunakan port tersimpan? (y/n): ").strip().lower() != "y":
                 print("Dibatalkan.")
                 return
@@ -776,6 +893,10 @@ def start_server(saved_project=None):
         if input("Simpan folder dan port ini untuk digunakan kembali? (y/n): ").strip().lower() == "y":
             save_project_entry(folder, port, engine)
 
+    if not isinstance(port, int) or isinstance(port, bool) or not 1 <= port <= 65535:
+        print("Port tidak valid (1–65535).")
+        return
+
     path = metadata_path(port)
     if os.path.exists(path):
         old, error = read_metadata(path)
@@ -783,10 +904,15 @@ def start_server(saved_project=None):
             print(f"Metadata port {port} rusak; file dipertahankan: {error}")
             return
         identity = process_identity(old["pid"], old["token"])
+        child_identity = child_process_identity(old)
         if identity is True or identity is None:
             print(f"Port {port} sudah memiliki proses Webport ({describe_status(old)}).")
             return
-        # Stale metadata belongs to an exited worker or a reused PID.
+        if child_identity is not False:
+            print("Metadata lama memiliki proses anak yang belum dapat dipastikan berhenti.")
+            print("Metadata dipertahankan; Webport tidak akan menimpa atau menghentikan proses tersebut.")
+            return
+        # Both worker and its recorded child are confirmed absent or PID-reused.
         try:
             os.unlink(path)
         except OSError as error:
@@ -807,6 +933,7 @@ def start_server(saved_project=None):
             "pid": 0,
             "token": token,
             "server_pid": None,
+            "server_start_ticks": None,
             "port": port,
             "engine": engine,
             "project": folder,

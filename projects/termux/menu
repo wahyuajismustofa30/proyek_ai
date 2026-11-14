@@ -7,6 +7,14 @@
 
 BIN="$HOME/bin"
 
+# Resolve lokasi menu agar program audit di direktori proyek tetap terdeteksi
+MENU_FILE="$(readlink -f -- "${BASH_SOURCE[0]}" 2>/dev/null)"
+if [[ -z "$MENU_FILE" ]]; then
+    MENU_FILE="${BASH_SOURCE[0]}"
+fi
+SCRIPT_DIR="$(cd -- "$(dirname -- "$MENU_FILE")" && pwd)"
+AUDIT_SCRIPT="$SCRIPT_DIR/termux-audit.py"
+
 while true; do
     clear
 
@@ -29,6 +37,15 @@ while true; do
         ! -name "*.desc" \
         -print0 | sort -z
     )
+
+    # Program audit disimpan bersama source proyek, bukan disalin ke ~/bin.
+    if [[ -f "$AUDIT_SCRIPT" ]]; then
+        audit_found=0
+        for program in "${PROGRAMS[@]}"; do
+            [[ "$program" == "$AUDIT_SCRIPT" ]] && audit_found=1 && break
+        done
+        (( audit_found )) || PROGRAMS+=("$AUDIT_SCRIPT")
+    fi
 
     if [[ ${#PROGRAMS[@]} -eq 0 ]]; then
         echo "  Belum ada program yang ditemukan."
@@ -90,8 +107,13 @@ while true; do
                 echo "------------------------------------------------"
 
                 set +e
-                "$selected"
-                result=$?
+                if [[ "$selected" == "$AUDIT_SCRIPT" ]]; then
+                    python3 "$selected"
+                    result=$?
+                else
+                    "$selected"
+                    result=$?
+                fi
                 set -e
 
                 echo

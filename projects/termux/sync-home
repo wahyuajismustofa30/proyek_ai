@@ -1,15 +1,20 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-set -e
+set -euo pipefail
 
 SOURCE="$HOME/"
 DEST="$HOME/storage/shared/TERMUX/HOME/"
 
-if [ ! -d "$HOME/storage/shared/TERMUX" ]; then
+if [[ ! -d "$HOME/storage/shared/TERMUX" ]]; then
     echo "ERROR: Akses penyimpanan belum tersedia."
     echo "Jalankan: termux-setup-storage"
     exit 1
 fi
+
+command -v rsync >/dev/null 2>&1 || {
+    echo "ERROR: rsync tidak tersedia."
+    exit 1
+}
 
 mkdir -p "$DEST"
 
@@ -18,6 +23,8 @@ echo " DEKEKU TERMUX HOME SYNC"
 echo "================================"
 echo "Sumber : $SOURCE"
 echo "Tujuan : $DEST"
+echo
+echo "Perlindungan secret aktif; file sensitif tidak akan disalin."
 echo
 
 rsync -rhv \
@@ -31,6 +38,31 @@ rsync -rhv \
     --exclude='.git-credentials' \
     --exclude='.netrc' \
     --exclude='.bash_history' \
+    --exclude='.config/gh/' \
+    --exclude='.config/gcloud/' \
+    --exclude='.config/azure/' \
+    --exclude='.config/openai.env' \
+    --exclude='.config/*credentials*' \
+    --exclude='.config/*token*' \
+    --exclude='.config/*secret*' \
+    --exclude='.aws/' \
+    --exclude='.azure/' \
+    --exclude='.docker/config.json' \
+    --exclude='.local/share/keyrings/' \
+    --exclude='.local/share/*/credentials*' \
+    --exclude='.local/share/*/token*' \
+    --exclude='.password-store/' \
+    --exclude='.pypirc' \
+    --exclude='.npmrc' \
+    --exclude='.netrc' \
+    --exclude='*.pem' \
+    --exclude='*.key' \
+    --exclude='id_rsa*' \
+    --exclude='id_ed25519*' \
+    --exclude='*credentials.json' \
+    --exclude='*service-account*.json' \
+    --exclude='*secret*' \
+    --exclude='*token*' \
     "$SOURCE" "$DEST"
 
 echo

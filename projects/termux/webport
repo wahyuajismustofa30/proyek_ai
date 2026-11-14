@@ -419,7 +419,12 @@ def worker_main(token, path):
 
 def load_saved_projects():
     if not os.path.exists(PROJECTS_FILE):
-        return {"schema": 1, "projects": []}, None
+        initial = {"schema": 1, "projects": []}
+        try:
+            save_saved_projects(initial)
+            return initial, None
+        except (OSError, ValueError) as error:
+            return None, str(error)
     try:
         with open(PROJECTS_FILE, encoding="utf-8") as stream:
             data = json.load(stream)

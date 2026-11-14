@@ -2053,3 +2053,225 @@
   outline-offset: 3px;
 }
 #main-content { scroll-margin-top: 16px; }
+
+/* =========================================================
+   ARTO PRINTING — halaman generator tamu
+   Komponen dan token global tetap berasal dari Master Theme.
+   ========================================================= */
+.invite-body {
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
+.invite-header { min-height: 76px; }
+.invite-home-link { white-space: nowrap; }
+.invite-main { min-height: calc(100vh - 150px); }
+.invite-intro {
+  padding: clamp(36px, 7vw, 68px) 0 clamp(28px, 5vw, 48px);
+  background: var(--color-brand-soft);
+}
+.invite-wrap { max-width: 900px; }
+.invite-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 12px;
+  color: var(--color-brand-strong);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.invite-eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 3px;
+  border-radius: var(--r-pill);
+  background: var(--color-brand);
+}
+.invite-intro h1 {
+  max-width: 760px;
+  margin: 0 0 12px;
+  color: var(--color-text);
+  font: 700 clamp(2rem, 5vw, 3.25rem)/1.1 var(--font-display);
+}
+.invite-intro p:last-child {
+  max-width: 620px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+}
+.invite-content {
+  display: grid;
+  gap: 24px;
+  max-width: 850px;
+  padding-top: 32px;
+  padding-bottom: 64px;
+}
+.invite-card { padding: clamp(20px, 4vw, 34px); }
+.invite-card-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.invite-step {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--color-brand-soft);
+  color: var(--color-brand-strong);
+  font-weight: 800;
+}
+.invite-card-heading h2 {
+  margin: 0 0 4px;
+  color: var(--color-text);
+  font: 700 clamp(1.2rem, 3vw, 1.55rem)/1.25 var(--font-display);
+}
+.invite-card-heading p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.invite-form {
+  display: grid;
+  gap: 18px;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.invite-form .form-group { display: grid; gap: 7px; margin: 0; }
+.invite-form .label {
+  display: block;
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+.invite-form .label span {
+  color: var(--color-text-subtle);
+  font-weight: 400;
+}
+.invite-form .input {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 14px;
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--r-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  line-height: 1.4;
+}
+.invite-form .input::placeholder { color: var(--color-text-subtle); opacity: 1; }
+.invite-form .input:focus-visible {
+  border-color: var(--color-focus);
+  outline: 3px solid color-mix(in srgb, var(--color-focus) 22%, transparent);
+  outline-offset: 1px;
+}
+.invite-form .tombol {
+  justify-self: start;
+  min-height: 48px;
+  margin-top: 4px;
+  cursor: pointer;
+}
+.invite-hint {
+  margin: 18px 0 0;
+  color: var(--color-text-subtle);
+  font-size: var(--text-xs);
+}
+.invite-results {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-text);
+}
+.invite-results:empty { display: none; }
+.invite-results table {
+  width: 100%;
+  min-width: 470px;
+  border: 1px solid var(--color-border);
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--r-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  overflow: hidden;
+}
+.invite-results caption { padding: 12px; }
+.invite-results th {
+  padding: 13px 16px;
+  background: var(--color-brand-soft);
+  color: var(--color-brand-strong);
+  font-weight: 800;
+  text-align: left;
+}
+.invite-results td {
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+.invite-results td:first-child { overflow-wrap: anywhere; }
+.invite-results td button,
+.invite-results td a {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.invite-results td button { background: var(--color-brand-strong); color: #fff; }
+.invite-results td a { background: #176b45; color: #fff; }
+.invite-results td button:hover { background: var(--color-text); }
+.invite-results td a:hover { background: #105334; }
+.invite-footer {
+  padding: 22px 0;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+.invite-footer .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 20px;
+}
+.invite-footer p { margin: 0; color: var(--color-text-muted); font-size: var(--text-xs); }
+.invite-footer a { color: var(--color-brand-strong); font-size: var(--text-xs); font-weight: 700; }
+.skip-link:focus {
+  background: var(--color-text);
+  color: #fff;
+  outline-color: var(--color-brand);
+}
+@media (max-width: 520px) {
+  .invite-header { gap: 10px; }
+  .invite-header .brand-logo { width: 36px; height: 36px; }
+  .invite-header .brand-name { font-size: 1rem; }
+  .invite-header .brand-tag { font-size: .68rem; }
+  .invite-home-link { padding: 8px 11px; font-size: .78rem; }
+  .invite-content { gap: 18px; padding-top: 20px; padding-bottom: 40px; }
+  .invite-card { padding: 18px 16px; }
+  .invite-form .tombol { width: 100%; }
+  .invite-footer .wrap { align-items: flex-start; flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .invite-body *, .invite-body *::before, .invite-body *::after { scroll-behavior: auto; }
+}

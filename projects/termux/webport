@@ -221,12 +221,29 @@ def read_metadata(path):
         required = ("pid", "token", "port", "engine", "project", "state")
         if not isinstance(data, dict) or any(key not in data for key in required):
             raise ValueError("field metadata tidak lengkap")
-        if not isinstance(data["pid"], int) or not (1 <= data["pid"] <= 2**31 - 1):
+        if not isinstance(data["pid"], int) or isinstance(data["pid"], bool) or not (1 <= data["pid"] <= 2**31 - 1):
             raise ValueError("PID tidak valid")
         if not isinstance(data["token"], str) or len(data["token"]) < 24:
             raise ValueError("token proses tidak valid")
-        if not isinstance(data["port"], int) or not (1 <= data["port"] <= 65535):
+        if not isinstance(data["port"], int) or isinstance(data["port"], bool) or not (1 <= data["port"] <= 65535):
             raise ValueError("port tidak valid")
+        if data["engine"] not in ("php", "html"):
+            raise ValueError("engine metadata tidak valid")
+        if not isinstance(data["project"], str) or not os.path.isabs(data["project"]):
+            raise ValueError("path proyek metadata tidak valid")
+        if not isinstance(data["state"], str):
+            raise ValueError("status metadata tidak valid")
+        server_pid = data.get("server_pid")
+        if server_pid is not None and (
+            not isinstance(server_pid, int) or isinstance(server_pid, bool)
+            or not (1 <= server_pid <= 2**31 - 1)
+        ):
+            raise ValueError("PID server anak tidak valid")
+        start_ticks = data.get("server_start_ticks")
+        if start_ticks is not None and (
+            not isinstance(start_ticks, int) or isinstance(start_ticks, bool) or start_ticks <= 0
+        ):
+            raise ValueError("identitas waktu proses server anak tidak valid")
         return data, None
     except (OSError, ValueError, TypeError, json.JSONDecodeError) as error:
         return None, str(error)
@@ -506,7 +523,7 @@ def load_saved_projects():
             if (
                 not isinstance(item["path"], str)
                 or not item["path"]
-                or "\\x00" in item["path"]
+                or "\x00" in item["path"]
                 or not os.path.isabs(item["path"])
             ):
                 raise ValueError("path proyek tidak valid")
@@ -546,11 +563,11 @@ def save_saved_projects(data):
             raise ValueError("ID proyek tidak valid")
         if not isinstance(name, str) or not name.strip():
             raise ValueError("nama proyek tidak valid")
-        if not isinstance(project_path, str) or not project_path or "\\x00" in project_path or not os.path.isabs(project_path):
+        if not isinstance(project_path, str) or not project_path or "\x00" in project_path or not os.path.isabs(project_path):
             raise ValueError("path proyek tidak valid")
         if not isinstance(port, int) or isinstance(port, bool) or not 1 <= port <= 65535:
             raise ValueError("port proyek tidak valid")
-        if engine not in ("php", "html"):
+        if not isinstance(engine, str) or engine not in ("php", "html"):
             raise ValueError("jenis server tidak valid")
         if not isinstance(created_at, str) or not created_at.strip():
             raise ValueError("waktu pembuatan proyek tidak valid")
@@ -794,7 +811,7 @@ def manage_saved_projects():
         return
     elif action == "5":
         active_status = saved_server_status(item)
-        if active_status in ("AKTIF", "MEMULAI / MENGHENTIKAN", "TIDAK DAPAT DIVERIFIKASI"):
+        if active_status in ("AKTIF", "MEMULAI", "MENGHENTIKAN", "TIDAK DAPAT DIVERIFIKASI"):
             print(f"Catatan: server berstatus {active_status}; penghapusan konfigurasi tidak menghentikannya.")
         if input(f"Hapus '{item['name']}' dari daftar tersimpan? (y/n): ").strip().lower() != "y":
             print("Dibatalkan.")
@@ -896,6 +913,16 @@ def start_server(saved_project=None):
     if not isinstance(port, int) or isinstance(port, bool) or not 1 <= port <= 65535:
         print("Port tidak valid (1–65535).")
         return
+
+    registry, registry_error = load_saved_projects()
+    if registry_error:
+        print(f"Registry proyek tidak dapat diverifikasi: {registry_error}")
+        return
+    for entry in registry["projects"]:
+        if entry["port"] == port and os.path.realpath(entry["path"]) != os.path.realpath(folder):
+            print(f"Port {port} sudah didaftarkan oleh proyek '{entry['name']}'.")
+            print("Pilih port lain atau periksa konfigurasi Program Tersimpan.")
+            return
 
     path = metadata_path(port)
     if os.path.exists(path):
@@ -1061,7 +1088,7 @@ def stop_port():
         if error:
             continue
         status = describe_status(data)
-        if status in ("AKTIF", "MEMULAI / MENGHENTIKAN", "TIDAK DAPAT DIVERIFIKASI", "MEMULAI / TIDAK DAPAT DIVERIFIKASI"):
+        if status in ("AKTIF", "MEMULAI", "MENGHENTIKAN", "TIDAK DAPAT DIVERIFIKASI"):
             records.append((path, data, status))
 
     if not records:
@@ -1075,7 +1102,7 @@ def stop_port():
     if not choice.isdigit() or int(choice) == 0 or int(choice) > len(records):
         return
     path, data, status = records[int(choice) - 1]
-    if status not in ("AKTIF", "MEMULAI / MENGHENTIKAN"):
+    if status not in ("AKTIF", "MEMULAI", "MENGHENTIKAN"):
         print("Status tidak cukup terverifikasi. Proses tidak dihentikan.")
         return
     confirm = input(f"Hentikan server port {data['port']}? (y/n): ").strip().lower()

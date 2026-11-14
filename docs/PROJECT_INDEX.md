@@ -10,6 +10,7 @@ Struktur internal setiap proyek fleksibel; README bersifat opsional.
 | Artoprinting | [projects/artoprinting/](../projects/artoprinting/) | [README.md](../projects/artoprinting/README.md) |
 | Dekeku | [projects/dekeku/](../projects/dekeku/) | [README.md](../projects/dekeku/README.md) |
 | Preview | [projects/preview/](../projects/preview/) | [README.md](../projects/preview/README.md) |
+| Termux | [projects/termux/](../projects/termux/) | — |
 | Testing | [projects/testing/](../projects/testing/) | [README.md](../projects/testing/README.md) |
 
 ## Arsip

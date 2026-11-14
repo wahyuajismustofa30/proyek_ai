@@ -2,29 +2,34 @@
 
 set -o pipefail
 
-PROGRAM_NAME=${0##*/}
 CONFIG_FILE="${HOME:?HOME belum ditetapkan}/.config/openai.env"
+DATA_DIR="$HOME/.local/share/chatGPT"
+HISTORY_FILE="$DATA_DIR/conversations.json"
+unset API_KEY
 API_KEY=''
 MODEL=${OPENAI_MODEL:-gpt-6-luna}
 PREVIOUS_ID=''
+CONVERSATION_ID="$(date +%s)-$$"
+CREATED_AT="$(date '+%Y-%m-%dT%H:%M:%S%z')"
+MESSAGES='[]'
+HISTORY_ENABLED=0
 
-error() {
-    printf 'chatGPT: %s\n' "$1" >&2
-}
+error() { printf 'chatGPT: %s\n' "$1" >&2; }
+info() { printf '%s\n' "$1"; }
 
-cleanup() {
-    unset API_KEY
-}
+if [[ -t 1 && -z ${NO_COLOR:-} && ${TERM:-dumb} != dumb ]]; then
+    C_BOLD=$'\033[1m' C_CYAN=$'\033[36m' C_GREEN=$'\033[32m'
+    C_YELLOW=$'\033[33m' C_RED=$'\033[31m' C_RESET=$'\033[0m'
+else
+    C_BOLD='' C_CYAN='' C_GREEN='' C_YELLOW='' C_RED='' C_RESET=''
+fi
 
-handle_signal() {
-    printf '\n\nChatGPT dihentikan.\n'
-    exit 130
-}
-
+cleanup() { unset API_KEY; }
+handle_signal() { printf '\n\nChatGPT dihentikan.\n'; exit 130; }
 trap cleanup EXIT
 trap handle_signal INT TERM HUP
 
-for command_name in curl jq id stat; do
+for command_name in curl jq id stat date; do
     if ! command -v "$command_name" >/dev/null 2>&1; then
         error "Perintah wajib tidak tersedia: $command_name"
         exit 1
@@ -36,12 +41,13 @@ if [[ ! -t 0 || ! -t 1 ]]; then
     exit 1
 fi
 
+validate_model() { [[ $1 =~ ^[A-Za-z0-9._-]+$ ]]; }
 if [[ -n ${OPENAI_MODEL+x} && -z $OPENAI_MODEL ]]; then
     error 'OPENAI_MODEL tidak boleh kosong.'
     exit 1
 fi
-if [[ ! $MODEL =~ ^[A-Za-z0-9._-]+$ ]]; then
-    error 'OPENAI_MODEL berisi karakter yang tidak didukung.'
+if ! validate_model "$MODEL"; then
+    error 'Nama model berisi karakter yang tidak didukung.'
     exit 1
 fi
 
@@ -53,114 +59,260 @@ else
         error 'API key tidak ditemukan di environment atau file konfigurasi biasa.'
         exit 1
     fi
-
-    current_uid=$(id -u) || {
-        error 'Tidak dapat memeriksa UID pengguna.'
-        exit 1
-    }
-    file_meta=$(stat -c '%u %a' "$CONFIG_FILE" 2>/dev/null) || {
-        error 'Tidak dapat memeriksa keamanan file konfigurasi.'
-        exit 1
-    }
+    current_uid=$(id -u) || { error 'Tidak dapat memeriksa UID pengguna.'; exit 1; }
+    file_meta=$(stat -c '%u %a' "$CONFIG_FILE" 2>/dev/null) || { error 'Tidak dapat memeriksa keamanan file konfigurasi.'; exit 1; }
     read -r file_uid file_mode <<< "$file_meta"
     if [[ $file_uid != "$current_uid" || ! $file_mode =~ ^[0-7]{3,4}$ ]]; then
-        error 'File konfigurasi harus dimiliki pengguna saat ini.'
-        exit 1
+        error 'File konfigurasi harus dimiliki pengguna saat ini.'; exit 1
     fi
     permissions=$((8#$file_mode))
     if (( permissions & 044 )); then
-        error 'File konfigurasi dapat dibaca group/pengguna lain; periksa permission secara manual.'
-        exit 1
+        error 'File konfigurasi dapat dibaca group/pengguna lain; periksa permission secara manual.'; exit 1
     fi
-
     key_count=0
     while IFS= read -r line || [[ -n $line ]]; do
         [[ $line =~ ^[[:space:]]*$ || $line =~ ^[[:space:]]*# ]] && continue
         if [[ $line =~ ^[[:space:]]*(export[[:space:]]+)?OPENAI_API_KEY=([^[:space:]]+)[[:space:]]*$ ]]; then
-            ((key_count += 1))
-            API_KEY=${BASH_REMATCH[2]}
+            ((key_count += 1)); API_KEY=${BASH_REMATCH[2]}
         else
-            error 'Format openai.env tidak didukung; gunakan OPENAI_API_KEY=nilai atau export OPENAI_API_KEY=nilai.'
-            exit 1
+            error 'Format openai.env tidak didukung; gunakan OPENAI_API_KEY=nilai atau export OPENAI_API_KEY=nilai.'; exit 1
         fi
     done < "$CONFIG_FILE"
-
-    if (( key_count != 1 )); then
-        error 'File konfigurasi harus berisi tepat satu deklarasi OPENAI_API_KEY.'
-        exit 1
-    fi
+    if (( key_count != 1 )); then error 'File konfigurasi harus berisi tepat satu deklarasi OPENAI_API_KEY.'; exit 1; fi
 fi
-
 if [[ -z $API_KEY || ! $API_KEY =~ ^[A-Za-z0-9._~-]+$ ]]; then
-    error 'API key kosong atau formatnya tidak valid.'
-    exit 1
+    error 'API key kosong atau formatnya tidak valid.'; exit 1
 fi
 
-printf 'Chat dengan %s. Ketik /keluar untuk berhenti.\n' "$MODEL"
+# Data percakapan berada di HOME privat, tidak di direktori proyek.
+ensure_history_storage() {
+    local current_uid dir meta owner mode perms
+    current_uid=$(id -u) || return 1
+    for dir in "$HOME/.local" "$HOME/.local/share"; do
+        if [[ -L $dir ]]; then error "Direktori tidak boleh berupa symlink: $dir"; return 1; fi
+        if [[ ! -e $dir ]]; then (umask 077; mkdir "$dir") 2>/dev/null || { error "Tidak dapat membuat direktori: $dir"; return 1; }; fi
+        [[ -d $dir ]] || { error "Path bukan direktori: $dir"; return 1; }
+    done
+    if [[ -L $DATA_DIR ]]; then error 'Direktori data chatGPT tidak boleh berupa symlink.'; return 1; fi
+    if [[ ! -e $DATA_DIR ]]; then (umask 077; mkdir "$DATA_DIR") 2>/dev/null || { error 'Tidak dapat membuat direktori data riwayat.'; return 1; }; fi
+    [[ -d $DATA_DIR ]] || { error 'Lokasi data riwayat bukan direktori.'; return 1; }
+    meta=$(stat -c '%u %a' "$DATA_DIR" 2>/dev/null) || return 1
+    read -r owner mode <<< "$meta"
+    [[ $owner == "$current_uid" && $mode =~ ^[0-7]{3,4}$ ]] || { error 'Direktori riwayat harus dimiliki pengguna saat ini.'; return 1; }
+    perms=$((8#$mode))
+    (( (perms & 077) == 0 )) || { error 'Permission direktori riwayat harus privat (tanpa akses group/others); ubah secara manual.'; return 1; }
+    if [[ -e $HISTORY_FILE || -L $HISTORY_FILE ]]; then
+        [[ ! -L $HISTORY_FILE && -f $HISTORY_FILE ]] || { error 'File riwayat harus berupa file biasa, bukan symlink.'; return 1; }
+        meta=$(stat -c '%u %a' "$HISTORY_FILE" 2>/dev/null) || return 1
+        read -r owner mode <<< "$meta"
+        [[ $owner == "$current_uid" && $mode =~ ^[0-7]{3,4}$ ]] || { error 'File riwayat harus dimiliki pengguna saat ini.'; return 1; }
+        perms=$((8#$mode))
+        (( (perms & 077) == 0 )) || { error 'Permission file riwayat harus privat; ubah secara manual.'; return 1; }
+        jq -e 'type == "object" and .version == 1 and (.conversations|type)=="array" and all(.conversations[]; (.id|type)=="string" and (.created_at|type)=="string" and (.updated_at|type)=="string" and (.model|type)=="string" and (.previous_response_id|type)=="string" and (.messages|type)=="array" and all(.messages[]; (.role=="user" or .role=="assistant") and (.content|type)=="string"))' "$HISTORY_FILE" >/dev/null 2>&1 || { error 'Format file riwayat rusak atau tidak didukung; data tidak diubah.'; return 1; }
+    fi
+}
+
+history_read() {
+    if [[ -f $HISTORY_FILE && ! -L $HISTORY_FILE ]]; then
+        cat -- "$HISTORY_FILE"
+    else
+        printf '{"version":1,"conversations":[]}\n'
+    fi
+}
+
+history_write() {
+    local data=$1 tmp
+    ensure_history_storage || return 1
+    jq -e 'type == "object" and .version == 1 and (.conversations|type)=="array" and all(.conversations[]; (.id|type)=="string" and (.created_at|type)=="string" and (.updated_at|type)=="string" and (.model|type)=="string" and (.previous_response_id|type)=="string" and (.messages|type)=="array" and all(.messages[]; (.role=="user" or .role=="assistant") and (.content|type)=="string"))' <<< "$data" >/dev/null 2>&1 || { error 'Data riwayat tidak valid; penyimpanan dibatalkan.'; return 1; }
+    command -v mktemp >/dev/null 2>&1 || { error 'Perintah mktemp tidak tersedia; penyimpanan riwayat tidak dapat digunakan.'; return 1; }
+    tmp=$(umask 077; mktemp "$DATA_DIR/.conversations.XXXXXX") || { error 'Tidak dapat membuat file sementara riwayat.'; return 1; }
+    if ! printf '%s\n' "$data" > "$tmp"; then rm -f -- "$tmp"; error 'Gagal menulis file sementara riwayat.'; return 1; fi
+    if ! mv -f -- "$tmp" "$HISTORY_FILE"; then rm -f -- "$tmp"; error 'Gagal memperbarui riwayat.'; return 1; fi
+}
+
+save_active_conversation() {
+    local data now
+    (( HISTORY_ENABLED )) || return 0
+    ensure_history_storage || return 1
+    data=$(history_read) || return 1
+    now=$(date '+%Y-%m-%dT%H:%M:%S%z')
+    data=$(jq -c \
+        --arg id "$CONVERSATION_ID" --arg created "$CREATED_AT" --arg updated "$now" \
+        --arg model "$MODEL" --arg previous "$PREVIOUS_ID" --argjson messages "$MESSAGES" \
+        '.conversations |= (map(select(.id != $id)) + [{id:$id,created_at:$created,updated_at:$updated,model:$model,previous_response_id:$previous,messages:$messages}])' <<< "$data") || return 1
+    history_write "$data"
+}
+
+new_conversation() {
+    CONVERSATION_ID="$(date +%s)-$$-$RANDOM"
+    CREATED_AT="$(date '+%Y-%m-%dT%H:%M:%S%z')"
+    PREVIOUS_ID=''
+    MESSAGES='[]'
+}
+
+print_help() {
+    cat <<'HELP'
+Perintah chatGPT:
+  /help              Tampilkan bantuan
+  /keluar            Akhiri program
+  /reset             Mulai konteks percakapan baru
+  /model             Tampilkan model aktif
+  /model NAMA        Ganti model untuk sesi ini
+  /info              Informasi sesi aktif
+  /clear             Bersihkan tampilan terminal
+  /history           Daftar percakapan tersimpan
+  /history on|off    Aktifkan/nonaktifkan penyimpanan riwayat
+  /resume ID         Lanjutkan percakapan tersimpan
+  /delete ID         Hapus satu percakapan (perlu konfirmasi)
+  /history-clear     Hapus seluruh riwayat (perlu konfirmasi)
+
+Riwayat disimpan di ~/.local/share/chatGPT/ dan secara default nonaktif.
+HELP
+}
+
+history_list() {
+    ensure_history_storage || return 1
+    local data
+    data=$(history_read) || return 1
+    if ! jq -e '.conversations|length>0' <<< "$data" >/dev/null; then
+        info 'Belum ada percakapan tersimpan.'; return 0
+    fi
+    jq -r '.conversations | sort_by(.updated_at) | reverse[] | "\(.id) | \(.updated_at) | \(.model) | \(.messages|length) pesan"' <<< "$data"
+}
+
+confirm_action() {
+    local prompt=$1 answer
+    IFS= read -r -p "$prompt [y/N]: " answer || return 1
+    [[ $answer == y || $answer == Y || $answer == ya || $answer == YA ]]
+}
+
+handle_command() {
+    local input=$1 arg data found new_model
+    case "$input" in
+        /help) print_help; return 0 ;;
+        /keluar) return 10 ;;
+        /reset) new_conversation; info 'Konteks baru dimulai. Riwayat tersimpan tidak dihapus.'; return 0 ;;
+        /model) printf 'Model aktif: %s\n' "$MODEL"; return 0 ;;
+        /info)
+            printf 'ID percakapan : %s\nModel         : %s\nPesan lokal    : %s\nRiwayat        : %s\n' \
+                "$CONVERSATION_ID" "$MODEL" "$(jq 'length' <<< "$MESSAGES")" "$([[ $HISTORY_ENABLED == 1 ]] && printf aktif || printf nonaktif)"
+            return 0 ;;
+        /clear) if [[ -t 1 && ${TERM:-dumb} != dumb ]]; then printf '\033[2J\033[H'; else info 'Terminal tidak mendukung pembersihan layar.'; fi; return 0 ;;
+        /history) history_list; return $? ;;
+        /history\ on)
+            ensure_history_storage || return 1
+            HISTORY_ENABLED=1
+            if [[ $(jq 'length' <<< "$MESSAGES") -gt 0 ]]; then save_active_conversation || { HISTORY_ENABLED=0; return 1; }; fi
+            info 'Penyimpanan riwayat diaktifkan.'; return 0 ;;
+        /history\ off) HISTORY_ENABLED=0; info 'Penyimpanan riwayat dinonaktifkan. Riwayat lama tetap tersimpan.'; return 0 ;;
+        /history-clear)
+            ensure_history_storage || return 1
+            if confirm_action 'Hapus SELURUH riwayat percakapan?'; then
+                data='{"version":1,"conversations":[]}'
+                history_write "$data" || return 1
+                info 'Seluruh riwayat tersimpan telah dihapus.'
+                if [[ $(jq 'length' <<< "$MESSAGES") -gt 0 ]]; then new_conversation; fi
+            else info 'Penghapusan dibatalkan.'; fi
+            return 0 ;;
+        /model\ *)
+            new_model=${input#/model }
+            if [[ -z $new_model ]] || ! validate_model "$new_model"; then error 'Gunakan /model NAMA dengan karakter huruf, angka, titik, garis bawah, atau tanda hubung.'; return 0; fi
+            MODEL=$new_model; info "Model sesi diubah menjadi: $MODEL"; return 0 ;;
+        /resume\ *)
+            arg=${input#/resume }
+            [[ -n $arg && $arg != *[!A-Za-z0-9._-]* ]] || { error 'ID percakapan tidak valid.'; return 0; }
+            ensure_history_storage || return 1
+            data=$(history_read) || return 1
+            found=$(jq -c --arg id "$arg" '.conversations[] | select(.id==$id)' <<< "$data")
+            [[ -n $found ]] || { error 'Percakapan tidak ditemukan.'; return 0; }
+            CONVERSATION_ID=$(jq -r '.id' <<< "$found")
+            CREATED_AT=$(jq -r '.created_at' <<< "$found")
+            PREVIOUS_ID=$(jq -r '.previous_response_id // ""' <<< "$found")
+            MESSAGES=$(jq -c '.messages // []' <<< "$found")
+            MODEL=$(jq -r '.model // "gpt-6-luna"' <<< "$found")
+            validate_model "$MODEL" || { error 'Model dalam riwayat tidak valid.'; new_conversation; return 1; }
+            HISTORY_ENABLED=1
+            info "Percakapan $CONVERSATION_ID dilanjutkan. Konteks API mungkin kedaluwarsa; jika ditolak, gunakan /reset."
+            return 0 ;;
+        /delete\ *)
+            arg=${input#/delete }
+            [[ -n $arg && $arg != *[!A-Za-z0-9._-]* ]] || { error 'ID percakapan tidak valid.'; return 0; }
+            ensure_history_storage || return 1
+            data=$(history_read) || return 1
+            jq -e --arg id "$arg" '.conversations|any(.id==$id)' <<< "$data" >/dev/null || { error 'Percakapan tidak ditemukan.'; return 0; }
+            if confirm_action "Hapus percakapan $arg?"; then
+                data=$(jq -c --arg id "$arg" '.conversations |= map(select(.id!=$id))' <<< "$data") || return 1
+                history_write "$data" || return 1
+                if [[ $CONVERSATION_ID == "$arg" ]]; then new_conversation; fi
+                info 'Percakapan dihapus.'
+            else info 'Penghapusan dibatalkan.'; fi
+            return 0 ;;
+        /*) error "Perintah tidak dikenal: $input (gunakan /help)."; return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+printf '%s\n' "${C_CYAN}${C_BOLD}ChatGPT CLI${C_RESET}" \
+    "Model: ${C_GREEN}${MODEL}${C_RESET} | Sesi baru" \
+    'Ketik /help untuk bantuan, /keluar untuk berhenti.'
 
 while true; do
     prompt=''
-    if ! IFS= read -r -p 'Anda: ' prompt; then
-        printf '\nSesi selesai.\n'
-        break
+    if ! IFS= read -r -p "${C_CYAN}Anda>${C_RESET} " prompt; then
+        printf '\nSesi selesai.\n'; break
     fi
-    [[ $prompt == '/keluar' ]] && break
     [[ -z $prompt ]] && continue
-
-    if ! body=$(jq -cn \
-        --arg model "$MODEL" \
-        --arg input "$prompt" \
-        --arg previous "$PREVIOUS_ID" \
-        'if $previous == "" then {model:$model,input:$input} else {model:$model,previous_response_id:$previous,input:$input} end'); then
-        error 'Gagal membentuk JSON permintaan.'
+    if [[ $prompt == /* ]]; then
+        handle_command "$prompt"
+        command_status=$?
+        (( command_status == 10 )) && break
         continue
     fi
 
+    if ! body=$(jq -cn --arg model "$MODEL" --arg input "$prompt" --arg previous "$PREVIOUS_ID" \
+        'if $previous == "" then {model:$model,input:$input} else {model:$model,previous_response_id:$previous,input:$input} end'); then
+        error 'Gagal membentuk JSON permintaan.'; continue
+    fi
+
+    printf '%s\n' "${C_YELLOW}Memproses permintaan...${C_RESET}"
     response_and_status=$(printf 'header = "Authorization: Bearer %s"\n' "$API_KEY" |
-        curl --config - --silent --show-error \
-            --connect-timeout 10 --max-time 90 \
+        curl --config - --silent --show-error --connect-timeout 10 --max-time 90 \
             --output - --write-out $'\n%{http_code}' \
-            --header 'Content-Type: application/json' \
-            --data-binary "$body" \
+            --header 'Content-Type: application/json' --data-binary "$body" \
             'https://api.openai.com/v1/responses' 2>/dev/null)
     curl_status=$?
-    if (( curl_status != 0 )); then
-        error "Permintaan gagal (curl exit $curl_status). Periksa koneksi dan coba lagi."
-        continue
-    fi
+    if (( curl_status != 0 )); then error "Permintaan gagal (curl exit $curl_status). Periksa koneksi dan coba lagi."; continue; fi
 
     http_status=${response_and_status##*$'\n'}
     response=${response_and_status%$'\n'*}
-    if [[ ! $http_status =~ ^[0-9]{3}$ ]]; then
-        error 'Respons HTTP tidak dapat dibaca.'
-        continue
-    fi
+    if [[ ! $http_status =~ ^[0-9]{3}$ ]]; then error 'Respons HTTP tidak dapat dibaca.'; continue; fi
     if (( 10#$http_status < 200 || 10#$http_status >= 300 )); then
         api_message=$(jq -r 'if (.error|type)=="object" then (.error.message // "") elif (.error|type)=="string" then .error else empty end' <<< "$response" 2>/dev/null)
-        if [[ -n $api_message ]]; then
-            printf 'API error (HTTP %s): %s\n' "$http_status" "$api_message" >&2
-        else
-            printf 'API error (HTTP %s).\n' "$http_status" >&2
+        if [[ -n $api_message ]]; then printf 'API error (HTTP %s): %s\n' "$http_status" "$api_message" >&2; else printf 'API error (HTTP %s).\n' "$http_status" >&2; fi
+        if [[ -n $PREVIOUS_ID ]]; then
+            api_code=$(jq -r '.error.code // ""' <<< "$response" 2>/dev/null)
+            if [[ $api_code == previous_response_not_found || ${api_message,,} == *previous_response_id* || ${api_message,,} == *response\ not\ found* ]]; then
+                error 'Konteks sebelumnya tidak tersedia. Gunakan /reset untuk memulai percakapan baru.'
+            fi
         fi
         continue
     fi
-
     if ! jq -e 'type == "object" and (.id|type)=="string" and (.id|length)>0 and (.output|type)=="array"' >/dev/null 2>&1 <<< "$response"; then
-        error 'Respons API tidak memiliki struktur yang valid.'
-        continue
+        error 'Respons API tidak memiliki struktur yang valid.'; continue
     fi
-
-    answer=$(jq -r '[.output[]? | .content[]? | select(.type == "output_text") | .text | strings] | join("\n")' <<< "$response") || {
-        error 'Gagal membaca teks jawaban.'
-        continue
+    answer=$(jq -r '[.output[]? | .content[]? | select(.type == "output_text") | .text | strings] | join("\n")' <<< "$response") || { error 'Gagal membaca teks jawaban.'; continue; }
+    if [[ -z $answer ]]; then error 'Respons berhasil diterima, tetapi tidak berisi teks jawaban.'; continue; fi
+    new_previous=$(jq -r '.id' <<< "$response") || { error 'Gagal membaca ID respons.'; continue; }
+    new_messages=$(jq -c --arg user "$prompt" --arg assistant "$answer" '. + [{role:"user",content:$user},{role:"assistant",content:$assistant}]' <<< "$MESSAGES") || {
+        error 'Jawaban diterima tetapi gagal memperbarui riwayat sesi lokal.'; continue;
     }
-    if [[ -z $answer ]]; then
-        error 'Respons berhasil diterima, tetapi tidak berisi teks jawaban.'
-        continue
-    fi
 
-    printf '\n%s\n\n' "$answer"
-    PREVIOUS_ID=$(jq -r '.id' <<< "$response")
+    printf '\n%sAI:%s\n%s\n\n' "$C_GREEN" "$C_RESET" "$answer"
+    PREVIOUS_ID=$new_previous
+    MESSAGES=$new_messages
+    if (( HISTORY_ENABLED )); then
+        if ! save_active_conversation; then error 'Jawaban diterima, tetapi gagal menyimpan riwayat lokal.'; fi
+    fi
 done
 
 exit 0

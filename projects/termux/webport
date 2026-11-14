@@ -293,7 +293,11 @@ def process_snapshot(pid):
         fields = raw[closing + 1:].split()
         if len(fields) <= 19:
             return None
-        return {"ppid": int(fields[1]), "start_ticks": int(fields[19])}
+        return {
+            "state": fields[0],
+            "ppid": int(fields[1]),
+            "start_ticks": int(fields[19]),
+        }
     except (OSError, ValueError, IndexError):
         return None
 
@@ -318,6 +322,8 @@ def child_process_identity(metadata):
         return False
     if snapshot is None:
         return None
+    if snapshot["state"] in ("Z", "X"):
+        return False
     if snapshot["start_ticks"] != start_ticks:
         return False
     if snapshot["ppid"] != metadata.get("pid"):
@@ -993,7 +999,14 @@ def start_server(saved_project=None):
                 break
             time.sleep(0.1)
 
-        if current and current.get("token") == token and current.get("state") == "RUNNING" and port_accepts_connections(port) and process_identity(worker.pid, token) is True:
+        if (
+            current
+            and current.get("token") == token
+            and current.get("state") == "RUNNING"
+            and child_process_identity(current) is True
+            and port_accepts_connections(port)
+            and process_identity(worker.pid, token) is True
+        ):
             print("\nSERVER BERHASIL DIJALANKAN")
             print("-" * 48)
             print("Proyek :", os.path.basename(folder))

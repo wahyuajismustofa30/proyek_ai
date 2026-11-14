@@ -2275,3 +2275,21 @@
 @media (prefers-reduced-motion: reduce) {
   .invite-body *, .invite-body *::before, .invite-body *::after { scroll-behavior: auto; }
 }
+
+
+/* Editor pesan WhatsApp: area teks mengikuti kontrol Master Theme. */
+.invite-template {
+  min-height: 190px;
+  resize: vertical;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+.invite-template-help { margin: 2px 0 0; }
+.invite-reset-template { justify-self: start; }
+.invite-template-group code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--color-surface-muted);
+  color: var(--color-brand-strong);
+  font-size: .92em;
+}

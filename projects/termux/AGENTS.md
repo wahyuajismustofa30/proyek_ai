@@ -97,7 +97,7 @@ Gunakan informasi ini untuk mengarahkan desain dan pengujian, bukan sebagai asum
 - Jangan menjalankan sinkronisasi terbalik secara otomatis atau menganggapnya sebagai sinkronisasi dua arah/merge; operasi tersebut tetap mirror satu arah pada saat dipilih.
 - Program yang ditambahkan ke repository harus mempertimbangkan bahwa file akan dijalankan dari `~/bin`, bukan dari direktori clone repository.
 - Jangan mengasumsikan current working directory sama dengan lokasi script. Untuk Python, gunakan lokasi file script bila perlu; untuk shell, gunakan path script atau `BASH_SOURCE` secara aman.
-- Menu di `~/bin/menu` menemukan program executable secara otomatis. Ada pengecualian khusus untuk `termux-audit.py`, yang dipanggil melalui `python3` meskipun file mirror tidak memiliki executable bit.
+- Menu di `~/bin/menu` menemukan program executable secara otomatis.
 - Jangan mengubah mekanisme menu, konfigurasi `repo-sync`, atau arah sinkronisasi tanpa kebutuhan yang jelas.
 - Perhatikan bahwa mirror `repo-sync` memakai `rsync -a --delete-delay`: file di target yang tidak ada di source dapat terhapus saat sinkronisasi nyata. Jangan mengubah source/target atau menjalankan sinkronisasi destruktif tanpa konfirmasi pengguna.
 - Jangan menyimpan konfigurasi privat perangkat di repository. Pisahkan source program dari konfigurasi dan data runtime pengguna.

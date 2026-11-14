@@ -1,0 +1,37 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+set -e
+
+SOURCE="$HOME/"
+DEST="$HOME/storage/shared/TERMUX/HOME/"
+
+if [ ! -d "$HOME/storage/shared/TERMUX" ]; then
+    echo "ERROR: Akses penyimpanan belum tersedia."
+    echo "Jalankan: termux-setup-storage"
+    exit 1
+fi
+
+mkdir -p "$DEST"
+
+echo "================================"
+echo " DEKEKU TERMUX HOME SYNC"
+echo "================================"
+echo "Sumber : $SOURCE"
+echo "Tujuan : $DEST"
+echo
+
+rsync -rhv \
+    --human-readable \
+    --exclude='storage/' \
+    --exclude='.ssh/' \
+    --exclude='.gnupg/' \
+    --exclude='.cache/' \
+    --exclude='.npm/' \
+    --exclude='node_modules/' \
+    --exclude='.git-credentials' \
+    --exclude='.netrc' \
+    --exclude='.bash_history' \
+    "$SOURCE" "$DEST"
+
+echo
+echo "Sinkronisasi selesai."

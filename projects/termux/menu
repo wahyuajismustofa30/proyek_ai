@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+
+# ==========================================
+# DEKEKU SERVER MANAGER
+# Automatic Terminal Program Launcher
+# ==========================================
+
+BIN="$HOME/bin"
+
+while true; do
+    clear
+
+    echo "================================================"
+    echo "                                                "
+    echo "               D E K E K U                      "
+    echo "           SERVER CONTROL MANAGER               "
+    echo "                                                "
+    echo "================================================"
+    echo "  HOSTNAME : $(hostname)"
+    echo "  USER     : $(whoami)"
+    echo "  DATE     : $(date '+%d-%m-%Y %H:%M:%S')"
+    echo "================================================"
+    echo
+
+    # Deteksi program otomatis
+    mapfile -d '' PROGRAMS < <(
+        find "$BIN" -maxdepth 1 -type f -executable \
+        ! -name "menu" \
+        ! -name "*.desc" \
+        -print0 | sort -z
+    )
+
+    if [[ ${#PROGRAMS[@]} -eq 0 ]]; then
+        echo "  Belum ada program yang ditemukan."
+    else
+        echo "  DAFTAR PROGRAM"
+        echo "  ------------------------------------------------"
+
+        for i in "${!PROGRAMS[@]}"; do
+            name="$(basename "${PROGRAMS[$i]}")"
+            desc="$BIN/$name.desc"
+
+            printf "  [%02d] %-24s" "$((i+1))" "$name"
+
+            if [[ -f "$desc" ]]; then
+                printf " %s" "$(head -n 1 "$desc")"
+            fi
+
+            echo
+        done
+    fi
+
+    echo
+    echo "================================================"
+    echo "  [R] Refresh daftar program"
+    echo "  [0] Keluar"
+    echo "================================================"
+    echo
+
+    read -rp "  DEKEKU >> Pilih menu: " choice
+
+    case "$choice" in
+        0)
+            clear
+            echo
+            echo "  DEKEKU SERVER MANAGER"
+            echo "  Sampai jumpa."
+            echo
+            exit 0
+            ;;
+
+        r|R)
+            continue
+            ;;
+
+        *)
+            if [[ "$choice" =~ ^[0-9]+$ ]] &&
+               (( choice >= 1 && choice <= ${#PROGRAMS[@]} )); then
+
+                selected="${PROGRAMS[$((choice-1))]}"
+
+                clear
+                echo "================================================"
+                echo "              DEKEKU SERVER MANAGER             "
+                echo "================================================"
+                echo
+                echo "  Program : $(basename "$selected")"
+                echo "  Lokasi  : $selected"
+                echo
+                echo "------------------------------------------------"
+
+                set +e
+                "$selected"
+                result=$?
+                set -e
+
+                echo
+                echo "------------------------------------------------"
+                echo "  Program selesai."
+                echo "  Exit code: $result"
+                echo
+                read -rp "  Tekan Enter untuk kembali ke menu..."
+            else
+                echo
+                echo "  Pilihan tidak valid."
+                sleep 1
+            fi
+            ;;
+    esac
+done

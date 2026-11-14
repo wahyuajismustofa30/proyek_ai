@@ -1,0 +1,163 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+APP="$HOME/projects/tinyfilemanager"
+HOST="127.0.0.1"
+PORT="8083"
+PIDFILE="$HOME/.tinyfile.pid"
+LOGFILE="$HOME/.tinyfile.log"
+
+get_process() {
+    [ -f "$PIDFILE" ] || return 1
+
+    PID=$(cat "$PIDFILE" 2>/dev/null)
+    [[ "$PID" =~ ^[0-9]+$ ]] || return 1
+    kill -0 "$PID" 2>/dev/null || return 1
+
+    CMD=$(ps -p "$PID" -o args= 2>/dev/null)
+
+    case "$CMD" in
+        *"php -S $HOST:$PORT"*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+start_server() {
+    if get_process; then
+        echo "Server sudah aktif. PID: $PID"
+        return
+    fi
+
+    rm -f "$PIDFILE"
+
+    if [ ! -f "$APP/index.php" ]; then
+        echo "File index.php tidak ditemukan!"
+        return 1
+    fi
+
+    if ! php -l "$APP/index.php" >/dev/null 2>&1; then
+        echo "File PHP tidak valid!"
+        return 1
+    fi
+
+    cd "$APP" || return 1
+
+    nohup php -S "$HOST:$PORT" -t "$APP" \
+        >> "$LOGFILE" 2>&1 </dev/null &
+
+    PID=$!
+    echo "$PID" > "$PIDFILE"
+
+    sleep 2
+
+    if get_process; then
+        echo "Server berhasil diaktifkan!"
+        echo "URL: http://$HOST:$PORT"
+    else
+        rm -f "$PIDFILE"
+        echo "Gagal mengaktifkan server."
+        echo "Periksa log dengan pilihan 5."
+        return 1
+    fi
+}
+
+stop_server() {
+    if ! get_process; then
+        rm -f "$PIDFILE"
+        echo "Server tidak aktif."
+        return
+    fi
+
+    kill -TERM "$PID"
+
+    for i in {1..10}; do
+        kill -0 "$PID" 2>/dev/null || break
+        sleep 1
+    done
+
+    if kill -0 "$PID" 2>/dev/null; then
+        echo "Server belum berhasil dihentikan."
+        return 1
+    fi
+
+    rm -f "$PIDFILE"
+    echo "Server berhasil dimatikan."
+}
+
+status_server() {
+    if get_process; then
+        echo "STATUS : AKTIF"
+        echo "PID    : $PID"
+        echo "URL    : http://$HOST:$PORT"
+        echo "ROOT   : $HOME"
+    else
+        echo "STATUS : TIDAK AKTIF"
+    fi
+}
+
+show_log() {
+    if [ -f "$LOGFILE" ]; then
+        tail -n 40 "$LOGFILE"
+    else
+        echo "Log belum tersedia."
+    fi
+}
+
+open_browser() {
+    if get_process; then
+        termux-open-url "http://$HOST:$PORT"
+    else
+        echo "Server belum aktif. Pilih nomor 1 dahulu."
+    fi
+}
+
+menu() {
+    while true; do
+        clear
+
+        echo "=================================="
+        echo "    DEKEKU TINY FILE MANAGER"
+        echo "=================================="
+        echo
+        status_server
+        echo
+        echo "----------------------------------"
+        echo " [1] Aktifkan server"
+        echo " [2] Matikan server"
+        echo " [3] Restart server"
+        echo " [4] Periksa status"
+        echo " [5] Lihat log"
+        echo " [6] Buka browser"
+        echo " [0] Keluar"
+        echo "----------------------------------"
+        echo
+
+        read -r -p "Pilih menu: " pilihan
+
+        case "$pilihan" in
+            1) start_server ;;
+            2) stop_server ;;
+            3) stop_server; start_server ;;
+            4) status_server ;;
+            5) show_log ;;
+            6) open_browser ;;
+            0) echo "Keluar."; break ;;
+            *) echo "Pilihan tidak tersedia." ;;
+        esac
+
+        echo
+        read -r -p "Tekan Enter untuk kembali ke menu..."
+    done
+}
+
+if [ "$#" -eq 0 ]; then
+    menu
+else
+    case "$1" in
+        start) start_server ;;
+        stop) stop_server ;;
+        restart) stop_server; start_server ;;
+        status) status_server ;;
+        log) show_log ;;
+        *) echo "Gunakan: tinyfile [start|stop|restart|status|log]" ;;
+    esac
+fi

@@ -1,0 +1,541 @@
+#!/data/data/com.termux/files/usr/bin/python
+
+import os
+import sys
+import re
+import glob
+import time
+import signal
+import socket
+import subprocess
+
+HOME = os.path.expanduser("~")
+DATA = os.path.join(HOME, ".webport")
+ROOT_FILE = os.path.join(DATA, "root")
+
+os.makedirs(DATA, exist_ok=True)
+
+
+# ==========================================
+# KONFIGURASI ROOT
+# ==========================================
+
+def get_root():
+    if os.path.isfile(ROOT_FILE):
+        with open(ROOT_FILE) as f:
+            root = f.read().strip()
+            if root and os.path.isdir(root):
+                return root
+
+    return os.path.join(HOME, "projects")
+
+
+def set_root():
+    current = get_root()
+    print("\nDirektori root saat ini:")
+    print(current)
+
+    new_root = input("\nMasukkan direktori root baru: ").strip()
+    new_root = os.path.expanduser(new_root)
+
+    if not os.path.isdir(new_root):
+        print("Direktori tidak ditemukan.")
+        return
+
+    with open(ROOT_FILE, "w") as f:
+        f.write(os.path.realpath(new_root))
+
+    print("Direktori root berhasil diperbarui.")
+
+
+# ==========================================
+# PEMERIKSAAN SOCKET TCP
+# ==========================================
+
+def get_listeners():
+    listeners = {}
+
+    for table in ("/proc/net/tcp", "/proc/net/tcp6"):
+        try:
+            with open(table) as f:
+                next(f, None)
+
+                for line in f:
+                    p = line.split()
+
+                    if len(p) < 10 or p[3] != "0A":
+                        continue
+
+                    try:
+                        port = int(p[1].split(":")[-1], 16)
+                    except ValueError:
+                        continue
+
+                    if port == 0:
+                        continue
+
+                    listeners.setdefault(port, set()).add(p[9])
+
+        except (OSError, PermissionError):
+            continue
+
+    return listeners
+
+
+def process_info(pid):
+    proc = f"/proc/{pid}"
+
+    try:
+        with open(proc + "/cmdline", "rb") as f:
+            cmd = f.read().replace(b"\0", b" ").decode(
+                errors="replace"
+            ).strip()
+
+        with open(proc + "/comm") as f:
+            name = f.read().strip()
+
+        with open(proc + "/stat") as f:
+            stat = f.read()
+
+        fields = stat[stat.rfind(")") + 2:].split()
+        starttime = fields[19]
+
+        return {
+            "pid": pid,
+            "name": name,
+            "cmd": cmd or name,
+            "starttime": starttime
+        }
+
+    except (OSError, PermissionError, IndexError):
+        return None
+
+
+def get_owners(inodes):
+    owners = {}
+
+    if not inodes:
+        return owners
+
+    for proc in glob.glob("/proc/[0-9]*"):
+        pid = proc.split("/")[-1]
+
+        try:
+            socket_inodes = set()
+
+            for fd in glob.glob(proc + "/fd/*"):
+                try:
+                    target = os.readlink(fd)
+
+                    if target.startswith("socket:["):
+                        socket_inodes.add(target[8:-1])
+
+                except (OSError, PermissionError):
+                    continue
+
+            matched = socket_inodes.intersection(inodes)
+
+            if not matched:
+                continue
+
+            info = process_info(pid)
+
+            if info:
+                info["inodes"] = matched
+                owners[pid] = info
+
+        except (OSError, PermissionError):
+            continue
+
+    return owners
+
+
+
+def owns_socket(pid, inode):
+    try:
+        for fd in glob.glob(f"/proc/{pid}/fd/*"):
+            try:
+                if os.readlink(fd) == f"socket:[{inode}]":
+                    return True
+            except OSError:
+                continue
+    except OSError:
+        pass
+
+    return False
+
+
+# ==========================================
+# DAFTAR PORT AKTIF
+# ==========================================
+
+def show_ports():
+    listeners = get_listeners()
+
+    print("\n" + "=" * 58)
+    print("              DAFTAR PORT TCP AKTIF")
+    print("=" * 58)
+
+    if not listeners:
+        print("Tidak ditemukan port TCP yang LISTEN.")
+        return
+
+    for port in sorted(listeners):
+        owners = get_owners(listeners[port])
+
+        print(f"\nPORT {port}")
+
+        if owners:
+            for pid, info in owners.items():
+                print(f"  PID     : {pid}")
+                print(f"  PROSES  : {info['name']}")
+                print(f"  COMMAND : {info['cmd']}")
+        else:
+            print("  PID tidak dapat diidentifikasi.")
+
+    print("\n" + "=" * 58)
+
+
+# ==========================================
+# HENTIKAN PORT
+# ==========================================
+
+def stop_port():
+    show_ports()
+
+    value = input("\nMasukkan nomor port yang ingin dihentikan: ").strip()
+
+    if not value.isdigit() or not 1 <= int(value) <= 65535:
+        print("Nomor port tidak valid.")
+        return
+
+    port = int(value)
+    listeners = get_listeners()
+    inodes = listeners.get(port, set())
+
+    if not inodes:
+        print(f"Port {port} tidak memiliki listener TCP.")
+        return
+
+    owners = get_owners(inodes)
+
+    if not owners:
+        print("PID pemilik port tidak dapat diidentifikasi.")
+        print("Tidak ada proses yang dihentikan.")
+        return
+
+    print(f"\nPROSES PEMILIK PORT {port}")
+    print("-" * 58)
+
+    for pid, info in owners.items():
+        print(f"PID     : {pid}")
+        print(f"PROSES  : {info['name']}")
+        print(f"COMMAND : {info['cmd']}")
+        print("-" * 58)
+
+    print("PERHATIAN: Semua proses di atas akan menerima SIGTERM.")
+    confirm = input("Yakin ingin menghentikan? (y/n): ").strip().lower()
+
+    if confirm != "y":
+        print("Dibatalkan.")
+        return
+
+    for pid, info in owners.items():
+        current = process_info(pid)
+
+        if not current:
+            print(f"[LEWATI] PID {pid} sudah tidak aktif.")
+            continue
+
+        if current["starttime"] != info["starttime"]:
+            print(f"[LEWATI] PID {pid} sudah berubah.")
+            continue
+
+        if not owns_socket(pid, info["inode"]):
+            print(f"[LEWATI] PID {pid} bukan lagi pemilik socket.")
+            continue
+
+        try:
+            os.kill(int(pid), signal.SIGTERM)
+            print(f"[TERM] PID {pid}: sinyal dikirim.")
+        except ProcessLookupError:
+            print(f"[LEWATI] PID {pid} sudah berhenti.")
+        except PermissionError:
+            print(f"[GAGAL] Tidak memiliki izin untuk PID {pid}.")
+        except OSError as e:
+            print(f"[GAGAL] PID {pid}: {e}")
+
+    time.sleep(2)
+
+    remaining = get_listeners().get(port, set())
+
+    if remaining:
+        print(f"\nPort {port} masih terbuka.")
+        print("Periksa kembali proses yang tersisa.")
+    else:
+        print(f"\nPort {port} berhasil ditutup.")
+
+    cleanup_metadata(port)
+
+
+def cleanup_metadata(port):
+    for suffix in (".pid", ".engine", ".path"):
+        path = os.path.join(DATA, str(port) + suffix)
+
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass
+
+
+# ==========================================
+# PEMILIHAN PROYEK
+# ==========================================
+
+def choose_project():
+    root = get_root()
+
+    print("\nROOT:", root)
+
+    if not os.path.isdir(root):
+        print("Direktori root tidak ditemukan.")
+        return None
+
+    folders = sorted([
+        name for name in os.listdir(root)
+        if os.path.isdir(os.path.join(root, name))
+    ])
+
+    if not folders:
+        print("Belum ada folder proyek.")
+        return None
+
+    for i, name in enumerate(folders, 1):
+        print(f"{i}. {name}")
+
+    choice = input("\nPilih folder proyek (0 batal): ").strip()
+
+    if not choice.isdigit():
+        return None
+
+    number = int(choice)
+
+    if number == 0 or number > len(folders):
+        return None
+
+    return os.path.join(root, folders[number - 1])
+
+
+# ==========================================
+# DETEKSI PHP / HTML
+# ==========================================
+
+def detect_engine(folder):
+    if os.path.isfile(os.path.join(folder, "index.php")):
+        return "php"
+
+    if os.path.isfile(os.path.join(folder, "index.html")):
+        return "html"
+
+    for current, dirs, files in os.walk(folder):
+        dirs[:] = [d for d in dirs if d not in (".git", "node_modules")]
+
+        if any(name.endswith(".php") for name in files):
+            return "php"
+
+        if any(name.endswith(".html") or name.endswith(".htm") for name in files):
+            return "html"
+
+    return "html"
+
+
+# ==========================================
+# KONFIGURASI PORT PROYEK
+# ==========================================
+
+def get_project_port(folder):
+    config = os.path.join(folder, ".webport")
+
+    if os.path.isfile(config):
+        with open(config) as f:
+            for line in f:
+                match = re.match(r"^\s*PORT\s*=\s*(\d+)\s*$", line)
+
+                if match:
+                    port = int(match.group(1))
+
+                    if 1 <= port <= 65535:
+                        return port
+
+        print("Konfigurasi .webport tidak valid.")
+
+    value = input("Masukkan nomor port: ").strip()
+
+    if not value.isdigit() or not 1 <= int(value) <= 65535:
+        print("Nomor port tidak valid.")
+        return None
+
+    port = int(value)
+
+    with open(config, "w") as f:
+        f.write(f"PORT={port}\n")
+
+    return port
+
+
+# ==========================================
+# JALANKAN WEBSITE
+# ==========================================
+
+def start_server():
+    folder = choose_project()
+
+    if not folder:
+        return
+
+    port = get_project_port(folder)
+
+    if not port:
+        return
+
+    listeners = get_listeners()
+
+    if port in listeners:
+        print(f"\nPort {port} sudah digunakan.")
+
+        owners = get_owners(listeners[port])
+
+        for pid, info in owners.items():
+            print(f"PID {pid} | {info['name']} | {info['cmd']}")
+
+        print("\nGunakan menu Kelola Port untuk menghentikannya.")
+        return
+
+    engine = detect_engine(folder)
+
+    if engine == "php":
+        executable = shutil_which("php")
+
+        if not executable:
+            print("PHP belum terpasang.")
+            print("Pasang dengan: pkg install php")
+            return
+
+        command = [
+            executable, "-S", f"0.0.0.0:{port}",
+            "-t", folder
+        ]
+
+    else:
+        executable = shutil_which("python")
+
+        if not executable:
+            executable = shutil_which("python3")
+
+        if not executable:
+            print("Python belum tersedia.")
+            return
+
+        command = [
+            executable, "-u", "-m", "http.server",
+            str(port),
+            "--bind", "0.0.0.0",
+            "--directory", folder
+        ]
+
+    logfile = os.path.join(DATA, f"{port}.log")
+
+    try:
+        with open(logfile, "ab") as log:
+            process = subprocess.Popen(
+                command,
+                stdin=subprocess.DEVNULL,
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+                close_fds=True
+            )
+
+        time.sleep(0.7)
+
+        if process.poll() is not None:
+            print("Server gagal dijalankan.")
+            print("Periksa log:", logfile)
+            return
+
+        with open(os.path.join(DATA, f"{port}.pid"), "w") as f:
+            f.write(str(process.pid))
+
+        with open(os.path.join(DATA, f"{port}.engine"), "w") as f:
+            f.write(engine)
+
+        with open(os.path.join(DATA, f"{port}.path"), "w") as f:
+            f.write(folder)
+
+        print("\nSERVER BERHASIL DIJALANKAN")
+        print("-" * 48)
+        print("Proyek :", os.path.basename(folder))
+        print("Folder :", folder)
+        print("Engine :", engine.upper())
+        print("Port   :", port)
+        print("PID    :", process.pid)
+        print("URL    :", f"http://127.0.0.1:{port}")
+        print("LAN    :", f"http://0.0.0.0:{port}")
+        print("Log    :", logfile)
+
+    except Exception as e:
+        print("Gagal menjalankan server:", e)
+
+
+def shutil_which(command):
+    for path in os.environ.get("PATH", "").split(os.pathsep):
+        candidate = os.path.join(path, command)
+
+        if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            return candidate
+
+    return None
+
+
+# ==========================================
+# MENU UTAMA
+# ==========================================
+
+def main():
+    while True:
+        os.system("clear")
+
+        print("=" * 58)
+        print("                    D E K E K U")
+        print("                 WEBPORT MANAGER")
+        print("=" * 58)
+        print("Root:", get_root())
+        print()
+        print("1. Jalankan Website")
+        print("2. Lihat Port Aktif")
+        print("3. Hentikan Port")
+        print("4. Ubah Direktori Root")
+        print("0. Keluar")
+        print("=" * 58)
+
+        choice = input("Pilih menu: ").strip()
+
+        if choice == "1":
+            start_server()
+        elif choice == "2":
+            show_ports()
+        elif choice == "3":
+            stop_port()
+        elif choice == "4":
+            set_root()
+        elif choice == "0":
+            print("Program selesai.")
+            break
+        else:
+            print("Pilihan tidak valid.")
+
+        input("\nTekan Enter untuk kembali ke menu...")
+
+
+if __name__ == "__main__":
+    main()

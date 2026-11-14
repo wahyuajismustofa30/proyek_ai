@@ -1,0 +1,145 @@
+
+#!/data/data/com.termux/files/usr/bin/bash
+
+# ==========================================
+# STB SSH CONNECTOR - Termux
+# Cloudflare Access TCP -> Armbian HG680P
+# ==========================================
+
+HOST="ssh.dekeku.my.id"
+LOCAL_HOST="127.0.0.1"
+LOCAL_PORT="2222"
+
+TUNNEL_PID=""
+
+cleanup() {
+    if [[ -n "$TUNNEL_PID" ]] && kill -0 "$TUNNEL_PID" 2>/dev/null; then
+        echo
+        echo "[INFO] Menghentikan Cloudflare Tunnel..."
+        kill "$TUNNEL_PID" 2>/dev/null
+        wait "$TUNNEL_PID" 2>/dev/null
+        echo "[OK] Tunnel dihentikan."
+    fi
+}
+
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+clear
+
+echo "======================================"
+echo "       STB ARMBIAN SSH CONNECTOR"
+echo "======================================"
+echo
+echo "Server       : $HOST"
+echo "Local tunnel : $LOCAL_HOST:$LOCAL_PORT"
+echo
+
+# Periksa program yang dibutuhkan
+for cmd in cloudflared ssh; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo "[ERROR] Program $cmd belum terpasang."
+        exit 1
+    fi
+done
+
+# Pilihan akun
+echo "Pilih akun SSH:"
+echo
+echo "1. wam  (pengguna biasa)"
+echo "2. root (administrator)"
+echo "0. Keluar"
+echo
+
+read -r -p "Pilihan [1-2]: " choice
+
+case "$choice" in
+    1) USERNAME="wam" ;;
+    2) USERNAME="root" ;;
+    0) echo "Dibatalkan."; exit 0 ;;
+    *) echo "[ERROR] Pilihan tidak valid."; exit 1 ;;
+esac
+
+echo
+echo "Akun tujuan : $USERNAME"
+echo "Server      : $HOST"
+echo "Port SSH    : $LOCAL_PORT"
+echo
+
+# Periksa apakah port lokal sudah digunakan
+if (echo > /dev/tcp/$LOCAL_HOST/$LOCAL_PORT) 2>/dev/null; then
+    echo "[ERROR] Port lokal $LOCAL_PORT sudah digunakan."
+    echo "Periksa apakah ada tunnel lain yang berjalan."
+    exit 1
+fi
+
+# Jalankan Cloudflare Tunnel
+echo "[INFO] Membuka Cloudflare Access Tunnel..."
+
+cloudflared access tcp \
+    --hostname "$HOST" \
+    --url "$LOCAL_HOST:$LOCAL_PORT" &
+
+TUNNEL_PID=$!
+
+# Tunggu sampai tunnel siap
+READY=0
+
+for i in {1..20}; do
+    if ! kill -0 "$TUNNEL_PID" 2>/dev/null; then
+        echo "[ERROR] Proses Cloudflare Tunnel berhenti."
+        exit 1
+    fi
+
+    if (echo > /dev/tcp/$LOCAL_HOST/$LOCAL_PORT) 2>/dev/null; then
+        READY=1
+        break
+    fi
+
+    sleep 0.5
+done
+
+if [[ "$READY" -ne 1 ]]; then
+    echo "[ERROR] Tunnel tidak siap setelah 10 detik."
+    echo "Periksa koneksi internet dan Cloudflare Access."
+    exit 1
+fi
+
+echo "[OK] Cloudflare Tunnel siap."
+echo
+echo "======================================"
+echo "          INFORMASI KONEKSI"
+echo "======================================"
+echo "Server  : $HOST"
+echo "User    : $USERNAME"
+echo "Tujuan  : $USERNAME@$LOCAL_HOST"
+echo "Port    : $LOCAL_PORT"
+echo "======================================"
+echo
+echo "[INFO] Menghubungkan SSH..."
+echo "[INFO] Tekan exit untuk mengakhiri sesi."
+echo
+
+ssh \
+    -o ConnectTimeout=10 \
+    -o ServerAliveInterval=30 \
+    -o ServerAliveCountMax=3 \
+    -p "$LOCAL_PORT" \
+    "$USERNAME@$LOCAL_HOST"
+
+SSH_STATUS=$?
+
+echo
+
+if [[ "$SSH_STATUS" -eq 0 ]]; then
+    echo "[OK] Sesi SSH selesai dengan normal."
+else
+    echo "[ERROR] Koneksi SSH gagal atau terputus."
+    echo "Kode keluar SSH: $SSH_STATUS"
+    if [[ "$USERNAME" == "root" ]]; then
+        echo "Catatan: pastikan login root melalui SSH diizinkan server."
+    fi
+fi
+
+exit "$SSH_STATUS"

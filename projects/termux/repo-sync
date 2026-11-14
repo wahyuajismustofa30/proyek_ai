@@ -1,0 +1,226 @@
+#!/usr/bin/env python3
+"""Repo Sync - one-way mirror using rsync; source folders are read-only."""
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+
+CONFIG = Path.home() / ".config" / "repo-sync" / "config.json"
+LOG_DIR = Path.home() / ".local" / "share" / "repo-sync" / "logs"
+
+
+def pause():
+    input("\nTekan Enter untuk kembali ke menu...")
+
+
+def load_config():
+    if not CONFIG.is_file():
+        raise RuntimeError(f"File konfigurasi tidak ditemukan: {CONFIG}")
+    with CONFIG.open("r", encoding="utf-8") as f:
+        cfg = json.load(f)
+    if cfg.get("version") != 1:
+        raise RuntimeError("Versi konfigurasi tidak didukung (harus version: 1).")
+    if cfg.get("mode") != "mirror":
+        raise RuntimeError("Mode yang didukung saat ini hanya 'mirror'.")
+    if not isinstance(cfg.get("pairs"), list):
+        raise RuntimeError("Konfigurasi 'pairs' harus berupa array.")
+    if not shutil.which("rsync"):
+        raise RuntimeError("rsync belum terpasang. Jalankan: pkg install rsync")
+    return cfg
+
+
+def resolve_pair(item):
+    pair_id = item.get("id", "")
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", pair_id):
+        raise RuntimeError(f"ID pasangan tidak valid: {pair_id!r}")
+    if not isinstance(item.get("source"), str) or not isinstance(item.get("target"), str):
+        raise RuntimeError(f"Source/target pasangan {pair_id} harus berupa teks.")
+
+    raw_source = Path(os.path.expandvars(os.path.expanduser(item["source"])))
+    raw_target = Path(os.path.expandvars(os.path.expanduser(item["target"])))
+    if raw_source.is_symlink():
+        raise RuntimeError(f"Source tidak boleh berupa symbolic link: {raw_source}")
+    if raw_target.is_symlink():
+        raise RuntimeError(f"Target tidak boleh berupa symbolic link: {raw_target}")
+
+    source = raw_source.resolve()
+    target = raw_target.resolve()
+
+    if not source.is_dir():
+        raise RuntimeError(f"Folder source tidak ditemukan: {source}")
+    if target.exists() and not target.is_dir():
+        raise RuntimeError(f"Target sudah ada tetapi bukan folder: {target}")
+    if not target.parent.is_dir():
+        raise RuntimeError(f"Folder induk target belum ada: {target.parent}")
+    if source == target or source in target.parents or target in source.parents:
+        raise RuntimeError("Source dan target saling bertumpang tindih. Operasi dibatalkan.")
+
+    return {
+        "id": pair_id,
+        "name": item.get("name", pair_id),
+        "enabled": item.get("enabled", True) is True,
+        "source": source,
+        "target": target,
+    }
+
+
+def get_pairs(cfg):
+    pairs = [resolve_pair(p) for p in cfg["pairs"]]
+    enabled = [p for p in pairs if p["enabled"]]
+
+    # Prevent two configured targets from overwriting one another.
+    for i, a in enumerate(enabled):
+        for b in enabled[i + 1:]:
+            if (a["target"] == b["target"] or
+                a["target"] in b["target"].parents or
+                b["target"] in a["target"].parents):
+                raise RuntimeError(f"Target pasangan {a['id']} dan {b['id']} bertumpang tindih.")
+            for src_pair in (a, b):
+                for dst_pair in (a, b):
+                    if src_pair is not dst_pair:
+                        s, t = src_pair["source"], dst_pair["target"]
+                        if s == t or s in t.parents or t in s.parents:
+                            raise RuntimeError("Target satu pasangan bertumpang tindih dengan source pasangan lain.")
+    return pairs
+
+
+def log_result(pair, mode, command, output, code):
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    log_file = LOG_DIR / f"{pair['id']}.log"
+    with log_file.open("a", encoding="utf-8") as f:
+        f.write(f"\n[{datetime.now().astimezone().isoformat()}] {mode} exit={code}\n")
+        f.write("COMMAND: " + " ".join(command) + "\n")
+        f.write(output)
+        if not output.endswith("\n"):
+            f.write("\n")
+
+
+def run_rsync(pair, dry_run):
+    command = [
+        "rsync", "-a", "--delete-delay",
+        "--exclude=/.git/",
+        "--itemize-changes", "--human-readable", "--stats",
+    ]
+    if dry_run:
+        command.insert(2, "--dry-run")
+    command.extend([str(pair["source"]) + "/", str(pair["target"]) + "/"])
+
+    print(f"\n{'SIMULASI' if dry_run else 'SINKRONISASI'}: {pair['name']}")
+    print(f"Source : {pair['source']}")
+    print(f"Target : {pair['target']}")
+    print("Perhatian: source hanya dibaca; perubahan/penghapusan mirror berlaku di target.")
+    result = subprocess.run(
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        text=True, errors="replace"
+    )
+    output = result.stdout or "(Tidak ada keluaran.)\n"
+    print(output, end="" if output.endswith("\n") else "\n")
+    log_result(pair, "DRY-RUN" if dry_run else "MIRROR", command, output, result.returncode)
+    return result.returncode == 0
+
+
+def choose_pair(pairs):
+    enabled = [p for p in pairs if p["enabled"]]
+    if not enabled:
+        print("Tidak ada pasangan sinkronisasi yang aktif.")
+        return None
+    print("\nPasangan aktif:")
+    for i, p in enumerate(enabled, 1):
+        print(f"  {i}. {p['name']} [{p['id']}]")
+    answer = input("Pilih nomor (Enter untuk batal): ").strip()
+    if not answer:
+        return None
+    if not answer.isdigit() or not 1 <= int(answer) <= len(enabled):
+        print("Pilihan tidak valid.")
+        return None
+    return enabled[int(answer) - 1]
+
+
+def mirror_one(pair, require_confirmation):
+    if not run_rsync(pair, dry_run=True):
+        print("Simulasi gagal. Sinkronisasi nyata tidak dijalankan.")
+        return
+    if require_confirmation:
+        print("\nMirror dapat MENGHAPUS file di TARGET yang tidak ada di SOURCE.")
+        expected = f"SYNC {pair['id']}"
+        answer = input(f"Ketik tepat '{expected}' untuk melanjutkan: ").strip()
+        if answer != expected:
+            print("Dibatalkan. Tidak ada perubahan pada target.")
+            return
+    if run_rsync(pair, dry_run=False):
+        print("\nSinkronisasi selesai.")
+    else:
+        print("\nSinkronisasi mengalami kesalahan. Periksa log.")
+
+
+def show_pairs(pairs):
+    if not pairs:
+        print("Belum ada pasangan.")
+    for p in pairs:
+        print(f"\n{p['name']} [{p['id']}] - {'AKTIF' if p['enabled'] else 'NONAKTIF'}")
+        print(f"  SOURCE: {p['source']}")
+        print(f"  TARGET: {p['target']}")
+
+
+def main():
+    while True:
+        print("\n====================================")
+        print("          REPO SYNC MANAGER")
+        print("====================================")
+        print("1. Lihat pasangan sinkronisasi")
+        print("2. Simulasi satu pasangan")
+        print("3. Sinkronisasi satu pasangan")
+        print("4. Simulasi semua pasangan aktif")
+        print("5. Sinkronisasi semua pasangan aktif")
+        print("6. Lihat konfigurasi JSON")
+        print("0. Keluar")
+        choice = input("\nPilih menu: ").strip()
+
+        try:
+            cfg = load_config()
+            pairs = get_pairs(cfg)
+            if choice == "1":
+                show_pairs(pairs)
+                pause()
+            elif choice in ("2", "3"):
+                pair = choose_pair(pairs)
+                if pair:
+                    if choice == "2":
+                        run_rsync(pair, dry_run=True)
+                    else:
+                        mirror_one(pair, cfg.get("require_confirmation", True))
+                pause()
+            elif choice in ("4", "5"):
+                active = [p for p in pairs if p["enabled"]]
+                if not active:
+                    print("Tidak ada pasangan aktif.")
+                else:
+                    for pair in active:
+                        if choice == "4":
+                            run_rsync(pair, dry_run=True)
+                        else:
+                            mirror_one(pair, cfg.get("require_confirmation", True))
+                pause()
+            elif choice == "6":
+                print(json.dumps(cfg, indent=2, ensure_ascii=False))
+                pause()
+            elif choice == "0":
+                print("Sampai jumpa.")
+                return
+            else:
+                print("Pilihan tidak dikenal.")
+                pause()
+        except (OSError, ValueError, RuntimeError, json.JSONDecodeError) as exc:
+            print(f"\nERROR: {exc}")
+            pause()
+        except KeyboardInterrupt:
+            print("\nDibatalkan.")
+            pause()
+
+
+if __name__ == "__main__":
+    main()

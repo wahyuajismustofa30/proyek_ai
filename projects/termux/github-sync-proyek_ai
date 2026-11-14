@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+REPO="$HOME/git-repos/proyek_ai"
+SCRIPT="$REPO/scripts/github-sync-termux.sh"
+
+if [[ ! -d "$REPO/.git" ]]; then
+    echo "[GAGAL] Repository proyek_ai tidak ditemukan."
+    exit 1
+fi
+
+if [[ ! -f "$SCRIPT" ]]; then
+    echo "[GAGAL] Script resmi GitHub Sync tidak ditemukan."
+    exit 1
+fi
+
+CURRENT="$(git -C "$REPO" rev-parse --show-toplevel)"
+if [[ "$CURRENT" != "$REPO" ]]; then
+    echo "[GAGAL] Lokasi repository tidak sesuai."
+    exit 1
+fi
+
+cd "$REPO"
+exec bash "$SCRIPT" "$@"

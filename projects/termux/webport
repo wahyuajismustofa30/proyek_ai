@@ -133,22 +133,31 @@ def parse_port_value(value):
 
 
 def get_project_port(folder):
-    # PORT is the preferred per-project setting. .webport remains supported
-    # for projects created by earlier Webport versions.
+    # Legacy project files are read-only compatibility inputs. Webport never
+    # creates or modifies either file.
     for filename in ("PORT", ".webport"):
         config = os.path.join(folder, filename)
         if not os.path.isfile(config):
             continue
         try:
             with open(config, encoding="utf-8") as stream:
-                for line in stream:
-                    if not line.strip() or line.lstrip().startswith("#"):
-                        continue
-                    port = parse_port_value(line)
-                    if port:
-                        return port
-            print(f"Konfigurasi {filename} tidak valid.")
-            return None
+                configured_port = next(
+                    (
+                        parse_port_value(line)
+                        for line in stream
+                        if line.strip() and not line.lstrip().startswith("#")
+                    ),
+                    None,
+                )
+            if configured_port:
+                answer = input(
+                    f"Ditemukan port {configured_port} di {filename}. "
+                    "Gunakan port tersebut? (y/n): "
+                ).strip().lower()
+                if answer == "y":
+                    return configured_port
+            else:
+                print(f"Konfigurasi {filename} tidak valid; abaikan dan pilih port secara manual.")
         except OSError as error:
             print(f"Tidak dapat membaca {filename}: {error}")
             return None
@@ -158,8 +167,7 @@ def get_project_port(folder):
     if not port:
         print("Nomor port tidak valid.")
         return None
-    # Keep project folders untouched: the selected port is stored in
-    # Webport's own saved-project registry when the user opts in.
+    # The selected port remains in memory unless the user saves the project.
     return port
 
 
@@ -414,17 +422,19 @@ def worker_main(token, path):
 
 
 def load_saved_projects():
+    # Reading/listing must never create or repair the registry as a side effect.
     if not os.path.exists(PROJECTS_FILE):
-        initial = {"schema": 1, "projects": []}
-        try:
-            save_saved_projects(initial)
-            return initial, None
-        except (OSError, ValueError) as error:
-            return None, str(error)
+        return {"schema": 1, "projects": []}, None
     try:
         with open(PROJECTS_FILE, encoding="utf-8") as stream:
             data = json.load(stream)
-        if not isinstance(data, dict) or data.get("schema") != 1 or not isinstance(data.get("projects"), list):
+        if (
+            not isinstance(data, dict)
+            or not isinstance(data.get("schema"), int)
+            or isinstance(data.get("schema"), bool)
+            or data.get("schema") != 1
+            or not isinstance(data.get("projects"), list)
+        ):
             raise ValueError("struktur atau versi skema tidak didukung")
         seen_ids, seen_paths, seen_ports = set(), set(), set()
         for item in data["projects"]:
@@ -441,8 +451,10 @@ def load_saved_projects():
                 raise ValueError("path proyek tidak valid")
             if not isinstance(item["port"], int) or isinstance(item["port"], bool) or not (1 <= item["port"] <= 65535):
                 raise ValueError("port proyek tidak valid")
-            if item["engine"] not in ("php", "html"):
+            if not isinstance(item["engine"], str) or item["engine"] not in ("php", "html"):
                 raise ValueError("jenis server tidak valid")
+            if not isinstance(item["created_at"], str) or not item["created_at"].strip():
+                raise ValueError("waktu pembuatan proyek tidak valid")
             normalized = os.path.realpath(item["path"])
             if item["id"] in seen_ids or normalized in seen_paths or item["port"] in seen_ports:
                 raise ValueError("terdapat ID, path, atau port duplikat")
@@ -545,6 +557,38 @@ def list_saved_projects(data=None):
         print(f"   Server: {saved_server_status(item)}")
         print(f"   Path: {item['path']}")
     return data["projects"]
+
+
+def view_saved_projects():
+    """Read-only view: does not create, modify, start, stop, or delete anything."""
+    print("\n" + "=" * 58)
+    print("                 PROGRAM TERSIMPAN")
+    print("=" * 58)
+    data, error = load_saved_projects()
+    if error:
+        print(f"Konfigurasi proyek tidak dapat dibaca: {error}")
+        print("File asli dipertahankan. Tidak ada perubahan yang dilakukan.")
+        print("=" * 58)
+        return
+    projects = data["projects"]
+    if not projects:
+        print("Belum ada program/proyek yang tersimpan.")
+        print("Simpan proyek melalui menu Jalankan Website Baru atau Kelola Proyek.")
+        print("=" * 58)
+        print("Total program tersimpan: 0")
+        return
+    for index, item in enumerate(projects, 1):
+        folder_status = "TERSEDIA" if os.path.isdir(item["path"]) else "TIDAK DITEMUKAN"
+        server_status = saved_server_status(item)
+        print(f"\n{index}. {item['name']}")
+        print(f"   Port   : {item['port']}")
+        print(f"   Engine : {item['engine'].upper()}")
+        print(f"   Folder : {folder_status}")
+        print(f"   Server : {server_status}")
+        print(f"   Path   : {item['path']}")
+    print("\n" + "=" * 58)
+    print(f"Total program tersimpan: {len(projects)}")
+    print("=" * 58)
 
 
 def choose_saved_project():
@@ -928,11 +972,12 @@ def main():
         print()
         print("1. Jalankan Website Baru")
         print("2. Jalankan Proyek Tersimpan")
-        print("3. Kelola Proyek Tersimpan")
-        print("4. Lihat Server Webport")
-        print("5. Hentikan Server Webport")
-        print("6. Ubah Direktori Root")
-        print("7. Keluar")
+        print("3. Lihat Program Tersimpan")
+        print("4. Kelola Proyek Tersimpan")
+        print("5. Lihat Server Webport")
+        print("6. Hentikan Server Webport")
+        print("7. Ubah Direktori Root")
+        print("8. Keluar")
         print("0. Keluar")
         print("=" * 58)
         try:
@@ -945,14 +990,16 @@ def main():
         elif choice == "2":
             choose_saved_project()
         elif choice == "3":
-            manage_saved_projects()
+            view_saved_projects()
         elif choice == "4":
-            show_ports()
+            manage_saved_projects()
         elif choice == "5":
-            stop_port()
+            show_ports()
         elif choice == "6":
+            stop_port()
+        elif choice == "7":
             set_root()
-        elif choice in ("0", "7"):
+        elif choice in ("0", "8"):
             print("Program selesai.")
             break
         else:

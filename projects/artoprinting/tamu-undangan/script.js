@@ -13,7 +13,7 @@
   'use strict';
 
   var MODE = {
-    link: { pemisahNama: '_', salin: 'link' },
+    link: { pemisahNama: '+', salin: 'link' },
     pesan: { pemisahNama: '+', salin: 'pesan' },
   };
 
@@ -42,11 +42,30 @@
    *  - mode pesan: "Bapak Rudi" -> "Bapak+Rudi"  (tanda + = spasi pada URL)
    * Karakter khusus (&, ?, #, dll.) tetap di-encode supaya link tidak terpotong.
    */
-  function kodeNama(nama, mode) {
-    if (mode.pemisahNama === '+') {
-      return encodeURIComponent(nama.replace(/\s+/g, ' ')).replace(/%20/g, '+');
-    }
-    return encodeURIComponent(nama.replace(/\s+/g, mode.pemisahNama));
+  function kodeNama(nama) {
+    // Dalam query string, tanda "+" dibaca sebagai spasi oleh URLSearchParams.
+    return encodeURIComponent(nama.replace(/\s+/g, ' ')).replace(/%20/g, '+');
+  }
+
+  function templateAwal(jenis) {
+    var pembuka = 'Assalamu’alaikum Warahmatullahi Wabarakatuh.\\n\\n';
+    var isi = jenis === 'pernikahan'
+      ? 'Dengan memohon rahmat dan ridho Allah SWT, kami mengundang {{nama}} untuk menghadiri acara pernikahan kami.\\n\\n'
+      : 'Dengan memohon rahmat dan ridho Allah SWT, kami mengundang {{nama}} untuk hadir dalam acara tasyakuran khitan anak kami.\\n\\n';
+    var penutup = jenis === 'pernikahan'
+      ? 'Merupakan kehormatan dan kebahagiaan bagi kami apabila berkenan hadir dan memberikan doa restu.\\n\\n'
+      : 'Kehadiran dan doa restu akan menjadi kebahagiaan tersendiri bagi kami.\\n\\n';
+    return pembuka + isi + 'Link Undangan:\\n{{link}}\\n\\n' + penutup +
+      'Wassalamu’alaikum Warahmatullahi Wabarakatuh.\\n\\nHormat kami,\\n{{pengundang}}';
+  }
+
+  function buatPesan(data) {
+    var editor = document.getElementById('template-pesan');
+    var template = editor && editor.value.trim() ? editor.value : templateAwal(document.getElementById('jenis').value);
+    return template
+      .split('{{nama}}').join(data.nama)
+      .split('{{link}}').join(data.link)
+      .split('{{pengundang}}').join(data.pengundang);
   }
 
   function tampilkanPesan(pesan, jenis, durasi) {
@@ -89,9 +108,8 @@
     var tbody = el('tbody');
 
     namaArray.forEach(function (nama) {
-      var linkUndangan = link + '?to=' + kodeNama(nama, mode);
-      var template = TEMPLATE_PESAN[jenis] || TEMPLATE_PESAN.khitan;
-      var pesan = template({ nama: nama, link: linkUndangan, pengundang: pengundang });
+      var linkUndangan = link + '?to=' + kodeNama(nama);
+      var pesan = buatPesan({ nama: nama, link: linkUndangan, pengundang: pengundang });
 
       var tr = el('tr', 'border-t');
       tr.appendChild(el('td', 'px-4 py-2', nama));
@@ -172,6 +190,27 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     var tombol = document.getElementById('buat-link');
+    var editor = document.getElementById('template-pesan');
+    var resetTemplate = document.getElementById('reset-template');
+    var jenis = document.getElementById('jenis');
+    var templateDiubah = false;
+
+    if (editor) {
+      editor.value = templateAwal(jenis ? jenis.value : 'khitan');
+      editor.addEventListener('input', function () { templateDiubah = true; });
+    }
+    if (jenis) {
+      jenis.addEventListener('change', function () {
+        if (editor && !templateDiubah) editor.value = templateAwal(jenis.value);
+      });
+    }
+    if (resetTemplate && editor) {
+      resetTemplate.addEventListener('click', function () {
+        editor.value = templateAwal(jenis ? jenis.value : 'khitan');
+        templateDiubah = false;
+        editor.focus();
+      });
+    }
     if (tombol) tombol.addEventListener('click', function () { buatTabel(modeHalaman()); });
     muatDariURL();
   });

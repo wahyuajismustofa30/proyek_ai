@@ -16,7 +16,7 @@ security_check_repo() {
 
     if ! git -C "$repo" diff --cached --quiet; then
         echo "[BLOCK] Staged changes already exist; index preserved."
-        printf "       Repository: %s\\n" "$repo"
+        printf "       Repository: %s\n" "$repo"
         return 1
     fi
 
@@ -31,8 +31,8 @@ security_check_repo() {
         base="${base,,}"
 
         # Match known credential filenames, not arbitrary words such as "token".
-        if [[ "$base" =~ ^(\\.env($|\\.)|credentials?([._-].*)?|secrets?([._-].*)?|passwords?([._-].*)?|api[-_.]?key([._-].*)?|access[-_.]?token([._-].*)?|refresh[-_.]?token([._-].*)?|auth[-_.]?(token|credentials?)([._-].*)?|cookie[-_.]?(jar|data)([._-].*)?|session[-_.]?(token|cookie|data)([._-].*)?|tokens?(\\.(txt|json|ya?ml|env|conf|config))?|id_(rsa|dsa|ecdsa|ed25519)(.*)|.*\\.(pem|key|p12|pfx|keystore|jks|kdbx|ovpn)$|\\.netrc$|\\.npmrc$|\\.pypirc$|terraform\\.tfstate(\\..*)?)$ ]]; then
-            printf '[BLOCK] Suspected sensitive path: %s\\n' "$path"
+        if [[ "$base" =~ ^(\.env($|\.)|credentials?([._-].*)?|secrets?([._-].*)?|passwords?([._-].*)?|api[-_.]?key([._-].*)?|access[-_.]?token([._-].*)?|refresh[-_.]?token([._-].*)?|auth[-_.]?(token|credentials?)([._-].*)?|cookie[-_.]?(jar|data)([._-].*)?|session[-_.]?(token|cookie|data)([._-].*)?|tokens?(\.(txt|json|ya?ml|env|conf|config))?|id_(rsa|dsa|ecdsa|ed25519)(.*)|.*\.(pem|key|p12|pfx|keystore|jks|kdbx|ovpn)$|\.netrc$|\.npmrc$|\.pypirc$|terraform\.tfstate(\..*)?)$ ]]; then
+            printf '[BLOCK] Suspected sensitive path: %s\n' "$path"
             echo "       Contents are not displayed; repository operation stopped."
             return 1
         fi
@@ -40,13 +40,13 @@ security_check_repo() {
         # Skip symlinks to avoid following paths outside the repository.
         if [[ -f "$repo/$path" && ! -L "$repo/$path" ]]; then
             if grep -a -E -q -- "$secret_pattern" "$repo/$path" 2>/dev/null; then
-                printf '[BLOCK] Secret/private-key pattern detected: %s\\n' "$path"
+                printf '[BLOCK] Secret/private-key pattern detected: %s\n' "$path"
                 echo "       Contents are not displayed; repository operation stopped."
                 return 1
             else
                 grep_status=$?
                 if (( grep_status > 1 )); then
-                    printf '[BLOCK] Unable to inspect file safely: %s\\n' "$path"
+                    printf '[BLOCK] Unable to inspect file safely: %s\n' "$path"
                     echo "       Contents are not displayed; repository operation stopped."
                     return 1
                 fi
@@ -124,7 +124,7 @@ base=${#REPOS[@]}
 if [[ ${#UNINIT[@]} -gt 0 ]]; then
     echo "Folder belum diinisialisasi Git:"
     for i in "${!UNINIT[@]}"; do
-        printf " [%d] INIT  %s\\n" "$((base + i + 1))" "${UNINIT[$i]#"$ROOT"/}"
+        printf " [%d] INIT  %s\n" "$((base + i + 1))" "${UNINIT[$i]#"$ROOT"/}"
     done
     echo
 fi

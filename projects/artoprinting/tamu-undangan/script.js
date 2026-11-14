@@ -1,8 +1,7 @@
 // tamu-undangan/script.js — membuat link undangan per tamu + pesan WhatsApp.
 //
 // Dipakai oleh dua halaman dengan "mode" berbeda (ditulis di atribut data-mode pada tombol):
-//   index.html     -> mode "link"  : tombol Salin menyalin LINK undangan
-//   generator.html -> mode "pesan" : tombol Salin menyalin seluruh PESAN
+//   Kedua halaman: tombol Salin menyalin seluruh PESAN undangan personal.
 // Nama tamu pada kedua mode memakai tanda "+" sebagai pengganti spasi di URL.
 //
 // Bergantung pada showAlert() dari berbagi-koding/js/utils@v1.js (dimuat lebih dulu di <head>).
@@ -106,7 +105,11 @@
     toolbar.appendChild(hapusSemua);
     hasil.appendChild(toolbar);
 
-    var table = el('table', 'invite-guest-table');
+    var tableWrap = el('div', 'ui-table-wrap');
+    tableWrap.tabIndex = 0;
+    tableWrap.setAttribute('role', 'region');
+    tableWrap.setAttribute('aria-label', 'Daftar tamu dan aksi, geser horizontal jika diperlukan');
+    var table = el('table', 'ui-table invite-guest-table');
     var thead = el('thead');
     var trHead = el('tr');
     ['Nama tamu', 'Aksi'].forEach(function (h) {
@@ -136,25 +139,24 @@
       var tr = el('tr', 'invite-guest-row');
       tr.setAttribute('data-guest-name', nama);
 
-      var tdNama = el('td', 'invite-guest-name', nama);
-      tdNama.setAttribute('data-label', 'Nama tamu');
+      var tdNama = el('th', 'invite-guest-name', nama);
+      tdNama.scope = 'row';
       tr.appendChild(tdNama);
 
       var tdAksi = el('td', 'invite-guest-actions');
-      tdAksi.setAttribute('data-label', 'Aksi');
-
+      
       var btnSalin = el('button', 'invite-action invite-copy', 'Salin');
       btnSalin.type = 'button';
       btnSalin.addEventListener('click', function () {
-        var teks = mode.salin === 'pesan' ? pesan : linkUndangan;
+        var teks = pesan;
         var gagal = function () { window.prompt('Salin secara manual:', teks); };
         if (!navigator.clipboard || !window.isSecureContext) return gagal();
         navigator.clipboard.writeText(teks).then(function () {
-          tampilkanPesan((mode.salin === 'pesan' ? 'Pesan untuk ' : 'Link untuk ') + nama + ' berhasil disalin', 'success', '3000');
+          tampilkanPesan('Pesan undangan untuk ' + nama + ' berhasil disalin', 'success', '3000');
         }, gagal);
       });
 
-      var a = el('a', 'invite-action invite-whatsapp', 'WhatsApp');
+      var a = el('a', 'invite-action invite-whatsapp', 'Kirim via WhatsApp');
       a.href = 'https://wa.me/?text=' + encodeURIComponent(pesan);
       a.target = '_blank';
       a.rel = 'noopener';
@@ -179,7 +181,8 @@
     table.appendChild(caption);
     table.appendChild(thead);
     table.appendChild(tbody);
-    hasil.appendChild(table);
+    tableWrap.appendChild(table);
+    hasil.appendChild(tableWrap);
     simpanDaftar(namaArray);
   }
 

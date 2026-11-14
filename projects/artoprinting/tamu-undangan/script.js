@@ -12,11 +12,6 @@
 (function () {
   'use strict';
 
-  var MODE = {
-    link: { salin: 'link' },
-    pesan: { salin: 'pesan' },
-  };
-
   /**
    * Nama tamu untuk parameter ?to=
    *  - kedua mode : "Bapak Rudi" -> "Bapak+Rudi" (tanda + = spasi pada URL)
@@ -75,7 +70,6 @@
   }
 
   function buatTabel(modeNama) {
-    var mode = MODE[modeNama] || MODE.link;
     var jenis = document.getElementById('jenis').value;
     var namaInput = nilai('nama');
     var pengundang = nilai('pengundang');

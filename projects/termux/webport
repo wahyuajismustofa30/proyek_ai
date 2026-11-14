@@ -1,510 +1,619 @@
 #!/data/data/com.termux/files/usr/bin/python
 
+import json
 import os
-import sys
-import re
-import glob
-import time
+import secrets
 import signal
 import socket
 import subprocess
+import sys
+import tempfile
+import time
+from datetime import datetime, timezone
 
 HOME = os.path.expanduser("~")
 DATA = os.path.join(HOME, ".webport")
 ROOT_FILE = os.path.join(DATA, "root")
+SERVERS_DIR = os.path.join(DATA, "servers")
+SCRIPT_PATH = os.path.realpath(__file__)
+STOP_TIMEOUT = 8
+WORKER_READY_TIMEOUT = 5
 
-os.makedirs(DATA, exist_ok=True)
+
+def ensure_runtime_dir(path):
+    os.makedirs(path, mode=0o700, exist_ok=True)
 
 
-# ==========================================
-# KONFIGURASI ROOT
-# ==========================================
+def atomic_write(path, content, mode=0o600):
+    directory = os.path.dirname(path)
+    ensure_runtime_dir(directory)
+    fd, temporary = tempfile.mkstemp(prefix=".webport-", dir=directory)
+    try:
+        if mode is not None:
+            os.fchmod(fd, mode)
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            stream.write(content)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    except Exception:
+        try:
+            os.unlink(temporary)
+        except OSError:
+            pass
+        raise
+
+
+def atomic_write_json(path, data):
+    atomic_write(path, json.dumps(data, ensure_ascii=False, indent=2) + "\n")
+
+
+def now_iso():
+    return datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
+
 
 def get_root():
     if os.path.isfile(ROOT_FILE):
-        with open(ROOT_FILE) as f:
-            root = f.read().strip()
+        try:
+            with open(ROOT_FILE, encoding="utf-8") as stream:
+                root = stream.read().strip()
             if root and os.path.isdir(root):
                 return root
-
+        except OSError:
+            pass
     return os.path.join(HOME, "projects")
 
 
 def set_root():
     current = get_root()
-    print("\nDirektori root saat ini:")
-    print(current)
-
-    new_root = input("\nMasukkan direktori root baru: ").strip()
-    new_root = os.path.expanduser(new_root)
-
+    print("\nDirektori root saat ini:\n" + current)
+    new_root = os.path.abspath(os.path.expanduser(input("\nMasukkan direktori root baru: ").strip()))
     if not os.path.isdir(new_root):
         print("Direktori tidak ditemukan.")
         return
-
-    with open(ROOT_FILE, "w") as f:
-        f.write(os.path.realpath(new_root))
-
-    print("Direktori root berhasil diperbarui.")
-
-
-# ==========================================
-# PEMERIKSAAN SOCKET TCP
-# ==========================================
-
-def get_listeners():
-    listeners = {}
-
-    for table in ("/proc/net/tcp", "/proc/net/tcp6"):
-        try:
-            with open(table) as f:
-                next(f, None)
-
-                for line in f:
-                    p = line.split()
-
-                    if len(p) < 10 or p[3] != "0A":
-                        continue
-
-                    try:
-                        port = int(p[1].split(":")[-1], 16)
-                    except ValueError:
-                        continue
-
-                    if port == 0:
-                        continue
-
-                    listeners.setdefault(port, set()).add(p[9])
-
-        except (OSError, PermissionError):
-            continue
-
-    return listeners
-
-
-def process_info(pid):
-    proc = f"/proc/{pid}"
-
     try:
-        with open(proc + "/cmdline", "rb") as f:
-            cmd = f.read().replace(b"\0", b" ").decode(
-                errors="replace"
-            ).strip()
+        atomic_write(ROOT_FILE, os.path.realpath(new_root) + "\n")
+        print("Direktori root berhasil diperbarui.")
+    except OSError as error:
+        print(f"Gagal menyimpan direktori root: {error}")
 
-        with open(proc + "/comm") as f:
-            name = f.read().strip()
-
-        with open(proc + "/stat") as f:
-            stat = f.read()
-
-        fields = stat[stat.rfind(")") + 2:].split()
-        starttime = fields[19]
-
-        return {
-            "pid": pid,
-            "name": name,
-            "cmd": cmd or name,
-            "starttime": starttime
-        }
-
-    except (OSError, PermissionError, IndexError):
-        return None
-
-
-def get_owners(inodes):
-    owners = {}
-
-    if not inodes:
-        return owners
-
-    for proc in glob.glob("/proc/[0-9]*"):
-        pid = proc.split("/")[-1]
-
-        try:
-            socket_inodes = set()
-
-            for fd in glob.glob(proc + "/fd/*"):
-                try:
-                    target = os.readlink(fd)
-
-                    if target.startswith("socket:["):
-                        socket_inodes.add(target[8:-1])
-
-                except (OSError, PermissionError):
-                    continue
-
-            matched = socket_inodes.intersection(inodes)
-
-            if not matched:
-                continue
-
-            info = process_info(pid)
-
-            if info:
-                info["inodes"] = matched
-                owners[pid] = info
-
-        except (OSError, PermissionError):
-            continue
-
-    return owners
-
-
-
-def owns_socket(pid, inode):
-    try:
-        for fd in glob.glob(f"/proc/{pid}/fd/*"):
-            try:
-                if os.readlink(fd) == f"socket:[{inode}]":
-                    return True
-            except OSError:
-                continue
-    except OSError:
-        pass
-
-    return False
-
-
-# ==========================================
-# DAFTAR PORT AKTIF
-# ==========================================
-
-def show_ports():
-    listeners = get_listeners()
-
-    print("\n" + "=" * 58)
-    print("              DAFTAR PORT TCP AKTIF")
-    print("=" * 58)
-
-    if not listeners:
-        print("Tidak ditemukan port TCP yang LISTEN.")
-        return
-
-    for port in sorted(listeners):
-        owners = get_owners(listeners[port])
-
-        print(f"\nPORT {port}")
-
-        if owners:
-            for pid, info in owners.items():
-                print(f"  PID     : {pid}")
-                print(f"  PROSES  : {info['name']}")
-                print(f"  COMMAND : {info['cmd']}")
-        else:
-            print("  PID tidak dapat diidentifikasi.")
-
-    print("\n" + "=" * 58)
-
-
-# ==========================================
-# HENTIKAN PORT
-# ==========================================
-
-def stop_port():
-    show_ports()
-
-    value = input("\nMasukkan nomor port yang ingin dihentikan: ").strip()
-
-    if not value.isdigit() or not 1 <= int(value) <= 65535:
-        print("Nomor port tidak valid.")
-        return
-
-    port = int(value)
-    listeners = get_listeners()
-    inodes = listeners.get(port, set())
-
-    if not inodes:
-        print(f"Port {port} tidak memiliki listener TCP.")
-        return
-
-    owners = get_owners(inodes)
-
-    if not owners:
-        print("PID pemilik port tidak dapat diidentifikasi.")
-        print("Tidak ada proses yang dihentikan.")
-        return
-
-    print(f"\nPROSES PEMILIK PORT {port}")
-    print("-" * 58)
-
-    for pid, info in owners.items():
-        print(f"PID     : {pid}")
-        print(f"PROSES  : {info['name']}")
-        print(f"COMMAND : {info['cmd']}")
-        print("-" * 58)
-
-    print("PERHATIAN: Semua proses di atas akan menerima SIGTERM.")
-    confirm = input("Yakin ingin menghentikan? (y/n): ").strip().lower()
-
-    if confirm != "y":
-        print("Dibatalkan.")
-        return
-
-    for pid, info in owners.items():
-        current = process_info(pid)
-
-        if not current:
-            print(f"[LEWATI] PID {pid} sudah tidak aktif.")
-            continue
-
-        if current["starttime"] != info["starttime"]:
-            print(f"[LEWATI] PID {pid} sudah berubah.")
-            continue
-
-        if not owns_socket(pid, info["inode"]):
-            print(f"[LEWATI] PID {pid} bukan lagi pemilik socket.")
-            continue
-
-        try:
-            os.kill(int(pid), signal.SIGTERM)
-            print(f"[TERM] PID {pid}: sinyal dikirim.")
-        except ProcessLookupError:
-            print(f"[LEWATI] PID {pid} sudah berhenti.")
-        except PermissionError:
-            print(f"[GAGAL] Tidak memiliki izin untuk PID {pid}.")
-        except OSError as e:
-            print(f"[GAGAL] PID {pid}: {e}")
-
-    time.sleep(2)
-
-    remaining = get_listeners().get(port, set())
-
-    if remaining:
-        print(f"\nPort {port} masih terbuka.")
-        print("Periksa kembali proses yang tersisa.")
-    else:
-        print(f"\nPort {port} berhasil ditutup.")
-
-    cleanup_metadata(port)
-
-
-def cleanup_metadata(port):
-    for suffix in (".pid", ".engine", ".path"):
-        path = os.path.join(DATA, str(port) + suffix)
-
-        try:
-            os.remove(path)
-        except FileNotFoundError:
-            pass
-
-
-# ==========================================
-# PEMILIHAN PROYEK
-# ==========================================
 
 def choose_project():
     root = get_root()
-
     print("\nROOT:", root)
-
     if not os.path.isdir(root):
         print("Direktori root tidak ditemukan.")
         return None
-
-    folders = sorted([
-        name for name in os.listdir(root)
-        if os.path.isdir(os.path.join(root, name))
-    ])
-
+    try:
+        folders = sorted(
+            name for name in os.listdir(root)
+            if os.path.isdir(os.path.join(root, name))
+        )
+    except OSError as error:
+        print(f"Tidak dapat membaca direktori root: {error}")
+        return None
     if not folders:
         print("Belum ada folder proyek.")
         return None
-
-    for i, name in enumerate(folders, 1):
-        print(f"{i}. {name}")
-
+    for index, name in enumerate(folders, 1):
+        print(f"{index}. {name}")
     choice = input("\nPilih folder proyek (0 batal): ").strip()
-
     if not choice.isdigit():
         return None
-
     number = int(choice)
-
     if number == 0 or number > len(folders):
         return None
+    return os.path.realpath(os.path.join(root, folders[number - 1]))
 
-    return os.path.join(root, folders[number - 1])
-
-
-# ==========================================
-# DETEKSI PHP / HTML
-# ==========================================
 
 def detect_engine(folder):
     if os.path.isfile(os.path.join(folder, "index.php")):
         return "php"
-
     if os.path.isfile(os.path.join(folder, "index.html")):
         return "html"
 
     for current, dirs, files in os.walk(folder):
-        dirs[:] = [d for d in dirs if d not in (".git", "node_modules")]
-
-        if any(name.endswith(".php") for name in files):
+        dirs[:] = [name for name in dirs if name not in (".git", "node_modules", "__pycache__")]
+        if any(name.lower().endswith(".php") for name in files):
             return "php"
-
-        if any(name.endswith(".html") or name.endswith(".htm") for name in files):
+        if any(name.lower().endswith((".html", ".htm")) for name in files):
             return "html"
+    return None
 
-    return "html"
 
+def parse_port_value(value):
+    value = value.strip()
+    if value.startswith("PORT="):
+        value = value.split("=", 1)[1].strip()
+    if not value.isdigit():
+        return None
+    port = int(value)
+    return port if 1 <= port <= 65535 else None
 
-# ==========================================
-# KONFIGURASI PORT PROYEK
-# ==========================================
 
 def get_project_port(folder):
-    config = os.path.join(folder, ".webport")
-
-    if os.path.isfile(config):
-        with open(config) as f:
-            for line in f:
-                match = re.match(r"^\s*PORT\s*=\s*(\d+)\s*$", line)
-
-                if match:
-                    port = int(match.group(1))
-
-                    if 1 <= port <= 65535:
+    # PORT is the preferred per-project setting. .webport remains supported
+    # for projects created by earlier Webport versions.
+    for filename in ("PORT", ".webport"):
+        config = os.path.join(folder, filename)
+        if not os.path.isfile(config):
+            continue
+        try:
+            with open(config, encoding="utf-8") as stream:
+                for line in stream:
+                    if not line.strip() or line.lstrip().startswith("#"):
+                        continue
+                    port = parse_port_value(line)
+                    if port:
                         return port
-
-        print("Konfigurasi .webport tidak valid.")
+            print(f"Konfigurasi {filename} tidak valid.")
+            return None
+        except OSError as error:
+            print(f"Tidak dapat membaca {filename}: {error}")
+            return None
 
     value = input("Masukkan nomor port: ").strip()
-
-    if not value.isdigit() or not 1 <= int(value) <= 65535:
+    port = parse_port_value(value)
+    if not port:
         print("Nomor port tidak valid.")
         return None
-
-    port = int(value)
-
-    with open(config, "w") as f:
-        f.write(f"PORT={port}\n")
-
+    try:
+        atomic_write(os.path.join(folder, "PORT"), f"{port}\n", mode=None)
+    except OSError as error:
+        print(f"Port valid, tetapi gagal menyimpan file PORT: {error}")
+        return None
     return port
 
 
-# ==========================================
-# JALANKAN WEBSITE
-# ==========================================
+def server_command(engine, port, folder):
+    if engine == "php":
+        executable = shutil_which("php")
+        if not executable:
+            raise RuntimeError("PHP belum terpasang. Pasang dengan: pkg install php")
+        return [executable, "-S", f"0.0.0.0:{port}", "-t", folder]
+    executable = shutil_which("python") or shutil_which("python3") or sys.executable
+    if not executable or not os.path.isfile(executable):
+        raise RuntimeError("Python tidak tersedia.")
+    return [executable, "-u", "-m", "http.server", str(port), "--bind", "0.0.0.0", "--directory", folder]
+
+
+def shutil_which(command):
+    for directory in os.environ.get("PATH", "").split(os.pathsep):
+        candidate = os.path.join(directory, command)
+        if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            return candidate
+    return None
+
+
+def port_is_available(port):
+    probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        probe.bind(("0.0.0.0", port))
+        return True
+    except OSError:
+        return False
+    finally:
+        probe.close()
+
+
+def port_accepts_connections(port):
+    try:
+        with socket.create_connection(("127.0.0.1", port), timeout=0.25):
+            return True
+    except OSError:
+        return False
+
+
+def metadata_path(port):
+    return os.path.join(SERVERS_DIR, f"{port}.json")
+
+
+def read_metadata(path):
+    try:
+        with open(path, encoding="utf-8") as stream:
+            data = json.load(stream)
+        required = ("pid", "token", "port", "engine", "project", "state")
+        if not isinstance(data, dict) or any(key not in data for key in required):
+            raise ValueError("field metadata tidak lengkap")
+        if not isinstance(data["pid"], int) or not (1 <= data["pid"] <= 2**31 - 1):
+            raise ValueError("PID tidak valid")
+        if not isinstance(data["token"], str) or len(data["token"]) < 24:
+            raise ValueError("token proses tidak valid")
+        if not isinstance(data["port"], int) or not (1 <= data["port"] <= 65535):
+            raise ValueError("port tidak valid")
+        return data, None
+    except (OSError, ValueError, TypeError, json.JSONDecodeError) as error:
+        return None, str(error)
+
+
+def process_identity(pid, token):
+    """True=proses milik Webport, False=tidak ada/PID berbeda, None=tak terverifikasi."""
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return None
+    except OSError:
+        return None
+
+    try:
+        with open(f"/proc/{pid}/cmdline", "rb") as stream:
+            arguments = stream.read().split(b"\0")
+    except (OSError, PermissionError):
+        return None
+
+    marker = b"--webport-worker"
+    expected = token.encode("ascii", errors="ignore")
+    return marker in arguments and expected in arguments
+
+
+def process_is_alive(pid):
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return None
+    except OSError:
+        return None
+
+
+def load_managed_servers():
+    records = []
+    if not os.path.isdir(SERVERS_DIR):
+        return records
+    try:
+        filenames = sorted(name for name in os.listdir(SERVERS_DIR) if name.endswith(".json"))
+    except OSError:
+        return records
+    for filename in filenames:
+        path = os.path.join(SERVERS_DIR, filename)
+        data, error = read_metadata(path)
+        records.append((path, data, error))
+    return records
+
+
+def describe_status(data):
+    identity = process_identity(data["pid"], data["token"])
+    if identity is False:
+        return "BERHENTI"
+    if identity is None:
+        return "TIDAK DAPAT DIVERIFIKASI"
+    if data.get("state") != "RUNNING":
+        return "MEMULAI / MENGHENTIKAN"
+    child_pid = data.get("server_pid")
+    if not isinstance(child_pid, int):
+        return "MEMULAI / TIDAK DAPAT DIVERIFIKASI"
+    child_alive = process_is_alive(child_pid)
+    if child_alive is True:
+        return "AKTIF"
+    if child_alive is False:
+        return "BERHENTI"
+    return "TIDAK DAPAT DIVERIFIKASI"
+
+
+def load_legacy_servers():
+    """Expose old port-based metadata without treating it as safe ownership proof."""
+    legacy = []
+    try:
+        filenames = sorted(name for name in os.listdir(DATA) if name.endswith(".pid") and name[:-4].isdigit())
+    except OSError:
+        return legacy
+    for filename in filenames:
+        port = int(filename[:-4])
+        pid_path = os.path.join(DATA, filename)
+        try:
+            with open(pid_path, encoding="utf-8") as stream:
+                pid_text = stream.read().strip()
+            with open(os.path.join(DATA, f"{port}.engine"), encoding="utf-8") as stream:
+                engine = stream.read().strip()
+            with open(os.path.join(DATA, f"{port}.path"), encoding="utf-8") as stream:
+                project = stream.read().strip()
+            pid = int(pid_text)
+            if pid > 0:
+                legacy.append((port, pid, engine, project))
+        except (OSError, ValueError):
+            legacy.append((port, None, "?", "?"))
+    return legacy
+
+
+def show_ports():
+    print("\n" + "=" * 58)
+    print("              SERVER YANG DIKELOLA WEBPORT")
+    print("=" * 58)
+    records = load_managed_servers()
+    legacy = load_legacy_servers()
+    if not records and not legacy:
+        print("Belum ada metadata server Webport.")
+    for path, data, error in records:
+        print()
+        if error:
+            print(f"Metadata rusak: {os.path.basename(path)} ({error})")
+            print("  Tidak ada proses yang akan dihentikan otomatis.")
+            continue
+        print(f"Proyek : {os.path.basename(data['project'])}")
+        print(f"Engine : {data['engine'].upper()}")
+        print(f"Port   : {data['port']}")
+        print(f"PID    : {data['pid']}")
+        print(f"Status : {describe_status(data)}")
+    for port, pid, engine, project in legacy:
+        print()
+        print(f"LEGACY Port {port} | PID {pid if pid else 'tidak valid'}")
+        print(f"Proyek : {os.path.basename(project) if project != '?' else '?'}")
+        print(f"Engine : {engine.upper()}")
+        print("Status : TIDAK DAPAT DIVERIFIKASI (metadata versi lama)")
+        print("Aksi   : tidak akan dihentikan otomatis demi keamanan")
+    print("\nCatatan: port milik aplikasi lain tidak dipindai atau dihentikan.")
+    print("=" * 58)
+
+
+def write_worker_state(path, metadata, **updates):
+    metadata.update(updates)
+    try:
+        atomic_write_json(path, metadata)
+    except OSError:
+        pass
+
+
+def worker_main(token, path):
+    # Parent publishes the metadata only after it knows the worker PID.
+    deadline = time.monotonic() + 10
+    metadata = None
+    while time.monotonic() < deadline:
+        candidate, error = read_metadata(path)
+        if candidate and candidate.get("token") == token and candidate.get("pid") == os.getpid():
+            metadata = candidate
+            break
+        time.sleep(0.1)
+    if metadata is None:
+        return 2
+
+    stopping = {"requested": False}
+
+    def request_stop(_signum, _frame):
+        stopping["requested"] = True
+
+    signal.signal(signal.SIGTERM, request_stop)
+    signal.signal(signal.SIGINT, request_stop)
+
+    try:
+        command = server_command(metadata["engine"], metadata["port"], metadata["project"])
+        with open(metadata["log"], "ab") as log:
+            child = subprocess.Popen(
+                command,
+                cwd=metadata["project"],
+                stdin=subprocess.DEVNULL,
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                close_fds=True,
+            )
+            write_worker_state(path, metadata, server_pid=child.pid, state="RUNNING")
+            while child.poll() is None and not stopping["requested"]:
+                time.sleep(0.2)
+            if stopping["requested"] and child.poll() is None:
+                write_worker_state(path, metadata, state="STOPPING")
+                child.terminate()
+                try:
+                    child.wait(timeout=4)
+                except subprocess.TimeoutExpired:
+                    child.kill()
+                    child.wait()
+            exit_code = child.wait()
+            write_worker_state(
+                path, metadata, state="STOPPED", exit_code=exit_code,
+                ended_at=now_iso(),
+            )
+            return 0 if exit_code == 0 or stopping["requested"] else exit_code
+    except Exception as error:
+        write_worker_state(path, metadata, state="FAILED", error=str(error), ended_at=now_iso())
+        return 1
+
 
 def start_server():
     folder = choose_project()
-
     if not folder:
         return
-
+    if not os.path.isdir(folder):
+        print("Folder proyek tidak ditemukan.")
+        return
+    engine = detect_engine(folder)
+    if not engine:
+        print("Folder proyek tidak memiliki file PHP, HTML, atau HTM.")
+        return
     port = get_project_port(folder)
-
     if not port:
         return
 
-    listeners = get_listeners()
+    path = metadata_path(port)
+    if os.path.exists(path):
+        old, error = read_metadata(path)
+        if error:
+            print(f"Metadata port {port} rusak; file dipertahankan: {error}")
+            return
+        identity = process_identity(old["pid"], old["token"])
+        if identity is True or identity is None:
+            print(f"Port {port} sudah memiliki proses Webport ({describe_status(old)}).")
+            return
+        # Stale metadata belongs to an exited worker or a reused PID.
+        try:
+            os.unlink(path)
+        except OSError as error:
+            print(f"Tidak dapat membersihkan metadata lama: {error}")
+            return
 
-    if port in listeners:
-        print(f"\nPort {port} sudah digunakan.")
-
-        owners = get_owners(listeners[port])
-
-        for pid, info in owners.items():
-            print(f"PID {pid} | {info['name']} | {info['cmd']}")
-
-        print("\nGunakan menu Kelola Port untuk menghentikannya.")
+    if not port_is_available(port):
+        print(f"Port {port} sudah digunakan atau tidak dapat di-bind.")
+        print("Webport tidak mencoba mengidentifikasi atau menghentikan proses tersebut.")
         return
 
-    engine = detect_engine(folder)
-
-    if engine == "php":
-        executable = shutil_which("php")
-
-        if not executable:
-            print("PHP belum terpasang.")
-            print("Pasang dengan: pkg install php")
-            return
-
-        command = [
-            executable, "-S", f"0.0.0.0:{port}",
-            "-t", folder
-        ]
-
-    else:
-        executable = shutil_which("python")
-
-        if not executable:
-            executable = shutil_which("python3")
-
-        if not executable:
-            print("Python belum tersedia.")
-            return
-
-        command = [
-            executable, "-u", "-m", "http.server",
-            str(port),
-            "--bind", "0.0.0.0",
-            "--directory", folder
-        ]
-
-    logfile = os.path.join(DATA, f"{port}.log")
-
     try:
-        with open(logfile, "ab") as log:
-            process = subprocess.Popen(
-                command,
+        ensure_runtime_dir(SERVERS_DIR)
+        log_path = os.path.join(DATA, f"{port}.log")
+        token = secrets.token_hex(24)
+        metadata = {
+            "schema": 1,
+            "pid": 0,
+            "token": token,
+            "server_pid": None,
+            "port": port,
+            "engine": engine,
+            "project": folder,
+            "log": log_path,
+            "state": "STARTING",
+            "started_at": now_iso(),
+        }
+        with open(log_path, "ab") as log:
+            worker = subprocess.Popen(
+                [sys.executable, SCRIPT_PATH, "--webport-worker", token, path],
                 stdin=subprocess.DEVNULL,
                 stdout=log,
                 stderr=subprocess.STDOUT,
                 start_new_session=True,
-                close_fds=True
+                close_fds=True,
             )
+        metadata["pid"] = worker.pid
+        atomic_write_json(path, metadata)
 
-        time.sleep(0.7)
+        deadline = time.monotonic() + WORKER_READY_TIMEOUT
+        current = None
+        while time.monotonic() < deadline:
+            current, error = read_metadata(path)
+            if current and current.get("token") == token:
+                if current.get("state") in ("FAILED", "STOPPED"):
+                    break
+                if current.get("state") == "RUNNING" and port_accepts_connections(port):
+                    break
+            if process_identity(worker.pid, token) is False:
+                break
+            time.sleep(0.1)
 
-        if process.poll() is not None:
-            print("Server gagal dijalankan.")
-            print("Periksa log:", logfile)
+        if current and current.get("token") == token and current.get("state") == "RUNNING" and port_accepts_connections(port) and process_identity(worker.pid, token) is True:
+            print("\nSERVER BERHASIL DIJALANKAN")
+            print("-" * 48)
+            print("Proyek :", os.path.basename(folder))
+            print("Folder :", folder)
+            print("Engine :", engine.upper())
+            print("Port   :", port)
+            print("PID    :", worker.pid)
+            print("URL    :", f"http://127.0.0.1:{port}")
+            print("LAN    :", f"http://0.0.0.0:{port}")
+            print("Log    :", log_path)
             return
 
-        with open(os.path.join(DATA, f"{port}.pid"), "w") as f:
-            f.write(str(process.pid))
-
-        with open(os.path.join(DATA, f"{port}.engine"), "w") as f:
-            f.write(engine)
-
-        with open(os.path.join(DATA, f"{port}.path"), "w") as f:
-            f.write(folder)
-
-        print("\nSERVER BERHASIL DIJALANKAN")
-        print("-" * 48)
-        print("Proyek :", os.path.basename(folder))
-        print("Folder :", folder)
-        print("Engine :", engine.upper())
-        print("Port   :", port)
-        print("PID    :", process.pid)
-        print("URL    :", f"http://127.0.0.1:{port}")
-        print("LAN    :", f"http://0.0.0.0:{port}")
-        print("Log    :", logfile)
-
-    except Exception as e:
-        print("Gagal menjalankan server:", e)
+        print("Server gagal mencapai status aktif.")
+        if current and current.get("error"):
+            print("Alasan:", current["error"])
+        print("Periksa log:", log_path)
+        if process_identity(worker.pid, token) is True:
+            stop_managed_server(metadata, path, quiet=True)
+    except OSError as error:
+        print(f"Gagal menjalankan Webport: {error}")
+    except Exception as error:
+        print(f"Kesalahan saat menyiapkan server: {error}")
 
 
-def shutil_which(command):
-    for path in os.environ.get("PATH", "").split(os.pathsep):
-        candidate = os.path.join(path, command)
+def stop_managed_server(metadata, path, quiet=False):
+    pid = metadata["pid"]
+    token = metadata["token"]
+    identity = process_identity(pid, token)
+    if identity is False:
+        if not quiet:
+            print("Server sudah berhenti atau PID sudah digunakan proses lain.")
+        return identity
+    if identity is None:
+        if not quiet:
+            print("Identitas proses tidak dapat diverifikasi. Tidak ada sinyal yang dikirim.")
+        return identity
 
-        if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
-            return candidate
+    try:
+        os.kill(pid, signal.SIGTERM)
+    except ProcessLookupError:
+        if not quiet:
+            print("Server sudah berhenti.")
+        return False
+    except PermissionError:
+        if not quiet:
+            print("Tidak memiliki izin untuk menghentikan server.")
+        return None
+    except OSError as error:
+        if not quiet:
+            print(f"Gagal mengirim SIGTERM: {error}")
+        return None
 
+    deadline = time.monotonic() + STOP_TIMEOUT
+    while time.monotonic() < deadline:
+        identity = process_identity(pid, token)
+        if identity is False:
+            if not quiet:
+                print(f"Server pada port {metadata['port']} berhasil dihentikan.")
+            return False
+        if identity is None:
+            if not quiet:
+                print("Status proses tidak dapat diverifikasi setelah SIGTERM.")
+            return None
+        time.sleep(0.2)
+
+    # Last resort: the worker created a dedicated session/process group.
+    # Revalidate ownership and group leadership immediately before SIGKILL.
+    if process_identity(pid, token) is True:
+        try:
+            if os.getpgid(pid) != pid:
+                if not quiet:
+                    print("Process group tidak cocok; SIGKILL dibatalkan demi keamanan.")
+                return None
+            os.killpg(pid, signal.SIGKILL)
+            time.sleep(0.2)
+            if process_identity(pid, token) is False:
+                if not quiet:
+                    print(f"Server pada port {metadata['port']} dihentikan dengan SIGKILL.")
+                return False
+        except (OSError, ProcessLookupError) as error:
+            if not quiet:
+                print(f"Gagal melakukan penghentian terakhir: {error}")
+            return None
+    if not quiet:
+        print("Server belum dapat dipastikan berhenti. Metadata dipertahankan.")
     return None
 
 
-# ==========================================
-# MENU UTAMA
-# ==========================================
+def stop_port():
+    records = []
+    for path, data, error in load_managed_servers():
+        if error:
+            continue
+        status = describe_status(data)
+        if status in ("AKTIF", "MEMULAI / MENGHENTIKAN", "TIDAK DAPAT DIVERIFIKASI", "MEMULAI / TIDAK DAPAT DIVERIFIKASI"):
+            records.append((path, data, status))
+
+    if not records:
+        print("Tidak ada server Webport yang dapat dipilih untuk dihentikan.")
+        return
+
+    print("\nSERVER WEBPORT")
+    for index, (_path, data, status) in enumerate(records, 1):
+        print(f"{index}. Port {data['port']} | {os.path.basename(data['project'])} | PID {data['pid']} | {status}")
+    choice = input("\nPilih server (0 batal): ").strip()
+    if not choice.isdigit() or int(choice) == 0 or int(choice) > len(records):
+        return
+    path, data, status = records[int(choice) - 1]
+    if status not in ("AKTIF", "MEMULAI / MENGHENTIKAN"):
+        print("Status tidak cukup terverifikasi. Proses tidak dihentikan.")
+        return
+    confirm = input(f"Hentikan server port {data['port']}? (y/n): ").strip().lower()
+    if confirm != "y":
+        print("Dibatalkan.")
+        return
+    result = stop_managed_server(data, path)
+    if result is False:
+        # Keep the record as a stopped entry for status/history; no data is removed.
+        return
+
 
 def main():
     while True:
         os.system("clear")
-
         print("=" * 58)
         print("                    D E K E K U")
         print("                 WEBPORT MANAGER")
@@ -512,14 +621,16 @@ def main():
         print("Root:", get_root())
         print()
         print("1. Jalankan Website")
-        print("2. Lihat Port Aktif")
-        print("3. Hentikan Port")
+        print("2. Lihat Server Webport")
+        print("3. Hentikan Server Webport")
         print("4. Ubah Direktori Root")
         print("0. Keluar")
         print("=" * 58)
-
-        choice = input("Pilih menu: ").strip()
-
+        try:
+            choice = input("Pilih menu: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nProgram selesai.")
+            break
         if choice == "1":
             start_server()
         elif choice == "2":
@@ -533,9 +644,13 @@ def main():
             break
         else:
             print("Pilihan tidak valid.")
-
-        input("\nTekan Enter untuk kembali ke menu...")
+        try:
+            input("\nTekan Enter untuk kembali ke menu...")
+        except (EOFError, KeyboardInterrupt):
+            break
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 4 and sys.argv[1] == "--webport-worker":
+        raise SystemExit(worker_main(sys.argv[2], sys.argv[3]))
     main()

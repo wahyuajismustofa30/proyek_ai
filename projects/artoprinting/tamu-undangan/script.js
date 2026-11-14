@@ -140,7 +140,7 @@
       tr.appendChild(tdNama);
 
       var tdAksi = el('td', 'invite-guest-actions');
-      
+
       var btnSalin = el('button', 'btn btn-line btn-sm invite-copy', 'Salin');
       btnSalin.type = 'button';
       btnSalin.addEventListener('click', function () {

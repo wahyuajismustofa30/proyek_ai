@@ -158,12 +158,8 @@ def get_project_port(folder):
     if not port:
         print("Nomor port tidak valid.")
         return None
-    try:
-        with open(os.path.join(folder, "PORT"), "w", encoding="utf-8") as stream:
-            stream.write(f"{port}\n")
-    except OSError as error:
-        print(f"Port valid, tetapi gagal menyimpan file PORT: {error}")
-        return None
+    # Keep project folders untouched: the selected port is stored in
+    # Webport's own saved-project registry when the user opts in.
     return port
 
 
@@ -695,6 +691,11 @@ def start_server(saved_project=None):
                 except OSError as error:
                     print(f"Tidak dapat membaca {filename}: {error}")
                     return
+                if config_port is None:
+                    print(f"Peringatan: konfigurasi {filename} tidak valid. Port tersimpan tetap {port}.")
+                    if input("Tetap lanjut menggunakan port tersimpan? (y/n): ").strip().lower() != "y":
+                        print("Dibatalkan.")
+                        return
                 break
         if config_port and config_port != port:
             print(f"Peringatan: konfigurasi tersimpan memakai port {port}, tetapi {filename} berisi port {config_port}.")

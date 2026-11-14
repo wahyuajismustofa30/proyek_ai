@@ -6,12 +6,16 @@ Webport menjalankan proyek PHP atau HTML sebagai server terpisah. Setiap server 
 
 ## Menentukan port proyek
 
-Webport membaca konfigurasi berdasarkan urutan prioritas:
+Folder proyek diperlakukan sebagai **read-only oleh Webport**. Webport tidak membuat, mengubah, menghapus, atau memindahkan file konfigurasi, metadata, log, maupun file sementara di dalam folder proyek.
 
-1. File `PORT` di dalam folder proyek (disarankan).
-2. File `.webport` lama untuk kompatibilitas.
+Untuk kompatibilitas, Webport masih membaca file lama dengan urutan prioritas:
 
-Isi file dapat berupa angka port, misalnya `8080`, atau `PORT=8080`. Jika keduanya tersedia, `PORT` yang digunakan. Jika belum ada, Webport meminta port. Pilihan tersebut tidak ditulis ke folder proyek secara otomatis; jika pengguna memilih menyimpan proyek, port disimpan di `projects.json`.
+1. `PORT`.
+2. `.webport`.
+
+Isi file dapat berupa angka port (misalnya `8080`) atau `PORT=8080`. Jika file valid ditemukan, Webport menawarkan port tersebut kepada pengguna. Jika tidak digunakan atau tidak tersedia, pengguna diminta memasukkan port secara manual. Port manual hanya berada di memori sampai pengguna memilih menyimpan proyek; konfigurasi tersimpan ditulis ke `$HOME/.webport/projects.json`, bukan ke folder proyek.
+
+File `PORT` dan `.webport` yang sudah ada tidak pernah diubah atau dihapus oleh Webport.
 
 Deteksi server mempertahankan prioritas `index.php` lalu `index.html`. Jika keduanya tidak ada di root, Webport mencari file PHP, HTML, atau HTM di subfolder, dengan mengabaikan `.git`, `node_modules`, dan `__pycache__`.
 
@@ -24,6 +28,8 @@ Daftar proyek yang dapat digunakan kembali disimpan terpisah dari metadata prose
 - `$HOME/.webport/servers/<PORT>.json`: metadata runtime proses supervisor/server.
 - `$HOME/.webport/<PORT>.log`: output server.
 
+Konfigurasi proyek, metadata proses, dan log seluruhnya berada di direktori privat Webport. Folder proyek hanya dibaca untuk deteksi engine dan disajikan oleh server; file aplikasi yang dijalankan sendiri tetap dapat memiliki perilaku tulisnya masing-masing.
+
 File daftar proyek menggunakan skema JSON versi 1, ditulis secara atomik, dengan permission privat pengguna. Jika file belum ada, Webport membuat daftar kosong. Jika JSON rusak atau skema tidak didukung, Webport menampilkan kesalahan dan mempertahankan file; perbaiki atau pulihkan file secara manual sebelum mengelola daftar.
 
 ### Menyimpan dan menjalankan
@@ -32,7 +38,9 @@ Saat menjalankan website baru, pilih untuk menyimpan folder dan port agar dapat 
 
 Webport mendeteksi ulang jenis proyek saat dijalankan. Jika isi file `PORT` atau `.webport` berbeda dari port tersimpan, Webport memberi peringatan dan meminta konfirmasi untuk tetap memakai port dari daftar tersimpan. File konfigurasi di folder proyek tidak diubah otomatis.
 
-### Mengelola daftar
+### Melihat dan mengelola daftar
+
+Menu **Lihat Program Tersimpan** menampilkan nama, path, port, engine, status folder, dan status server. Menu ini hanya membaca registry dan metadata supervisor: tidak membuat registry jika belum ada, tidak menjalankan/menghentikan server, serta tidak mengubah atau menghapus konfigurasi. Jika JSON rusak, isi asli dipertahankan dan peringatan ditampilkan.
 
 Menu **Kelola Proyek Tersimpan** menyediakan penambahan proyek, pengubahan nama/path/port, melihat detail, dan menghapus entri. Port tersimpan harus unik dan path proyek tidak boleh didaftarkan dua kali. Path yang hilang tetap disimpan sampai pengguna memperbaikinya atau menghapus entri.
 

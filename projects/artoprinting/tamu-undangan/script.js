@@ -48,15 +48,15 @@
   }
 
   function templateAwal(jenis) {
-    var pembuka = 'Assalamu’alaikum Warahmatullahi Wabarakatuh.\\n\\n';
+    var pembuka = 'Assalamu’alaikum Warahmatullahi Wabarakatuh.\n\n';
     var isi = jenis === 'pernikahan'
-      ? 'Dengan memohon rahmat dan ridho Allah SWT, kami mengundang {{nama}} untuk menghadiri acara pernikahan kami.\\n\\n'
-      : 'Dengan memohon rahmat dan ridho Allah SWT, kami mengundang {{nama}} untuk hadir dalam acara tasyakuran khitan anak kami.\\n\\n';
+      ? 'Dengan memohon rahmat dan ridho Allah SWT, kami mengundang {{nama}} untuk menghadiri acara pernikahan kami.\n\n'
+      : 'Dengan memohon rahmat dan ridho Allah SWT, kami mengundang {{nama}} untuk hadir dalam acara tasyakuran khitan anak kami.\n\n';
     var penutup = jenis === 'pernikahan'
-      ? 'Merupakan kehormatan dan kebahagiaan bagi kami apabila berkenan hadir dan memberikan doa restu.\\n\\n'
-      : 'Kehadiran dan doa restu akan menjadi kebahagiaan tersendiri bagi kami.\\n\\n';
-    return pembuka + isi + 'Link Undangan:\\n{{link}}\\n\\n' + penutup +
-      'Wassalamu’alaikum Warahmatullahi Wabarakatuh.\\n\\nHormat kami,\\n{{pengundang}}';
+      ? 'Merupakan kehormatan dan kebahagiaan bagi kami apabila berkenan hadir dan memberikan doa restu.\n\n'
+      : 'Kehadiran dan doa restu akan menjadi kebahagiaan tersendiri bagi kami.\n\n';
+    return pembuka + isi + 'Link Undangan:\n{{link}}\n\n' + penutup +
+      'Wassalamu’alaikum Warahmatullahi Wabarakatuh.\n\nHormat kami,\n{{pengundang}}';
   }
 
   function buatPesan(data) {

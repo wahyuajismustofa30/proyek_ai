@@ -65,6 +65,16 @@
     return e;
   }
 
+  function simpanDaftar(namaArray) {
+    var params = new URLSearchParams({
+      jenis: nilai('jenis'),
+      nama: namaArray.join(', '),
+      link: nilai('link'),
+      pengundang: nilai('pengundang')
+    });
+    window.history.replaceState({}, '', location.pathname + '#' + params.toString());
+  }
+
   function buatTabel(modeNama) {
     var mode = MODE[modeNama] || MODE.link;
     var jenis = document.getElementById('jenis').value;
@@ -75,64 +85,102 @@
     if (!namaInput) return tampilkanPesan('Nama tamu tidak boleh kosong', 'error');
 
     var namaArray = namaInput.split(',').map(function (n) { return n.trim(); }).filter(Boolean);
-    if (namaArray.length === 0) return window.alert('Silakan isi minimal satu nama.');
+    if (namaArray.length === 0) return tampilkanPesan('Silakan isi minimal satu nama.', 'error');
 
-    var table = el('table', 'w-full text-sm text-left border border-sky-300 bg-white rounded-lg overflow-hidden');
-    var thead = el('thead', 'bg-sky-100 text-sky-700');
+    var hasil = document.getElementById('hasil');
+    hasil.innerHTML = '';
+
+    var toolbar = el('div', 'invite-results-toolbar');
+    var ringkasan = el('p', 'invite-results-count', namaArray.length + ' tamu tersimpan');
+    var hapusSemua = el('button', 'invite-delete-all', 'Hapus semua');
+    hapusSemua.type = 'button';
+    hapusSemua.addEventListener('click', function () {
+      if (!window.confirm('Hapus seluruh daftar tamu tersimpan?')) return;
+      document.getElementById('nama').value = '';
+      hasil.innerHTML = '';
+      hasil.appendChild(el('p', 'invite-empty-state', 'Daftar tamu sudah dikosongkan.'));
+      simpanDaftar([]);
+      tampilkanPesan('Semua daftar tamu berhasil dihapus.', 'success', '3000');
+    });
+    toolbar.appendChild(ringkasan);
+    toolbar.appendChild(hapusSemua);
+    hasil.appendChild(toolbar);
+
+    var table = el('table', 'invite-guest-table');
+    var thead = el('thead');
     var trHead = el('tr');
-    ['Nama Tamu', 'Salin', 'WhatsApp'].forEach(function (h) {
-      var th = el('th', 'px-4 py-2', h);
+    ['Nama tamu', 'Aksi'].forEach(function (h) {
+      var th = el('th', '', h);
       th.scope = 'col';
       trHead.appendChild(th);
     });
     thead.appendChild(trHead);
     var tbody = el('tbody');
 
+    function perbaruiDaftar() {
+      var tersisa = Array.prototype.map.call(tbody.querySelectorAll('tr'), function (row) {
+        return row.getAttribute('data-guest-name');
+      });
+      document.getElementById('nama').value = tersisa.join(', ');
+      ringkasan.textContent = tersisa.length + ' tamu tersimpan';
+      simpanDaftar(tersisa);
+      if (!tersisa.length) {
+        hasil.innerHTML = '';
+        hasil.appendChild(el('p', 'invite-empty-state', 'Semua tamu telah dihapus dari daftar.'));
+      }
+    }
+
     namaArray.forEach(function (nama) {
       var linkUndangan = link + '?to=' + kodeNama(nama);
       var pesan = buatPesan({ nama: nama, link: linkUndangan, pengundang: pengundang });
+      var tr = el('tr', 'invite-guest-row');
+      tr.setAttribute('data-guest-name', nama);
 
-      var tr = el('tr', 'border-t');
-      tr.appendChild(el('td', 'px-4 py-2', nama));
+      var tdNama = el('td', 'invite-guest-name', nama);
+      tdNama.setAttribute('data-label', 'Nama tamu');
+      tr.appendChild(tdNama);
 
-      var tdSalin = el('td', 'px-4 py-2');
-      var btnSalin = el('button', 'bg-sky-500 hover:bg-sky-600 text-white px-3 py-3 rounded', 'Salin');
+      var tdAksi = el('td', 'invite-guest-actions');
+      tdAksi.setAttribute('data-label', 'Aksi');
+
+      var btnSalin = el('button', 'invite-action invite-copy', 'Salin');
       btnSalin.type = 'button';
       btnSalin.addEventListener('click', function () {
         var teks = mode.salin === 'pesan' ? pesan : linkUndangan;
         var gagal = function () { window.prompt('Salin secara manual:', teks); };
         if (!navigator.clipboard || !window.isSecureContext) return gagal();
-        // pesan sukses hanya tampil bila penyalinan benar-benar berhasil
         navigator.clipboard.writeText(teks).then(function () {
           tampilkanPesan((mode.salin === 'pesan' ? 'Pesan untuk ' : 'Link untuk ') + nama + ' berhasil disalin', 'success', '3000');
         }, gagal);
       });
-      tdSalin.appendChild(btnSalin);
-      tr.appendChild(tdSalin);
 
-      var tdWa = el('td', 'px-4 py-2');
-      var a = el('a', 'bg-green-500 hover:bg-green-600 text-white px-3 py-3 rounded focus:outline-none focus:ring-2 focus:ring-green-400', 'Kirim');
+      var a = el('a', 'invite-action invite-whatsapp', 'WhatsApp');
       a.href = 'https://wa.me/?text=' + encodeURIComponent(pesan);
       a.target = '_blank';
       a.rel = 'noopener';
-      // Tautan langsung menjadi kontrol aksi agar tidak ada elemen interaktif bersarang.
-      tdWa.appendChild(a);
-      tr.appendChild(tdWa);
 
+      var btnHapus = el('button', 'invite-action invite-delete', 'Hapus');
+      btnHapus.type = 'button';
+      btnHapus.setAttribute('aria-label', 'Hapus ' + nama + ' dari daftar');
+      btnHapus.addEventListener('click', function () {
+        tr.remove();
+        perbaruiDaftar();
+        tampilkanPesan('Tamu ' + nama + ' dihapus dari daftar.', 'success', '2500');
+      });
+
+      tdAksi.appendChild(btnSalin);
+      tdAksi.appendChild(a);
+      tdAksi.appendChild(btnHapus);
+      tr.appendChild(tdAksi);
       tbody.appendChild(tr);
     });
 
-    var caption = el('caption', 'sr-only', 'Daftar tautan undangan untuk setiap tamu');
+    var caption = el('caption', 'sr-only', 'Daftar link undangan personal untuk setiap tamu');
     table.appendChild(caption);
     table.appendChild(thead);
     table.appendChild(tbody);
-    var hasil = document.getElementById('hasil');
-    hasil.innerHTML = '';
     hasil.appendChild(table);
-
-    // simpan isian di URL supaya bisa dibagikan / dibuka ulang
-    var params = new URLSearchParams({ jenis: jenis, nama: namaArray.join(', '), link: link, pengundang: pengundang });
-    window.history.replaceState({}, '', location.pathname + '#' + params.toString());
+    simpanDaftar(namaArray);
   }
 
   function modeHalaman() {

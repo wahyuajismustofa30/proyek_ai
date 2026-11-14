@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.tox/
+.nox/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Node.js
+node_modules/
+
+# Local credentials and private material
+*.pem
+*.key
+secrets/
+credentials/
+
+# IDE and editor settings
+.idea/
+.vscode/
+
+# Build and test output
+dist/
+build/
+coverage/
+artifacts/
+vendor/
+
+# Logs
+*.log
+
+# Operating systems
+.DS_Store
+Thumbs.db

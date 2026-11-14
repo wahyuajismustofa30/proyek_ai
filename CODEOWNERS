@@ -1,0 +1,11 @@
+# Repository maintainer. Add additional trusted reviewers/teams here as they are appointed.
+* @wahyuajismustofa30
+
+# Security-sensitive configuration and automation
+/.github/ @wahyuajismustofa30
+/CODEOWNERS @wahyuajismustofa30
+/SECURITY.md @wahyuajismustofa30
+/AGENTS.md @wahyuajismustofa30
+
+# Historical archive directory; currently contains only its explanatory README.
+/archives/ @wahyuajismustofa30

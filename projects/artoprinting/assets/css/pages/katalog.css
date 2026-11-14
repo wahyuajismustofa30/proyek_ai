@@ -1,0 +1,126 @@
+/* =========================================================
+   Halaman Katalog (/Katalog/)
+   Tab, chip, pencarian, dan kartu produk ada di components.css
+   (dipakai juga oleh Beranda dan "produk terkait" di produk.html).
+   Tambahkan gaya yang KHUSUS halaman katalog di sini.
+   ========================================================= */
+
+/* ---------- Tab jenis produk: membungkus di layar lebar, digeser di HP ---------- */
+.katalog-page .tabs {
+  flex-wrap: wrap;
+  overflow: visible;
+  margin: 0 0 16px;
+  padding: 0;
+}
+@media (max-width: 720px) {
+  .katalog-page .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 calc(var(--gutter) * -1) 14px;
+    padding: 2px var(--gutter) 10px;
+    scroll-snap-type: x proximity;
+    /* bayangan pudar di kanan = tanda masih ada tab lain */
+    -webkit-mask-image: linear-gradient(to right, #000 82%, transparent);
+            mask-image: linear-gradient(to right, #000 82%, transparent);
+  }
+  .katalog-page .tabs.di-ujung { -webkit-mask-image: none; mask-image: none; }
+  .katalog-page .tab { scroll-snap-align: start; }
+}
+
+/* ---------- Panel filter ---------- */
+.catalog-panel {
+  display: grid;
+  gap: 14px;
+  padding: clamp(16px, 2.4vw, 22px);
+  margin-bottom: 20px;
+  background: var(--sheet);
+  border-radius: var(--r-lg);
+}
+.catalog-panel .catalog-intro { margin: 0; max-width: 52rem; }
+.filter-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 14px;
+  align-items: start;
+}
+.filter-label {
+  font-size: .86rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  padding-top: 7px;
+}
+@media (max-width: 640px) {
+  .filter-row { grid-template-columns: 1fr; }
+  .filter-label { padding-top: 0; }
+}
+.catalog-panel .search {
+  margin-left: 0;
+  max-width: 420px;
+  width: 100%;
+}
+.search input { padding-right: 40px; }
+.search input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.search-clear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px; height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-mute);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.search-clear:hover { background: var(--line); color: var(--ink); }
+
+/* ---------- Hasil ---------- */
+.katalog-page .result-meta { margin-bottom: 8px; }
+.cari-lain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 0 0 18px;
+  font-size: .9rem;
+  color: var(--ink-soft);
+}
+.katalog-page .grid { margin-top: 8px; }
+
+/* ---------- Bantuan pesan ---------- */
+.catalog-help {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 24px;
+  margin-top: 40px;
+  padding: 18px 22px;
+  border: 1.5px dashed var(--teal);
+  border-radius: var(--r-lg);
+  background: var(--teal-tint);
+}
+.catalog-help p { margin: 0; max-width: 40rem; color: var(--ink); font-weight: 600; }
+.katalog-page .share { margin-top: 28px; }
+
+/* HP: deretan chip satu baris yang bisa digeser, supaya hasil cepat terlihat */
+@media (max-width: 640px) {
+  .catalog-panel .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-right: calc(clamp(16px, 2.4vw, 22px) * -1);
+    padding: 2px clamp(16px, 2.4vw, 22px) 6px 0;
+    scrollbar-width: none;
+  }
+  .catalog-panel .chips::-webkit-scrollbar { display: none; }
+  .catalog-panel .chip { flex: none; }
+  .catalog-panel .search { max-width: none; }
+}
+
+.tabs .pill-skeleton { height: 42px; width: 118px; }
+.tabs .pill-skeleton:nth-child(3n) { width: 150px; }
+.tabs .pill-skeleton:nth-child(4n+1) { width: 96px; }
+.chips .pill-skeleton { height: 32px; width: 66px; }
+.chips .pill-skeleton:nth-child(3n) { width: 84px; }

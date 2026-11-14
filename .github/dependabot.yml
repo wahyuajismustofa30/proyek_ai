@@ -1,0 +1,50 @@
+version: 2
+updates:
+  # Repository-level tooling that is actually present at the repository root.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "02:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels: [dependencies, github-actions]
+    commit-message:
+      prefix: "ci"
+      include: scope
+    groups:
+      github-actions:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  # Root Python validation tools: requirements-ci.txt.
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "02:15"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    target-branch: main
+    labels: [dependencies, python]
+    commit-message:
+      prefix: "ci"
+      include: scope
+
+# Project adapters currently supported by project-matrix.yml:
+#   node   -> npm      -> package.json (package-lock.json is recommended for reproducibility)
+#   python -> pip      -> pyproject.toml and/or requirements*.txt
+#   php    -> composer -> composer.json (composer.lock is recommended for reproducibility)
+#
+# First-project checklist (do not add speculative /projects/* entries):
+# 1. Add the project's real manifest and commit its reproducible lockfile
+#    (Node: package.json; PHP: composer.json; lockfiles are recommended for reproducibility;
+#    Python: pyproject.toml or requirements*.txt, plus the chosen lockfile when
+#    the project uses one and its CI contract requires it).
+# 2. Add one explicit update entry per ecosystem actually used, with
+#    directory: /projects/<slug> and the matching package-ecosystem.
+# 3. Keep the entry aligned with the CI adapter and verify Dependabot YAML.
+# An entry for a missing manifest/lockfile can produce dependency_file_not_found.

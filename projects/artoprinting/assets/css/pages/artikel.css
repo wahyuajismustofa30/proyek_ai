@@ -1,0 +1,53 @@
+/* Artikel Arto Printing — readable editorial layout and responsive media/tables */
+.article-head{max-width:46rem;margin:0 auto;padding:clamp(18px,2.5vw,28px) 0 22px}
+.article-head h1{font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,4.6vw,3.25rem);line-height:1.12;letter-spacing:-.02em;text-wrap:balance;margin:0 0 14px;color:var(--ink)}
+.article-meta{margin:0;color:var(--ink-mute);font-size:.9rem}
+.article-cover{max-width:60rem;margin:0 auto clamp(30px,4vw,48px);overflow:hidden;border-radius:var(--r-lg);background:var(--sheet)}
+.article-cover img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;object-position:center}
+.prose{max-width:44rem;min-width:0;margin:0 auto;padding-bottom:72px;font-size:1.06rem;line-height:1.78;color:var(--ink-soft)}
+.prose>p:first-child{font-size:1.12rem;line-height:1.72;color:var(--ink);font-weight:600}
+.prose h2{font-family:var(--font-display);font-weight:800;font-size:clamp(1.45rem,3vw,1.8rem);line-height:1.2;letter-spacing:-.005em;color:var(--ink);margin:2.15em 0 .7em;text-wrap:balance;scroll-margin-top:90px}
+.prose h3{color:var(--ink);font-size:clamp(1.12rem,2.4vw,1.3rem);line-height:1.35;margin:1.6em 0 .55em;scroll-margin-top:90px}
+.prose p,.prose ul,.prose ol{margin:0 0 1.1em}
+.prose li{margin-bottom:.5em;padding-left:.12em}
+.prose li::marker{color:var(--teal-deep)}
+.prose strong{color:var(--ink)}
+.prose a{color:var(--teal-deep);font-weight:700;text-underline-offset:.18em}
+.prose a:hover{color:var(--ink)}
+.prose .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:0 0 1.2em}
+.prose .gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--r-sm);background:var(--sheet)}
+.prose .ui-table-wrap{margin:1.35em 0 1.65em}
+.prose .lihat-juga{margin:2.4em 0 0;padding:20px 24px;background:var(--teal-tint);border-radius:var(--r-lg)}
+.prose .lihat-juga h2{margin:0 0 .5em;font-size:1.3rem}
+.prose .lihat-juga ul{margin:0}
+.prose>p:has(>.btn){margin-top:1.5em}
+.prose>.share{margin-top:2.8em}
+.article-back{margin-top:2rem;padding-top:1.25rem;border-top:1px solid var(--line,var(--color-border))}
+.article-back a{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none}
+.article-back a:hover{text-decoration:underline}
+.article-back a:focus-visible{outline:2px solid currentColor;outline-offset:4px}
+@media(max-width:640px){
+ .article-head{padding:14px 0 18px}
+ .article-cover{margin-bottom:24px;border-radius:var(--r-md)}
+ .prose{font-size:1rem;line-height:1.8;padding-bottom:56px}
+ .prose>p:first-child{font-size:1.04rem}
+ .prose .lihat-juga{padding:18px}
+ .prose>p:has(>.btn)>.btn{width:100%;text-align:center}
+}
+
+/* Kontras CTA artikel dan tombol berbagi berbasis ikon */
+.prose a.btn.btn-wa,
+.prose a.btn.btn-wa:visited{background:var(--color-brand-strong);border-color:var(--color-brand-strong);color:#fff}
+.prose a.btn.btn-wa:hover{background:var(--color-text);border-color:var(--color-text);color:#fff}
+.prose a.btn.btn-wa:focus-visible{outline:3px solid var(--color-text);outline-offset:3px}
+.prose .share a,
+.prose .share button{width:42px;height:42px;flex:0 0 42px;padding:0;border-radius:50%;background:#fff;color:var(--color-text);border:1px solid var(--color-border)}
+.prose .share a:hover,
+.prose .share button:hover{background:var(--color-brand-soft);border-color:var(--color-brand-strong);color:var(--color-brand-strong)}
+.prose .share a:focus-visible,
+.prose .share button:focus-visible{outline:3px solid var(--color-brand-strong);outline-offset:3px}
+.prose .share svg{display:block;width:19px;height:19px}
+
+
+/* Breadcrumb artikel menggunakan komponen navigasi Master Theme. */
+.article-breadcrumb { max-width: 46rem; margin: 16px auto 0; }

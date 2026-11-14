@@ -168,16 +168,14 @@ def mirror_one(pair, require_confirmation, reverse=False):
         print("\nPERINGATAN: sinkronisasi terbalik dapat MENGHAPUS file di SOURCE konfigurasi.")
         print("Periksa seluruh daftar perubahan pada hasil simulasi sebelum melanjutkan.")
         # Reverse sync always requires explicit confirmation, regardless of config.
-        expected = f"SYNC-REVERSE {pair['id']}"
-        answer = input(f"Ketik tepat '{expected}' untuk melanjutkan: ").strip()
-        if answer != expected:
+        answer = input("Ketik 'y' untuk melanjutkan: ").strip().lower()
+        if answer != "y":
             print("Dibatalkan. Tidak ada perubahan pada target.")
             return
     elif require_confirmation:
         print("\nMirror dapat MENGHAPUS file di TARGET yang tidak ada di SOURCE.")
-        expected = f"SYNC {pair['id']}"
-        answer = input(f"Ketik tepat '{expected}' untuk melanjutkan: ").strip()
-        if answer != expected:
+        answer = input("Ketik 'y' untuk melanjutkan: ").strip().lower()
+        if answer != "y":
             print("Dibatalkan. Tidak ada perubahan pada target.")
             return
 

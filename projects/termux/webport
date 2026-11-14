@@ -15,6 +15,7 @@ HOME = os.path.expanduser("~")
 DATA = os.path.join(HOME, ".webport")
 ROOT_FILE = os.path.join(DATA, "root")
 SERVERS_DIR = os.path.join(DATA, "servers")
+PROJECTS_FILE = os.path.join(DATA, "projects.json")
 SCRIPT_PATH = os.path.realpath(__file__)
 STOP_TIMEOUT = 8
 WORKER_READY_TIMEOUT = 5
@@ -415,20 +416,281 @@ def worker_main(token, path):
         return 1
 
 
-def start_server():
-    folder = choose_project()
-    if not folder:
+
+def load_saved_projects():
+    if not os.path.exists(PROJECTS_FILE):
+        return {"schema": 1, "projects": []}, None
+    try:
+        with open(PROJECTS_FILE, encoding="utf-8") as stream:
+            data = json.load(stream)
+        if not isinstance(data, dict) or data.get("schema") != 1 or not isinstance(data.get("projects"), list):
+            raise ValueError("struktur atau versi skema tidak didukung")
+        seen_ids, seen_paths, seen_ports = set(), set(), set()
+        for item in data["projects"]:
+            if not isinstance(item, dict):
+                raise ValueError("entri proyek bukan objek")
+            required = ("id", "name", "path", "port", "engine", "created_at")
+            if any(key not in item for key in required):
+                raise ValueError("field entri proyek tidak lengkap")
+            if not isinstance(item["id"], str) or not item["id"]:
+                raise ValueError("ID proyek tidak valid")
+            if not isinstance(item["name"], str) or not item["name"].strip():
+                raise ValueError("nama proyek tidak valid")
+            if not isinstance(item["path"], str) or not os.path.isabs(item["path"]):
+                raise ValueError("path proyek tidak valid")
+            if not isinstance(item["port"], int) or isinstance(item["port"], bool) or not (1 <= item["port"] <= 65535):
+                raise ValueError("port proyek tidak valid")
+            if item["engine"] not in ("php", "html"):
+                raise ValueError("jenis server tidak valid")
+            normalized = os.path.realpath(item["path"])
+            if item["id"] in seen_ids or normalized in seen_paths or item["port"] in seen_ports:
+                raise ValueError("terdapat ID, path, atau port duplikat")
+            seen_ids.add(item["id"])
+            seen_paths.add(normalized)
+            seen_ports.add(item["port"])
+        return data, None
+    except (OSError, ValueError, TypeError, json.JSONDecodeError) as error:
+        return None, str(error)
+
+
+def save_saved_projects(data):
+    if not isinstance(data, dict) or data.get("schema") != 1 or not isinstance(data.get("projects"), list):
+        raise ValueError("struktur konfigurasi proyek tidak valid")
+    atomic_write_json(PROJECTS_FILE, data)
+
+
+def saved_project_conflict(path, port, exclude_id=None):
+    data, error = load_saved_projects()
+    if error:
+        return f"Konfigurasi proyek tersimpan rusak: {error}"
+    normalized = os.path.realpath(path)
+    for item in data["projects"]:
+        if item["id"] == exclude_id:
+            continue
+        if os.path.realpath(item["path"]) == normalized:
+            return f"Folder sudah tersimpan sebagai '{item['name']}'."
+        if item["port"] == port:
+            return f"Port {port} sudah digunakan konfigurasi '{item['name']}'."
+    return None
+
+
+def save_project_entry(folder, port, engine, name=None):
+    data, error = load_saved_projects()
+    if error:
+        print(f"Tidak dapat menyimpan: konfigurasi tersimpan rusak ({error}).")
+        return False
+    conflict = saved_project_conflict(folder, port)
+    if conflict:
+        print(conflict)
+        return False
+    entry = {
+        "id": secrets.token_hex(8),
+        "name": (name or os.path.basename(folder.rstrip(os.sep)) or folder).strip(),
+        "path": os.path.realpath(folder),
+        "port": port,
+        "engine": engine,
+        "created_at": now_iso(),
+    }
+    data["projects"].append(entry)
+    try:
+        save_saved_projects(data)
+        print(f"Proyek '{entry['name']}' berhasil disimpan.")
+        return True
+    except (OSError, ValueError) as error:
+        print(f"Gagal menyimpan proyek: {error}")
+        return False
+
+
+def saved_server_status(project):
+    path = metadata_path(project["port"])
+    if not os.path.isfile(path):
+        return "BERHENTI"
+    data, error = read_metadata(path)
+    if error:
+        return "TIDAK DAPAT DIVERIFIKASI"
+    if os.path.realpath(data.get("project", "")) != os.path.realpath(project["path"]):
+        return "PORT DIPAKAI KONFIGURASI LAIN"
+    return describe_status(data)
+
+
+def list_saved_projects(data=None):
+    if data is None:
+        data, error = load_saved_projects()
+        if error:
+            print(f"Konfigurasi proyek tidak dapat dibaca: {error}")
+            return None
+    if not data["projects"]:
+        print("Belum ada proyek tersimpan.")
+        return []
+    print("\nPROYEK TERSIMPAN")
+    for index, item in enumerate(data["projects"], 1):
+        folder_status = "TERSEDIA" if os.path.isdir(item["path"]) else "TIDAK DITEMUKAN"
+        print(f"{index}. {item['name']}")
+        print(f"   Port: {item['port']} | Engine: {item['engine'].upper()}")
+        print(f"   Folder: {folder_status}")
+        print(f"   Server: {saved_server_status(item)}")
+        print(f"   Path: {item['path']}")
+    return data["projects"]
+
+
+def choose_saved_project():
+    data, error = load_saved_projects()
+    if error:
+        print(f"Konfigurasi proyek tidak dapat dibaca: {error}")
         return
-    if not os.path.isdir(folder):
-        print("Folder proyek tidak ditemukan.")
+    projects = list_saved_projects(data)
+    if not projects:
         return
-    engine = detect_engine(folder)
+    choice = input("\nPilih proyek (0 batal): ").strip()
+    if not choice.isdigit() or int(choice) == 0 or int(choice) > len(projects):
+        return
+    item = projects[int(choice) - 1]
+    if not os.path.isdir(item["path"]):
+        print("Folder proyek tidak ditemukan. Konfigurasi tetap disimpan.")
+        if input("Ubah path sekarang? (y/n): ").strip().lower() == "y":
+            update_saved_path(item)
+        return
+    start_server(saved_project=item)
+
+
+def update_saved_path(item):
+    new_path = os.path.realpath(os.path.abspath(os.path.expanduser(input("Path folder baru: ").strip())))
+    if not os.path.isdir(new_path):
+        print("Folder tidak ditemukan.")
+        return False
+    engine = detect_engine(new_path)
     if not engine:
-        print("Folder proyek tidak memiliki file PHP, HTML, atau HTM.")
+        print("Folder tidak memiliki file PHP/HTML/HTM yang didukung.")
+        return False
+    conflict = saved_project_conflict(new_path, item["port"], exclude_id=item["id"])
+    if conflict:
+        print(conflict)
+        return False
+    data, error = load_saved_projects()
+    if error:
+        print(f"Konfigurasi tidak dapat dibaca: {error}")
+        return False
+    for entry in data["projects"]:
+        if entry["id"] == item["id"]:
+            entry["path"] = new_path
+            entry["engine"] = engine
+            break
+    try:
+        save_saved_projects(data)
+        print("Path proyek berhasil diperbarui.")
+        return True
+    except (OSError, ValueError) as error:
+        print(f"Gagal memperbarui path: {error}")
+        return False
+
+
+def manage_saved_projects():
+    data, error = load_saved_projects()
+    if error:
+        print(f"Konfigurasi proyek tidak dapat dibaca: {error}")
+        print("File asli dipertahankan. Perbaiki atau pulihkan JSON secara manual.")
         return
-    port = get_project_port(folder)
-    if not port:
+    projects = list_saved_projects(data)
+    if not projects:
         return
+    choice = input("\nPilih proyek untuk dikelola (0 batal): ").strip()
+    if not choice.isdigit() or int(choice) == 0 or int(choice) > len(projects):
+        return
+    item = projects[int(choice) - 1]
+    print("\n1. Ubah nama\n2. Ubah path folder\n3. Ubah port\n4. Lihat detail\n5. Hapus dari daftar\n0. Kembali")
+    action = input("Pilih tindakan: ").strip()
+    if action == "1":
+        name = input("Nama baru: ").strip()
+        if not name:
+            print("Nama tidak boleh kosong.")
+            return
+        item["name"] = name
+    elif action == "2":
+        update_saved_path(item)
+        return
+    elif action == "3":
+        raw = input("Port baru: ").strip()
+        port = parse_port_value(raw)
+        if not port:
+            print("Port tidak valid (1–65535).")
+            return
+        conflict = saved_project_conflict(item["path"], port, exclude_id=item["id"])
+        if conflict:
+            print(conflict)
+            return
+        item["port"] = port
+    elif action == "4":
+        print(json.dumps(item, ensure_ascii=False, indent=2))
+        return
+    elif action == "5":
+        active_status = saved_server_status(item)
+        if active_status in ("AKTIF", "MEMULAI / MENGHENTIKAN", "TIDAK DAPAT DIVERIFIKASI"):
+            print(f"Catatan: server berstatus {active_status}; penghapusan konfigurasi tidak menghentikannya.")
+        if input(f"Hapus '{item['name']}' dari daftar tersimpan? (y/n): ").strip().lower() != "y":
+            print("Dibatalkan.")
+            return
+        data["projects"] = [entry for entry in data["projects"] if entry["id"] != item["id"]]
+        try:
+            save_saved_projects(data)
+            print("Konfigurasi dihapus. Folder, file PORT, dan server tidak diubah.")
+        except (OSError, ValueError) as error:
+            print(f"Gagal menghapus konfigurasi: {error}")
+        return
+    elif action == "0":
+        return
+    else:
+        print("Pilihan tidak valid.")
+        return
+    try:
+        save_saved_projects(data)
+        print("Konfigurasi proyek berhasil diperbarui.")
+    except (OSError, ValueError) as error:
+        print(f"Gagal menyimpan perubahan: {error}")
+
+
+def start_server(saved_project=None):
+    if saved_project:
+        folder = os.path.realpath(saved_project["path"])
+        port = saved_project["port"]
+        if not isinstance(port, int) or isinstance(port, bool) or not (1 <= port <= 65535):
+            print("Port proyek tersimpan tidak valid.")
+            return
+        engine = detect_engine(folder)
+        if not engine:
+            print("Folder proyek tidak memiliki file PHP, HTML, atau HTM.")
+            return
+        config_port = None
+        for filename in ("PORT", ".webport"):
+            config_path = os.path.join(folder, filename)
+            if os.path.isfile(config_path):
+                try:
+                    with open(config_path, encoding="utf-8") as stream:
+                        config_port = next((parse_port_value(line) for line in stream if line.strip() and not line.lstrip().startswith("#")), None)
+                except OSError as error:
+                    print(f"Tidak dapat membaca {filename}: {error}")
+                    return
+                break
+        if config_port and config_port != port:
+            print(f"Peringatan: konfigurasi tersimpan memakai port {port}, tetapi {filename} berisi port {config_port}.")
+            if input("Tetap jalankan menggunakan port tersimpan? (y/n): ").strip().lower() != "y":
+                print("Dibatalkan.")
+                return
+    else:
+        folder = choose_project()
+        if not folder:
+            return
+        if not os.path.isdir(folder):
+            print("Folder proyek tidak ditemukan.")
+            return
+        engine = detect_engine(folder)
+        if not engine:
+            print("Folder proyek tidak memiliki file PHP, HTML, atau HTM.")
+            return
+        port = get_project_port(folder)
+        if not port:
+            return
+        if input("Simpan folder dan port ini untuk digunakan kembali? (y/n): ").strip().lower() == "y":
+            save_project_entry(folder, port, engine)
 
     path = metadata_path(port)
     if os.path.exists(path):
@@ -624,10 +886,13 @@ def main():
         print("=" * 58)
         print("Root:", get_root())
         print()
-        print("1. Jalankan Website")
-        print("2. Lihat Server Webport")
-        print("3. Hentikan Server Webport")
-        print("4. Ubah Direktori Root")
+        print("1. Jalankan Website Baru")
+        print("2. Jalankan Proyek Tersimpan")
+        print("3. Kelola Proyek Tersimpan")
+        print("4. Lihat Server Webport")
+        print("5. Hentikan Server Webport")
+        print("6. Ubah Direktori Root")
+        print("7. Keluar")
         print("0. Keluar")
         print("=" * 58)
         try:
@@ -638,12 +903,16 @@ def main():
         if choice == "1":
             start_server()
         elif choice == "2":
-            show_ports()
+            choose_saved_project()
         elif choice == "3":
-            stop_port()
+            manage_saved_projects()
         elif choice == "4":
+            show_ports()
+        elif choice == "5":
+            stop_port()
+        elif choice == "6":
             set_root()
-        elif choice == "0":
+        elif choice in ("0", "7"):
             print("Program selesai.")
             break
         else:

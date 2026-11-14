@@ -15,6 +15,29 @@ Isi file dapat berupa angka port, misalnya `8080`, atau `PORT=8080`. Jika keduan
 
 Deteksi server mempertahankan prioritas `index.php` lalu `index.html`. Jika keduanya tidak ada di root, Webport mencari file PHP, HTML, atau HTM di subfolder, dengan mengabaikan `.git`, `node_modules`, dan `__pycache__`.
 
+
+## Proyek tersimpan
+
+Daftar proyek yang dapat digunakan kembali disimpan terpisah dari metadata proses:
+
+- `$HOME/.webport/projects.json`: konfigurasi proyek (nama, path absolut, port, engine, dan waktu dibuat).
+- `$HOME/.webport/servers/<PORT>.json`: metadata runtime proses supervisor/server.
+- `$HOME/.webport/<PORT>.log`: output server.
+
+File daftar proyek menggunakan skema JSON versi 1, ditulis secara atomik, dengan permission privat pengguna. Jika file belum ada, Webport membuat daftar kosong. Jika JSON rusak atau skema tidak didukung, Webport menampilkan kesalahan dan mempertahankan file; perbaiki atau pulihkan file secara manual sebelum mengelola daftar.
+
+### Menyimpan dan menjalankan
+
+Saat menjalankan website baru, pilih untuk menyimpan folder dan port agar dapat digunakan kembali. Pilihan "tidak" menjalankan proyek sekali saja. Menu **Jalankan Proyek Tersimpan** menggunakan port dari `projects.json` dan menjalankan server melalui mekanisme supervisor yang sama dengan start biasa.
+
+Webport mendeteksi ulang jenis proyek saat dijalankan. Jika isi file `PORT` atau `.webport` berbeda dari port tersimpan, Webport memberi peringatan dan meminta konfirmasi untuk tetap memakai port dari daftar tersimpan. File konfigurasi di folder proyek tidak diubah otomatis.
+
+### Mengelola daftar
+
+Menu **Kelola Proyek Tersimpan** menyediakan penambahan proyek, pengubahan nama/path/port, melihat detail, dan menghapus entri. Port tersimpan harus unik dan path proyek tidak boleh didaftarkan dua kali. Path yang hilang tetap disimpan sampai pengguna memperbaikinya atau menghapus entri.
+
+Menghapus entri hanya menghapus konfigurasi dari `projects.json`. Tindakan tersebut tidak menghapus folder, tidak mengubah file `PORT` atau `.webport`, dan tidak menghentikan server aktif. Jika server sedang berjalan, server tetap memakai konfigurasi saat diluncurkan. Mengubah port konfigurasi juga tidak mengubah server yang sudah berjalan.
+
 ## Proses dan metadata
 
 Data runtime disimpan di direktori privat Termux:

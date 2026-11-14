@@ -1,8 +1,9 @@
 // tamu-undangan/script.js — membuat link undangan per tamu + pesan WhatsApp.
 //
 // Dipakai oleh dua halaman dengan "mode" berbeda (ditulis di atribut data-mode pada tombol):
-//   index.html     -> mode "link"  : spasi di nama jadi "_" ; tombol Salin menyalin LINK undangan
-//   generator.html -> mode "pesan" : spasi di nama jadi "+" ; tombol Salin menyalin seluruh PESAN
+//   index.html     -> mode "link"  : tombol Salin menyalin LINK undangan
+//   generator.html -> mode "pesan" : tombol Salin menyalin seluruh PESAN
+// Nama tamu pada kedua mode memakai tanda "+" sebagai pengganti spasi di URL.
 //
 // Bergantung pada showAlert() dari berbagi-koding/js/utils@v1.js (dimuat lebih dulu di <head>).
 // Bila skrip itu gagal dimuat, pesan tampil lewat alert() biasa.
@@ -13,33 +14,13 @@
   'use strict';
 
   var MODE = {
-    link: { pemisahNama: '+', salin: 'link' },
-    pesan: { pemisahNama: '+', salin: 'pesan' },
-  };
-
-  var TEMPLATE_PESAN = {
-    pernikahan: function (d) {
-      return 'Assalamu’alaikum Warahmatullahi Wabarakatuh.\n\n' +
-        'Dengan memohon rahmat dan ridho Allah SWT, kami mengundang ' + d.nama + ' untuk menghadiri acara pernikahan kami.\n\n' +
-        'Link Undangan:\n' + d.link + '\n\n' +
-        'Merupakan kehormatan dan kebahagiaan bagi kami apabila berkenan hadir dan memberikan doa restu.\n\n' +
-        'Wassalamu’alaikum Warahmatullahi Wabarakatuh.\n\n' +
-        'Hormat kami,\n' + d.pengundang;
-    },
-    khitan: function (d) {
-      return 'Assalamu’alaikum Warahmatullahi Wabarakatuh.\n\n' +
-        'Dengan memohon rahmat dan ridho Allah SWT, kami mengundang ' + d.nama + ' untuk hadir dalam acara tasyakuran khitan anak kami.\n\n' +
-        'Link Undangan:\n' + d.link + '\n\n' +
-        'Kehadiran dan doa restu akan menjadi kebahagiaan tersendiri bagi kami.\n\n' +
-        'Wassalamu’alaikum Warahmatullahi Wabarakatuh.\n\n' +
-        'Hormat kami,\n' + d.pengundang;
-    },
+    link: { salin: 'link' },
+    pesan: { salin: 'pesan' },
   };
 
   /**
    * Nama tamu untuk parameter ?to=
-   *  - mode link : "Bapak Rudi" -> "Bapak_Rudi"
-   *  - mode pesan: "Bapak Rudi" -> "Bapak+Rudi"  (tanda + = spasi pada URL)
+   *  - kedua mode : "Bapak Rudi" -> "Bapak+Rudi" (tanda + = spasi pada URL)
    * Karakter khusus (&, ?, #, dll.) tetap di-encode supaya link tidak terpotong.
    */
   function kodeNama(nama) {
@@ -123,7 +104,7 @@
         if (!navigator.clipboard || !window.isSecureContext) return gagal();
         // pesan sukses hanya tampil bila penyalinan benar-benar berhasil
         navigator.clipboard.writeText(teks).then(function () {
-          tampilkanPesan('Link untuk ' + nama + ' berhasil disalin', 'success', '3000');
+          tampilkanPesan((mode.salin === 'pesan' ? 'Pesan untuk ' : 'Link untuk ') + nama + ' berhasil disalin', 'success', '3000');
         }, gagal);
       });
       tdSalin.appendChild(btnSalin);

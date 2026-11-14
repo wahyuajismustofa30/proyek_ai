@@ -23,15 +23,6 @@ while true; do
             ! -name "menu" ! -name "*.desc" -print0 | sort -z
     )
 
-    # Audit Python tetap tersedia meski tidak memiliki executable bit.
-    AUDIT_SCRIPT="$BIN/termux-audit.py"
-    if [[ -f "$AUDIT_SCRIPT" ]]; then
-        audit_found=0
-        for program in "${PROGRAMS[@]}"; do
-            [[ "$program" == "$AUDIT_SCRIPT" ]] && audit_found=1 && break
-        done
-        (( audit_found )) || PROGRAMS+=("$AUDIT_SCRIPT")
-    fi
 
     echo "  PROGRAM"
     echo "  ─────────────────────────────────────────────"

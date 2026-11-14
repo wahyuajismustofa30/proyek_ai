@@ -80,7 +80,11 @@
     var table = el('table', 'w-full text-sm text-left border border-sky-300 bg-white rounded-lg overflow-hidden');
     var thead = el('thead', 'bg-sky-100 text-sky-700');
     var trHead = el('tr');
-    ['Nama Tamu', 'Salin', 'WhatsApp'].forEach(function (h) { trHead.appendChild(el('th', 'px-4 py-2', h)); });
+    ['Nama Tamu', 'Salin', 'WhatsApp'].forEach(function (h) {
+      var th = el('th', 'px-4 py-2', h);
+      th.scope = 'col';
+      trHead.appendChild(th);
+    });
     thead.appendChild(trHead);
     var tbody = el('tbody');
 
@@ -93,7 +97,7 @@
       tr.appendChild(el('td', 'px-4 py-2', nama));
 
       var tdSalin = el('td', 'px-4 py-2');
-      var btnSalin = el('button', 'bg-sky-500 hover:bg-sky-600 text-white px-3 py-1 rounded', 'Salin');
+      var btnSalin = el('button', 'bg-sky-500 hover:bg-sky-600 text-white px-3 py-3 rounded', 'Salin');
       btnSalin.type = 'button';
       btnSalin.addEventListener('click', function () {
         var teks = mode.salin === 'pesan' ? pesan : linkUndangan;
@@ -108,20 +112,19 @@
       tr.appendChild(tdSalin);
 
       var tdWa = el('td', 'px-4 py-2');
-      var a = el('a');
+      var a = el('a', 'bg-green-500 hover:bg-green-600 text-white px-3 py-3 rounded focus:outline-none focus:ring-2 focus:ring-green-400', 'Kirim');
       a.href = 'https://wa.me/?text=' + encodeURIComponent(pesan);
       a.target = '_blank';
       a.rel = 'noopener';
-      // struktur <a><button> dipertahankan agar tampilan tombol sama seperti sebelumnya
-      var btnWa = el('button', 'bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-green-400', 'Kirim');
-      btnWa.type = 'button';
-      a.appendChild(btnWa);
+      // Tautan langsung menjadi kontrol aksi agar tidak ada elemen interaktif bersarang.
       tdWa.appendChild(a);
       tr.appendChild(tdWa);
 
       tbody.appendChild(tr);
     });
 
+    var caption = el('caption', 'sr-only', 'Daftar tautan undangan untuk setiap tamu');
+    table.appendChild(caption);
     table.appendChild(thead);
     table.appendChild(tbody);
     var hasil = document.getElementById('hasil');

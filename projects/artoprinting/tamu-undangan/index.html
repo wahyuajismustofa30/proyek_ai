@@ -29,12 +29,13 @@
   <script src="script.js"></script>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
 
   <header>
     <h1 class="judul">GENERATOR UNDANGAN</h1>
   </header>
 
-  <main>
+  <main id="main-content" tabindex="-1">
     <div class="form">
 
       <div class="form-group">
@@ -63,7 +64,7 @@
       <button type="button" id="buat-link" data-mode="link" class="tombol bg-sky-700 block mx-auto">Buat Link</button>
     </div>
 
-    <div id="hasil" class="hasil"></div>
+    <div id="hasil" class="hasil" aria-live="polite" aria-relevant="additions text"></div>
   </main>
 </body>
 </html>

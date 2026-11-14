@@ -1,36 +1,29 @@
 #!/usr/bin/env bash
 
-# ==========================================
-# DEKEKU SERVER MANAGER
-# Automatic Terminal Program Launcher
-# ==========================================
+# DEKEKU — Termux Program Menu
 
 BIN="$HOME/bin"
 
 while true; do
     clear
 
-    echo "================================================"
-    echo "                                                "
-    echo "               D E K E K U                      "
-    echo "           SERVER CONTROL MANAGER               "
-    echo "                                                "
-    echo "================================================"
-    echo "  HOSTNAME : $(hostname)"
-    echo "  USER     : $(whoami)"
-    echo "  DATE     : $(date '+%d-%m-%Y %H:%M:%S')"
-    echo "================================================"
+    printf '%s\n' \
+        "┌──────────────────────────────────────────────┐" \
+        "│               DEKEKU • TERMUX               │" \
+        "│              PROGRAM MANAGER                │" \
+        "└──────────────────────────────────────────────┘"
+    printf '  Host   : %s\n' "$(hostname)"
+    printf '  User   : %s\n' "$(whoami)"
+    printf '  Waktu  : %s\n' "$(date '+%d-%m-%Y %H:%M:%S')"
     echo
 
-    # Deteksi program otomatis
+    # Temukan program executable di ~/bin.
     mapfile -d '' PROGRAMS < <(
         find "$BIN" -maxdepth 1 -type f -executable \
-        ! -name "menu" \
-        ! -name "*.desc" \
-        -print0 | sort -z
+            ! -name "menu" ! -name "*.desc" -print0 | sort -z
     )
 
-    # Audit Termux berupa Python script; tampilkan meski file mirror belum executable.
+    # Audit Python tetap tersedia meski tidak memiliki executable bit.
     AUDIT_SCRIPT="$BIN/termux-audit.py"
     if [[ -f "$AUDIT_SCRIPT" ]]; then
         audit_found=0
@@ -40,66 +33,51 @@ while true; do
         (( audit_found )) || PROGRAMS+=("$AUDIT_SCRIPT")
     fi
 
-    if [[ ${#PROGRAMS[@]} -eq 0 ]]; then
-        echo "  Belum ada program yang ditemukan."
+    echo "  PROGRAM"
+    echo "  ─────────────────────────────────────────────"
+    if (( ${#PROGRAMS[@]} == 0 )); then
+        echo "  Belum ada program tersedia."
     else
-        echo "  DAFTAR PROGRAM"
-        echo "  ------------------------------------------------"
-
         for i in "${!PROGRAMS[@]}"; do
             name="$(basename "${PROGRAMS[$i]}")"
             desc="$BIN/$name.desc"
-
-            printf "  [%02d] %-24s" "$((i+1))" "$name"
-
+            printf '  %2d) %-22s' "$((i + 1))" "$name"
             if [[ -f "$desc" ]]; then
-                printf " %s" "$(head -n 1 "$desc")"
+                printf ' %s' "$(head -n 1 "$desc")"
             fi
-
             echo
         done
     fi
 
     echo
-    echo "================================================"
-    echo "  [R] Refresh daftar program"
+    echo "  ─────────────────────────────────────────────"
+    printf '  Total program : %d\n' "${#PROGRAMS[@]}"
+    echo "  [R] Muat ulang daftar"
     echo "  [0] Keluar"
-    echo "================================================"
     echo
 
-    read -rp "  DEKEKU >> Pilih menu: " choice
+    read -rp "  Pilihan > " choice
 
     case "$choice" in
         0)
             clear
-            echo
-            echo "  DEKEKU SERVER MANAGER"
-            echo "  Sampai jumpa."
-            echo
+            echo "DEKEKU • Menu ditutup."
             exit 0
             ;;
-
         r|R)
             continue
             ;;
-
         *)
             if [[ "$choice" =~ ^[0-9]+$ ]] &&
                (( choice >= 1 && choice <= ${#PROGRAMS[@]} )); then
-
-                selected="${PROGRAMS[$((choice-1))]}"
-
+                selected="${PROGRAMS[$((choice - 1))]}"
                 clear
-                echo "================================================"
-                echo "              DEKEKU SERVER MANAGER             "
-                echo "================================================"
-                echo
-                echo "  Program : $(basename "$selected")"
-                echo "  Lokasi  : $selected"
-                echo
-                echo "------------------------------------------------"
-
-                set +e
+                echo "┌──────────────────────────────────────────────┐"
+                echo "│                MENJALANKAN                 │"
+                echo "└──────────────────────────────────────────────┘"
+                printf '  Program : %s\n' "$(basename "$selected")"
+                printf '  Path    : %s\n' "$selected"
+                echo "  ─────────────────────────────────────────────"
                 if [[ "$selected" == "$AUDIT_SCRIPT" ]]; then
                     python3 "$selected"
                     result=$?
@@ -107,16 +85,11 @@ while true; do
                     "$selected"
                     result=$?
                 fi
-                set -e
-
                 echo
-                echo "------------------------------------------------"
-                echo "  Program selesai."
-                echo "  Exit code: $result"
-                echo
-                read -rp "  Tekan Enter untuk kembali ke menu..."
+                echo "  ─────────────────────────────────────────────"
+                printf '  Program selesai (exit: %d).\n' "$result"
+                read -rp "  Enter untuk kembali ke menu..."
             else
-                echo
                 echo "  Pilihan tidak valid."
                 sleep 1
             fi

@@ -92,7 +92,9 @@ Gunakan informasi ini untuk mengarahkan desain dan pengujian, bukan sebagai asum
 ## 5. Arsitektur repository dan sinkronisasi ke `~/bin`
 
 - Isi `projects/termux/` merupakan source/mirror untuk direktori `~/bin` di perangkat Termux.
-- Arah sinkronisasi yang digunakan adalah **repository `projects/termux/` → `~/bin`**, bukan sebaliknya.
+- Arah mirror default adalah **repository `projects/termux/` → `~/bin`**.
+- `repo-sync` juga menyediakan sinkronisasi arah sebaliknya (`target` → `source`) untuk pasangan yang dipilih. Arah ini harus disimulasikan terlebih dahulu dan selalu memerlukan konfirmasi eksplisit karena `--delete-delay` dapat menghapus file di direktori source konfigurasi.
+- Jangan menjalankan sinkronisasi terbalik secara otomatis atau menganggapnya sebagai sinkronisasi dua arah/merge; operasi tersebut tetap mirror satu arah pada saat dipilih.
 - Program yang ditambahkan ke repository harus mempertimbangkan bahwa file akan dijalankan dari `~/bin`, bukan dari direktori clone repository.
 - Jangan mengasumsikan current working directory sama dengan lokasi script. Untuk Python, gunakan lokasi file script bila perlu; untuk shell, gunakan path script atau `BASH_SOURCE` secara aman.
 - Menu di `~/bin/menu` menemukan program executable secara otomatis. Ada pengecualian khusus untuk `termux-audit.py`, yang dipanggil melalui `python3` meskipun file mirror tidak memiliki executable bit.

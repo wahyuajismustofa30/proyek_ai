@@ -88,9 +88,10 @@ def get_pairs(cfg):
     return pairs
 
 
-def log_result(pair, mode, command, output, code):
+def log_result(pair, mode, command, output, code, reverse=False):
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-    log_file = LOG_DIR / f"{pair['id']}.log"
+    suffix = "-reverse" if reverse else ""
+    log_file = LOG_DIR / f"{pair['id']}{suffix}.log"
     with log_file.open("a", encoding="utf-8") as f:
         f.write(f"\n[{datetime.now().astimezone().isoformat()}] {mode} exit={code}\n")
         f.write("COMMAND: " + " ".join(command) + "\n")
@@ -99,7 +100,19 @@ def log_result(pair, mode, command, output, code):
             f.write("\n")
 
 
-def run_rsync(pair, dry_run):
+def run_rsync(pair, dry_run, reverse=False):
+    if reverse:
+        source = pair["target"]
+        target = pair["source"]
+        if not source.is_dir():
+            print(f"Target konfigurasi tidak tersedia sebagai direktori: {source}")
+            return False
+        direction = "ARAH SEBALIKNYA (TARGET → SOURCE)"
+    else:
+        source = pair["source"]
+        target = pair["target"]
+        direction = "ARAH NORMAL (SOURCE → TARGET)"
+
     command = [
         "rsync", "-a", "--delete-delay",
         "--exclude=/.git/",
@@ -107,19 +120,25 @@ def run_rsync(pair, dry_run):
     ]
     if dry_run:
         command.insert(2, "--dry-run")
-    command.extend([str(pair["source"]) + "/", str(pair["target"]) + "/"])
+    command.extend([str(source) + "/", str(target) + "/"])
 
     print(f"\n{'SIMULASI' if dry_run else 'SINKRONISASI'}: {pair['name']}")
-    print(f"Source : {pair['source']}")
-    print(f"Target : {pair['target']}")
-    print("Perhatian: source hanya dibaca; perubahan/penghapusan mirror berlaku di target.")
+    print(f"Arah   : {direction}")
+    print(f"Source : {source}")
+    print(f"Target : {target}")
+    print("Perhatian: --delete-delay dapat menghapus file di target yang tidak ada di source.")
+    print("Folder .git pada tingkat teratas tetap dikecualikan.")
     result = subprocess.run(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         text=True, errors="replace"
     )
     output = result.stdout or "(Tidak ada keluaran.)\n"
     print(output, end="" if output.endswith("\n") else "\n")
-    log_result(pair, "DRY-RUN" if dry_run else "MIRROR", command, output, result.returncode)
+    log_result(
+        pair, "DRY-RUN-REVERSE" if dry_run and reverse else
+        "REVERSE" if reverse else "DRY-RUN" if dry_run else "MIRROR",
+        command, output, result.returncode, reverse=reverse
+    )
     return result.returncode == 0
 
 
@@ -140,18 +159,29 @@ def choose_pair(pairs):
     return enabled[int(answer) - 1]
 
 
-def mirror_one(pair, require_confirmation):
-    if not run_rsync(pair, dry_run=True):
+def mirror_one(pair, require_confirmation, reverse=False):
+    if not run_rsync(pair, dry_run=True, reverse=reverse):
         print("Simulasi gagal. Sinkronisasi nyata tidak dijalankan.")
         return
-    if require_confirmation:
+
+    if reverse:
+        print("\nPERINGATAN: sinkronisasi terbalik dapat MENGHAPUS file di SOURCE konfigurasi.")
+        print("Periksa seluruh daftar perubahan pada hasil simulasi sebelum melanjutkan.")
+        # Reverse sync always requires explicit confirmation, regardless of config.
+        expected = f"SYNC-REVERSE {pair['id']}"
+        answer = input(f"Ketik tepat '{expected}' untuk melanjutkan: ").strip()
+        if answer != expected:
+            print("Dibatalkan. Tidak ada perubahan pada target.")
+            return
+    elif require_confirmation:
         print("\nMirror dapat MENGHAPUS file di TARGET yang tidak ada di SOURCE.")
         expected = f"SYNC {pair['id']}"
         answer = input(f"Ketik tepat '{expected}' untuk melanjutkan: ").strip()
         if answer != expected:
             print("Dibatalkan. Tidak ada perubahan pada target.")
             return
-    if run_rsync(pair, dry_run=False):
+
+    if run_rsync(pair, dry_run=False, reverse=reverse):
         print("\nSinkronisasi selesai.")
     else:
         print("\nSinkronisasi mengalami kesalahan. Periksa log.")
@@ -177,6 +207,8 @@ def main():
         print("4. Simulasi semua pasangan aktif")
         print("5. Sinkronisasi semua pasangan aktif")
         print("6. Lihat konfigurasi JSON")
+        print("7. Simulasi sinkronisasi arah sebaliknya")
+        print("8. Sinkronisasi arah sebaliknya")
         print("0. Keluar")
         choice = input("\nPilih menu: ").strip()
 
@@ -204,6 +236,14 @@ def main():
                             run_rsync(pair, dry_run=True)
                         else:
                             mirror_one(pair, cfg.get("require_confirmation", True))
+                pause()
+            elif choice in ("7", "8"):
+                pair = choose_pair(pairs)
+                if pair:
+                    if choice == "7":
+                        run_rsync(pair, dry_run=True, reverse=True)
+                    else:
+                        mirror_one(pair, True, reverse=True)
                 pause()
             elif choice == "6":
                 print(json.dumps(cfg, indent=2, ensure_ascii=False))

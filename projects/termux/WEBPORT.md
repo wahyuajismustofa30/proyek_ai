@@ -11,7 +11,7 @@ Webport membaca konfigurasi berdasarkan urutan prioritas:
 1. File `PORT` di dalam folder proyek (disarankan).
 2. File `.webport` lama untuk kompatibilitas.
 
-Isi file dapat berupa angka port, misalnya `8080`, atau `PORT=8080`. Jika keduanya tersedia, `PORT` yang digunakan. Jika belum ada, Webport meminta port dan menyimpan pilihan ke file `PORT`.
+Isi file dapat berupa angka port, misalnya `8080`, atau `PORT=8080`. Jika keduanya tersedia, `PORT` yang digunakan. Jika belum ada, Webport meminta port. Pilihan tersebut tidak ditulis ke folder proyek secara otomatis; jika pengguna memilih menyimpan proyek, port disimpan di `projects.json`.
 
 Deteksi server mempertahankan prioritas `index.php` lalu `index.html`. Jika keduanya tidak ada di root, Webport mencari file PHP, HTML, atau HTM di subfolder, dengan mengabaikan `.git`, `node_modules`, dan `__pycache__`.
 

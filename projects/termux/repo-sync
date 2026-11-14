@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Repo Sync - one-way mirror using rsync; source folders are read-only."""
+"""Repo Sync - directional mirror between configured source and target folders."""
 import json
 import os
 import re
@@ -134,11 +134,11 @@ def run_rsync(pair, dry_run, reverse=False):
     )
     output = result.stdout or "(Tidak ada keluaran.)\n"
     print(output, end="" if output.endswith("\n") else "\n")
-    log_result(
-        pair, "DRY-RUN-REVERSE" if dry_run and reverse else
-        "REVERSE" if reverse else "DRY-RUN" if dry_run else "MIRROR",
-        command, output, result.returncode, reverse=reverse
-    )
+    if reverse:
+        mode = "DRY-RUN-REVERSE" if dry_run else "REVERSE"
+    else:
+        mode = "DRY-RUN" if dry_run else "MIRROR"
+    log_result(pair, mode, command, output, result.returncode, reverse=reverse)
     return result.returncode == 0
 
 

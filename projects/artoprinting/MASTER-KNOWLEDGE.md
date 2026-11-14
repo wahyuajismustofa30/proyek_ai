@@ -2,8 +2,8 @@
 
 > **Dokumen induk informasi bisnis.** Gunakan dokumen ini sebagai rujukan utama saat membuat atau memperbarui konten website, media sosial, materi promosi, FAQ, dan komunikasi layanan pelanggan ARTO PRINTING.
 >
-> **Versi:** 1.1  
-> **Pembaruan:** 14 November 2026  
+> **Versi:** 1.1
+> **Pembaruan:** 14 November 2026
 > **Status:** Informasi identitas, sejarah, layanan, dan sejumlah kebijakan telah dikonfirmasi oleh pemilik. Rincian tertentu masih perlu dilengkapi atau diperjelas.
 
 ## 1. Identitas Usaha

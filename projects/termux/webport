@@ -503,13 +503,26 @@ def save_project_entry(folder, port, engine, name=None):
 
 
 def saved_server_status(project):
+    target = os.path.realpath(project["path"])
+    matching_status = []
+    for path, data, error in load_managed_servers():
+        if error:
+            continue
+        if os.path.realpath(data.get("project", "")) == target:
+            matching_status.append(describe_status(data))
+    if matching_status:
+        if "AKTIF" in matching_status:
+            return "AKTIF"
+        if "TIDAK DAPAT DIVERIFIKASI" in matching_status:
+            return "TIDAK DAPAT DIVERIFIKASI"
+        return matching_status[0]
     path = metadata_path(project["port"])
     if not os.path.isfile(path):
         return "BERHENTI"
     data, error = read_metadata(path)
     if error:
         return "TIDAK DAPAT DIVERIFIKASI"
-    if os.path.realpath(data.get("project", "")) != os.path.realpath(project["path"]):
+    if os.path.realpath(data.get("project", "")) != target:
         return "PORT DIPAKAI KONFIGURASI LAIN"
     return describe_status(data)
 

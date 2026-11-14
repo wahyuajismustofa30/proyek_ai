@@ -23,7 +23,6 @@ while true; do
             ! -name "menu" ! -name "*.desc" -print0 | sort -z
     )
 
-
     echo "  PROGRAM"
     echo "  ─────────────────────────────────────────────"
     if (( ${#PROGRAMS[@]} == 0 )); then
@@ -69,13 +68,8 @@ while true; do
                 printf '  Program : %s\n' "$(basename "$selected")"
                 printf '  Path    : %s\n' "$selected"
                 echo "  ─────────────────────────────────────────────"
-                if [[ "$selected" == "$AUDIT_SCRIPT" ]]; then
-                    python3 "$selected"
-                    result=$?
-                else
-                    "$selected"
-                    result=$?
-                fi
+                "$selected"
+                result=$?
                 echo
                 echo "  ─────────────────────────────────────────────"
                 printf '  Program selesai (exit: %d).\n' "$result"

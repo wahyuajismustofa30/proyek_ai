@@ -584,6 +584,24 @@ def update_saved_path(item):
         return False
 
 
+def add_saved_project():
+    folder = choose_project()
+    if not folder:
+        return
+    if not os.path.isdir(folder):
+        print("Folder proyek tidak ditemukan.")
+        return
+    engine = detect_engine(folder)
+    if not engine:
+        print("Folder proyek tidak memiliki file PHP, HTML, atau HTM.")
+        return
+    port = get_project_port(folder)
+    if not port:
+        return
+    name = input(f"Nama proyek [{os.path.basename(folder)}]: ").strip()
+    save_project_entry(folder, port, engine, name or None)
+
+
 def manage_saved_projects():
     data, error = load_saved_projects()
     if error:
@@ -597,8 +615,11 @@ def manage_saved_projects():
     if not choice.isdigit() or int(choice) == 0 or int(choice) > len(projects):
         return
     item = projects[int(choice) - 1]
-    print("\n1. Ubah nama\n2. Ubah path folder\n3. Ubah port\n4. Lihat detail\n5. Hapus dari daftar\n0. Kembali")
+    print("\n1. Ubah nama\n2. Ubah path folder\n3. Ubah port\n4. Lihat detail\n5. Hapus dari daftar\n6. Tambah proyek\n0. Kembali")
     action = input("Pilih tindakan: ").strip()
+    if action == "6":
+        add_saved_project()
+        return
     if action == "1":
         name = input("Nama baru: ").strip()
         if not name:

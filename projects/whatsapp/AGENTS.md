@@ -5,6 +5,7 @@
 Dokumen ini mengatur pekerjaan AI coding agent, developer, dan kontributor pada `projects/whatsapp/` dalam repository `wahyuajismustofa30/proyek_ai`.
 
 Fokus proyek:
+
 - Integrasi GoWA.
 - Webhook WhatsApp.
 - Gemini AI dan provider AI lainnya.
@@ -65,6 +66,7 @@ GoWA merupakan gateway WhatsApp utama.
 Sebelum mengubah integrasi, periksa source code GoWA yang benar-benar digunakan.
 
 Verifikasi:
+
 - Endpoint dan autentikasi.
 - Struktur payload webhook.
 - Identitas device dan akun.
@@ -84,6 +86,7 @@ Setiap perubahan kontrak integrasi harus disertai pengujian kompatibilitas.
 Integrasi AI harus modular dan memungkinkan pergantian provider.
 
 Wajib memperhatikan:
+
 - API key dan konfigurasi rahasia.
 - Timeout dan pembatalan request.
 - Validasi respons.
@@ -94,6 +97,7 @@ Wajib memperhatikan:
 - Pengendalian request bersamaan.
 
 Pisahkan secara ketat:
+
 - OWNER: asisten pribadi pemilik.
 - CUSTOMER: asisten layanan pelanggan DEKEKU.
 
@@ -104,6 +108,7 @@ AI tidak boleh mengarang harga, fitur, kebijakan, atau informasi bisnis yang bel
 ## 7. WEBHOOK DAN PEMROSESAN PESAN
 
 Setiap webhook harus:
+
 - Memverifikasi signature sebelum memproses payload.
 - Memvalidasi tipe dan struktur data.
 - Menolak payload tidak valid.
@@ -120,6 +125,7 @@ Evaluasi kebutuhan penyimpanan persisten untuk deduplikasi dan history jika sist
 ## 8. MODE OPERASIONAL
 
 Gunakan tahapan:
+
 1. DEVELOPMENT
 2. DRY-RUN
 3. STAGING
@@ -139,6 +145,7 @@ Lingkungan utama adalah HG680P dengan Armbian ARM64 dan sumber daya terbatas.
 Utamakan efisiensi RAM, CPU, storage, dan jumlah proses.
 
 Dilarang tanpa persetujuan:
+
 - Reboot server.
 - Menghentikan GoWA, aaPanel, Nginx, atau Cloudflare Tunnel.
 - Mengubah jaringan, firewall, port, dan konfigurasi tunnel.
@@ -152,6 +159,7 @@ Pengujian harus dilakukan secara terisolasi dan tidak mengganggu layanan lain.
 Sesuaikan pengujian dengan risiko perubahan.
 
 Pertimbangkan:
+
 - Pemeriksaan sintaks.
 - Unit test.
 - Integration test.
@@ -185,6 +193,7 @@ Patuhi instruksi root repository dan batas perubahan khusus proyek ini.
 ## 12. DOKUMENTASI
 
 Dokumentasikan:
+
 - Arsitektur aktual.
 - Konfigurasi tanpa nilai rahasia.
 - Kontrak integrasi.
@@ -216,6 +225,7 @@ Jika pekerjaan berisiko atau informasi belum cukup, berhenti pada tahap pemeriks
 ## 14. FORMAT LAPORAN
 
 Laporan pekerjaan penting harus mencakup:
+
 - Tujuan.
 - File diperiksa.
 - File diubah.

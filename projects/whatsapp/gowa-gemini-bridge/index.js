@@ -169,11 +169,11 @@ function createBridgeServer(options) {
       const answer = await generateReplyFn({ route, chatId, message: body });
       rememberMessage(id);
       logger.log(
-        \`[DRY-RUN] Gemini berhasil | jalur=\${route} | panjang_input=\${body.length} | panjang_respons=\${answer.length}\`
+        `[DRY-RUN] Gemini berhasil | jalur=${route} | panjang_input=${body.length} | panjang_respons=${answer.length}`
       );
       return 'accepted_dry_run';
     } catch (err) {
-      logger.error(\`[DRY-RUN] Gemini gagal | jalur=\${route} | alasan=\${err.message}\`);
+      logger.error(`[DRY-RUN] Gemini gagal | jalur=${route} | alasan=${err.message}`);
       return 'gemini_failed_dry_run';
     } finally {
       processingMessages.delete(id);
@@ -211,7 +211,7 @@ function createBridgeServer(options) {
       const sender = typeof msg.from === 'string' ? msg.from : '';
 
       logger.log(
-        \`[WEBHOOK] event=\${event} | account_match=\${Boolean(data && data.device_id === ownerJid)} | is_from_me=\${String(msg.is_from_me)} | chat_is_owner=\${chatId === ownerJid} | sender_is_owner=\${sender === ownerJid} | chat_type=\${chatType} | result=\${result}\`
+        `[WEBHOOK] event=${event} | account_match=${Boolean(data && data.device_id === ownerJid)} | is_from_me=${String(msg.is_from_me)} | chat_is_owner=${chatId === ownerJid} | sender_is_owner=${sender === ownerJid} | chat_type=${chatType} | result=${result}`
       );
 
       if (result === 'gemini_failed_dry_run') return reply(res, 503, { ok: false, result });
@@ -233,7 +233,7 @@ function startServer(config) {
     deviceId: config.deviceId
   });
   server.listen(config.port, config.host, () => {
-    console.log(\`[BRIDGE] Aktif di http://\${config.host}:\${config.port}\`);
+    console.log(`[BRIDGE] Aktif di http://${config.host}:${config.port}`);
     console.log('[BRIDGE] Mode DRY-RUN: Gemini dan balasan WhatsApp nonaktif');
   });
   server.on('error', err => {

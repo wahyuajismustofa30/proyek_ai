@@ -70,7 +70,7 @@ test('system prompt dan riwayat OWNER/CUSTOMER terisolasi', async () => {
   const requests = [];
   globalThis.fetch = async (_url, options) => {
     requests.push(JSON.parse(options.body));
-    return response(\`jawaban-\${requests.length}\`);
+    return response(`jawaban-${requests.length}`);
   };
   const chatId = 'same-chat-id-for-route-isolation';
   await generateReply({ route: 'OWNER', chatId, message: 'owner-private-marker' });
@@ -103,7 +103,7 @@ test('riwayat yang dikirim dibatasi sesuai maksimum 16 pesan tersimpan ditambah 
   };
   const chatId = 'history-limit-test';
   for (let i = 0; i < 10; i++) {
-    await generateReply({ route: 'OWNER', chatId, message: \`pesan-\${i}\` });
+    await generateReply({ route: 'OWNER', chatId, message: `pesan-${i}` });
   }
   assert.equal(lastRequest.contents.length, 17);
   assert.equal(lastRequest.contents.some(item => JSON.stringify(item).includes('pesan-0')), false);

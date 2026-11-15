@@ -25,10 +25,10 @@ async function withServer(t, options = {}) {
   });
   t.after(() => new Promise(resolve => server.close(resolve)));
 
-  const baseUrl = \`http://127.0.0.1:\${server.address().port}\`;
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
   async function request({ method = 'POST', path = '/webhook', body = '', signature, headers = {} } = {}) {
     const raw = Buffer.isBuffer(body) ? body : Buffer.from(body);
-    const response = await fetch(\`\${baseUrl}\${path}\`, {
+    const response = await fetch(`${baseUrl}${path}`, {
       method,
       headers: {
         ...(method === 'POST' ? { 'content-type': 'application/json' } : {}),
@@ -84,7 +84,7 @@ test('health check, route tidak dikenal, signature, dan JSON invalid', async t =
 
   const body = JSON.stringify(payload());
   assert.equal((await app.request({ body })).status, 401);
-  assert.equal((await app.request({ body, signature: \`sha256=\${'0'.repeat(64)}\` })).status, 401);
+  assert.equal((await app.request({ body, signature: `sha256=${'0'.repeat(64)}` })).status, 401);
   const invalidJson = '{not-json';
   const badJson = await app.request({ body: invalidJson, signature: sign(invalidJson) });
   assert.equal(badJson.status, 400);

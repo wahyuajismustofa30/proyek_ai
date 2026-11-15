@@ -7,7 +7,7 @@ const OWNER_JID = '6281234567890@s.whatsapp.net';
 const DEVICE_ID = 'test-device';
 
 function sign(body, secret = SECRET) {
-  return \`sha256=\${crypto.createHmac('sha256', secret).update(body).digest('hex')}\`;
+  return `sha256=${crypto.createHmac('sha256', secret).update(body).digest('hex')}`;
 }
 
 function payload(overrides = {}) {

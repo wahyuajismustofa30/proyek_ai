@@ -19,6 +19,32 @@ class WebValidationTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp.cleanup()
 
+
+    def test_resolves_directory_urls_to_index_html(self) -> None:
+        (self.project / "laman" / "katalog").mkdir(parents=True)
+        (self.project / "laman" / "katalog" / "index.html").write_text(
+            '<!doctype html><html><body>Catalog</body></html>', encoding="utf-8"
+        )
+        (self.project / "index.html").write_text(
+            '<!doctype html><html><body><a href="/laman/katalog/">Catalog</a>'
+            '<a href="/">Home</a></body></html>', encoding="utf-8"
+        )
+        self.assertEqual(validate_project(self.project), [])
+
+    def test_accepts_component_fragments_with_template_root(self) -> None:
+        components = self.project / "components"
+        components.mkdir()
+        (components / "header.html").write_text(
+            '<header><a href="{{root}}index.html">Home</a>'
+            '<img src="{{root}}assets/logo.svg" alt="Logo"></header>',
+            encoding="utf-8",
+        )
+        (components / "footer.html").write_text(
+            '<footer><nav><a href="{{root}}pages/contact.html">Contact</a></nav></footer>',
+            encoding="utf-8",
+        )
+        self.assertEqual(validate_project(self.project), [])
+
     def test_valid_html_css_and_local_asset(self) -> None:
         (self.project / "index.html").write_text(
             '<!doctype html><html><head><link rel="stylesheet" href="css/site.css"></head>'

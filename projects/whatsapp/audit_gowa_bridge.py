@@ -41,7 +41,7 @@ BRIDGE_PATTERNS = {
     "routing_and_dedup": r"isOwnerSelfChat|CUSTOMER|OWNER|rememberMessage|processingMessages",
 }
 SENSITIVE_ASSIGNMENT = re.compile(
-    r"(?i)(secret|token|password|passwd|api[_-]?key|private[_-]?key)\\s*[:=]"
+    r"(?i)(secret|token|password|passwd|api[_-]?key|private[_-]?key)\s*[:=]"
 )
 GO_EXTENSIONS = {".go", ".yaml", ".yml", ".json", ".toml", ".env.example"}
 MAX_FILES = 3000
@@ -154,7 +154,7 @@ def bridge_config_audit(bridge: Path) -> dict[str, Any]:
             result["env_permissions"] = oct(env_file.stat().st_mode & 0o777)
             names = set()
             for line in env_file.read_text(encoding="utf-8", errors="replace").splitlines():
-                match = re.match(r"^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*=", line)
+                match = re.match(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=", line)
                 if match:
                     names.add(match.group(1))
             result["env_variable_names"] = sorted(names)
@@ -245,7 +245,7 @@ def markdown(report: dict[str, Any]) -> str:
         "- Jangan aktifkan endpoint pengiriman atau mengirim pesan untuk keperluan audit ini.",
         "",
     ]
-    return "\\n".join(lines)
+    return "\n".join(lines)
 
 
 def main() -> int:
@@ -277,7 +277,7 @@ def main() -> int:
             return 2
         print(latest_md.read_text(encoding="utf-8") if latest_md.is_file()
               else json.dumps(report, indent=2, ensure_ascii=False))
-        print(f"\\nSnapshot tersimpan di: {state_dir}")
+        print(f"\nSnapshot tersimpan di: {state_dir}")
         return 0
 
     root = args.root.expanduser().resolve()
@@ -288,14 +288,14 @@ def main() -> int:
 
     try:
         state_dir.mkdir(parents=True, exist_ok=True)
-        latest_json.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\\n", encoding="utf-8")
-        latest_md.write_text(rendered + "\\n", encoding="utf-8")
+        latest_json.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        latest_md.write_text(rendered + "\n", encoding="utf-8")
     except OSError as exc:
         print(f"Gagal menyimpan snapshot: {type(exc).__name__}", file=sys.stderr)
         return 2
 
     print(rendered)
-    print(f"\\nSnapshot JSON: {latest_json}")
+    print(f"\nSnapshot JSON: {latest_json}")
     print(f"Snapshot Markdown: {latest_md}")
     return 0 if report["gowa"]["source_scan"]["exists"] else 1
 

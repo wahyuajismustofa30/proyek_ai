@@ -3,9 +3,15 @@
 # repo-programs
 # Menu interaktif untuk menjalankan program operasional di scripts/.
 
-REPO="$HOME/git-repos/proyek_ai"
+SCRIPT_PATH="$(readlink -f -- "$0" 2>/dev/null || printf '%s' "$0")"
+SCRIPT_DIR="$(cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)"
+REPO="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null)"
+if [[ -z "$REPO" ]]; then
+    REPO="$(cd -- "$SCRIPT_DIR/.." && pwd -P)"
+fi
 ROOT="$REPO/scripts"
-SELF="$ROOT/repo-programs"
+PROJECTS_ROOT="$REPO/projects"
+SELF="$SCRIPT_PATH"
 
 declare -a PROGRAM_PATHS PROGRAM_NAMES PROGRAM_TYPES PROGRAM_COMMANDS
 
@@ -60,9 +66,9 @@ scan_programs() {
     while IFS= read -r -d '' file; do
         [[ "$file" == "$SELF" ]] && continue
         relative="${file#"$ROOT"/}"
-
-        # Unit test bukan program operasional untuk dijalankan dari menu.
-        case "/$relative/" in */tests/*|*/.git/*|*/__pycache__/*) continue ;; esac
+        case "/$relative/" in
+            */tests/*|*/.git/*|*/__pycache__/*) continue ;;
+        esac
 
         if detect_program "$file"; then
             PROGRAM_PATHS+=("$file")
@@ -105,14 +111,59 @@ show_menu() {
 }
 
 select_project() {
-    local prompt="$1" i choice
+    local prompt="$1" mode="$2" dir existing choice skip
     local -a projects=()
-    while IFS= read -r -d '' item; do projects+=("$item"); done < <(
-        find "$REPO/projects" -mindepth 1 -maxdepth 1 -type d ! -name '.*' -print0 2>/dev/null | sort -z
+
+    if [[ ! -d "$PROJECTS_ROOT" ]]; then
+        printf '[ERROR] Folder projects tidak ditemukan: %s\n' "$PROJECTS_ROOT" >&2
+        return 1
+    fi
+
+    while IFS= read -r -d '' dir; do
+        case "$mode" in
+            node)
+                [[ -f "$dir/package.json" ]] || continue
+                ;;
+            python)
+                if [[ ! -f "$dir/pyproject.toml" &&
+                      ! -f "$dir/requirements.txt" &&
+                      ! -f "$dir/requirements-test.txt" &&
+                      ! -f "$dir/requirements-dev.txt" ]]; then
+                    [[ -d "$dir/tests" ]] || continue
+                    find "$dir/tests" -maxdepth 1 -type f \
+                        \( -name 'test_*.py' -o -name '*_test.py' \) \
+                        -print -quit | grep -q . || continue
+                fi
+                ;;
+            php)
+                [[ -f "$dir/composer.json" ]] || continue
+                ;;
+            static|web)
+                [[ -f "$dir/index.html" ]] || continue
+                ;;
+            *)
+                printf '[ERROR] Jenis proyek tidak dikenal: %s\n' "$mode" >&2
+                return 2
+                ;;
+        esac
+
+        skip=0
+        for existing in "${projects[@]}"; do
+            if [[ "$dir" == "$existing/"* ]]; then
+                skip=1
+                break
+            fi
+        done
+        (( skip == 0 )) && projects+=("$dir")
+    done < <(
+        find "$PROJECTS_ROOT" -mindepth 1 \
+            \( -name .git -o -name node_modules -o -name vendor \
+               -o -name .venv -o -name venv -o -name __pycache__ \) -prune \
+            -o -type d -print0
     )
 
     if (( ${#projects[@]} == 0 )); then
-        printf '[ERROR] Tidak ada direktori proyek di %s/projects/.\n' "$REPO" >&2
+        printf '[ERROR] Tidak ada proyek yang cocok untuk jenis "%s".\n' "$mode" >&2
         return 1
     fi
 
@@ -122,7 +173,10 @@ select_project() {
     done
     printf '[0] Batal\n'
     read -r -p 'Pilih proyek: ' choice
-    [[ "$choice" =~ ^[0-9]+$ ]] || { printf '[ERROR] Pilihan tidak valid.\n' >&2; return 1; }
+    [[ "$choice" =~ ^[0-9]+$ ]] || {
+        printf '[ERROR] Pilihan tidak valid.\n' >&2
+        return 1
+    }
     (( choice == 0 )) && return 1
     (( choice >= 1 && choice <= ${#projects[@]} )) || {
         printf '[ERROR] Pilihan di luar daftar.\n' >&2
@@ -133,10 +187,11 @@ select_project() {
 
 run_selected() {
     local file="$1" name="$2" interpreter="$3"
-    local project stack action entrypoint mode
+    local project stack action entrypoint mode choice program
     local -a args=()
+    program="$(basename -- "$name")"
 
-    case "$name" in
+    case "$program" in
         run_project_checks.py)
             printf '\nStack yang akan diperiksa:\n[1] Node.js\n[2] Python\n[3] PHP\n[0] Batal\n'
             read -r -p 'Pilih stack: ' choice
@@ -147,7 +202,7 @@ run_selected() {
                 0) return 0 ;;
                 *) printf '[ERROR] Pilihan stack tidak valid.\n'; return 2 ;;
             esac
-            select_project 'Pilih direktori proyek:' || return 0
+            select_project 'Pilih direktori proyek:' "$stack" || return 0
             project="${SELECTED_PROJECT#"$REPO"/}"
             args=("$stack" "$project")
             ;;
@@ -162,7 +217,7 @@ run_selected() {
             esac
             ;;
         check_static_site.py)
-            select_project 'Pilih direktori website statis:' || return 0
+            select_project 'Pilih direktori website statis:' static || return 0
             read -r -p 'Nama entrypoint [index.html]: ' entrypoint
             entrypoint="${entrypoint:-index.html}"
             args=("$SELECTED_PROJECT" --entrypoint "$entrypoint")
@@ -173,7 +228,7 @@ run_selected() {
             case "$mode" in
                 1|'') args=(--root "$REPO") ;;
                 2)
-                    select_project 'Pilih proyek web:' || return 0
+                    select_project 'Pilih proyek web:' web || return 0
                     args=("$SELECTED_PROJECT" --root "$REPO")
                     ;;
                 0) return 0 ;;
@@ -194,7 +249,7 @@ run_selected() {
 
 if [[ ! -d "$REPO/.git" && ! -f "$REPO/.git" ]]; then
     printf '[ERROR] Repository tidak ditemukan: %s\n' "$REPO"
-    printf 'Sesuaikan variabel REPO pada file %s.\n' "$SELF"
+    printf 'Pastikan menu dijalankan dari dalam repository proyek_ai.\n'
     exit 1
 fi
 
@@ -229,7 +284,6 @@ while true; do
     elif ! command -v "$interpreter" >/dev/null 2>&1; then
         printf '[ERROR] Interpreter "%s" belum tersedia.\n' "$interpreter"
     else
-        # Beberapa script memakai path relatif terhadap repository.
         cd "$REPO" || exit 1
         run_selected "$file" "$name" "$interpreter"
         result=$?

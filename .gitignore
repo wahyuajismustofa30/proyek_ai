@@ -44,3 +44,14 @@ vendor/
 # Operating systems
 .DS_Store
 Thumbs.db
+
+# WhatsApp local runtime and nested repository
+projects/whatsapp/gowa/
+
+# WhatsApp Gemini Bridge secrets
+projects/whatsapp/gowa-gemini-bridge/.webhook-secret
+projects/whatsapp/gowa-gemini-bridge/.webhook-secret.*
+projects/whatsapp/gowa-gemini-bridge/.env
+projects/whatsapp/gowa-gemini-bridge/.env.*
+projects/whatsapp/gowa-gemini-bridge/node_modules/
+projects/whatsapp/gowa-gemini-bridge/*.log

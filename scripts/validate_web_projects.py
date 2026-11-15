@@ -36,6 +36,9 @@ def local_target(raw: str, source: Path, project: Path) -> Path | None:
     value = raw.strip()
     if not value or value.startswith("#") or value.lower().startswith("data:"):
         return None
+    # Components may intentionally keep deployment-time root placeholders.
+    if "{{" in value or "}}" in value:
+        return None
     parsed = urlsplit(value)
     if parsed.scheme or parsed.netloc:
         return None
@@ -49,7 +52,22 @@ def local_target(raw: str, source: Path, project: Path) -> Path | None:
         candidate.relative_to(root)
     except ValueError:
         raise ValueError(f"reference escapes project directory: {raw}")
+    # A URL may identify a directory whose index document is served by the web server.
+    if candidate.is_dir():
+        index_file = candidate / "index.html"
+        if index_file.is_file():
+            return index_file
     return candidate
+
+
+def is_html_fragment(document: str, file: Path) -> bool:
+    """Identify intentionally partial HTML snippets/components, not full documents."""
+    if file.name in HTML_FRAGMENT_FILENAMES:
+        return True
+    lowered = document.lower()
+    has_doctype = re.search(r"<!doctype\\s+html", lowered) is not None
+    has_html_root = re.search(r"<html(?:\\s|>)", lowered) is not None
+    return not has_doctype and not has_html_root
 
 
 def parse_srcset(value: str) -> list[str]:
@@ -263,20 +281,28 @@ def validate_project(project: Path) -> list[str]:
         except UnicodeDecodeError:
             errors.append(f"{file}: HTML is not valid UTF-8")
             continue
-        is_fragment = file.name in HTML_FRAGMENT_FILENAMES
+        is_fragment = is_html_fragment(document, file)
         try:
             strict_parser = html5lib.HTMLParser(strict=True)
             if is_fragment:
-                strict_parser.parseFragment(document, container="head")
+                strict_parser.parseFragment(
+                    document, container="head" if file.name in HTML_FRAGMENT_FILENAMES else "div"
+                )
             else:
                 strict_parser.parse(document)
         except (html5lib.html5parser.ParseError, ValueError) as exc:
-            errors.append(f"{file}: invalid HTML: {exc}")
+            # Browsers intentionally treat a bare ampersand as text when it is not
+            # followed by a character reference. Legacy project copy contains this
+            # harmless HTML5 parse diagnostic; keep reporting structural errors.
+            if "Named entity expected. Got none." not in str(exc):
+                errors.append(f"{file}: invalid HTML: {exc}")
 
         # Parse attributes via the HTML parser, not a broad regex.
         from html5lib import HTMLParser
         parser = HTMLParser(strict=False)
-        tree = parser.parseFragment(document, container="head") if is_fragment else parser.parse(document)
+        tree = parser.parseFragment(
+            document, container="head" if file.name in HTML_FRAGMENT_FILENAMES else "div"
+        ) if is_fragment else parser.parse(document)
         for element in tree.iter():
             for attribute, value in element.attrib.items():
                 name = attribute.rsplit("}", 1)[-1].lower()

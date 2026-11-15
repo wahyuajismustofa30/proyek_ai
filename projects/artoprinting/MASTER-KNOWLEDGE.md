@@ -230,12 +230,12 @@ Admin menindaklanjuti laporan dan menentukan penyelesaian berdasarkan hasil peme
 
 ### Kanal yang tercantum pada website
 
-- Website: https://www.artoprintingpbg.com/
+- Website: <https://www.artoprintingpbg.com/>
 - WhatsApp admin utama: **0857-1211-0870**
-- Tautan WhatsApp: https://wa.me/6285712110870
-- Instagram: https://www.instagram.com/artoprinting_pbg/
-- TikTok: https://www.tiktok.com/@artoprinting.pbg
-- Google Maps: https://maps.app.goo.gl/rnVR4BhCsxXkcZiE7
+- Tautan WhatsApp: <https://wa.me/6285712110870>
+- Instagram: <https://www.instagram.com/artoprinting_pbg/>
+- TikTok: <https://www.tiktok.com/@artoprinting.pbg>
+- Google Maps: <https://maps.app.goo.gl/rnVR4BhCsxXkcZiE7>
 
 Nomor WhatsApp utama di atas telah dikonfirmasi masih menjadi nomor resmi ARTO PRINTING.
 

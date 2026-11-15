@@ -100,6 +100,12 @@ func (s *requestChatHistorySpy) PinChat(context.Context, domainChat.PinChatReque
 	return domainChat.PinChatResponse{}, nil
 }
 
+func (s *requestChatHistorySpy) SetChatLabel(_ context.Context, request domainChat.SetChatLabelRequest) (domainChat.SetChatLabelResponse, error) {
+	return domainChat.SetChatLabelResponse{
+		Status: "success", ChatJID: request.ChatJID, LabelID: request.LabelID, Labeled: request.Labeled,
+	}, nil
+}
+
 func (s *requestChatHistorySpy) SetDisappearingTimer(context.Context, domainChat.SetDisappearingTimerRequest) (domainChat.SetDisappearingTimerResponse, error) {
 	return domainChat.SetDisappearingTimerResponse{}, nil
 }
@@ -153,4 +159,27 @@ func TestRequestChatHistoryIgnoresConflictingBodyChatJID(t *testing.T) {
 	require.Equal(t, 1, spy.calls)
 	require.Equal(t, "6289685028129@s.whatsapp.net", spy.lastRequest.ChatJID)
 	require.Equal(t, 50, spy.lastRequest.Count)
+}
+
+func TestSetChatLabelUsesRouteJIDAndPreservesLabelOperation(t *testing.T) {
+	app := fiber.New()
+	spy := &requestChatHistorySpy{}
+	controller := &Chat{Service: spy}
+	app.Post("/chat/:chat_jid/labels", controller.SetChatLabel)
+
+	body := `{"chat_jid":"other@s.whatsapp.net","label_id":"label-17","labeled":true}`
+	req := httptest.NewRequest("POST", "/chat/6281111111111%40s.whatsapp.net/labels", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := app.Test(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+	require.Equal(t, fiber.StatusOK, resp.StatusCode)
+
+	var envelope utils.ResponseData
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&envelope))
+	results, ok := envelope.Results.(map[string]any)
+	require.True(t, ok)
+	require.Equal(t, "6281111111111@s.whatsapp.net", results["chat_jid"])
+	require.Equal(t, "label-17", results["label_id"])
+	require.Equal(t, true, results["labeled"])
 }

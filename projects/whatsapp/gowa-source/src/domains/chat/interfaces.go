@@ -9,6 +9,7 @@ type IChatUsecase interface {
 	ListChats(ctx context.Context, request ListChatsRequest) (response ListChatsResponse, err error)
 	GetChatMessages(ctx context.Context, request GetChatMessagesRequest) (response GetChatMessagesResponse, err error)
 	PinChat(ctx context.Context, request PinChatRequest) (response PinChatResponse, err error)
+	SetChatLabel(ctx context.Context, request SetChatLabelRequest) (response SetChatLabelResponse, err error)
 	SetDisappearingTimer(ctx context.Context, request SetDisappearingTimerRequest) (response SetDisappearingTimerResponse, err error)
 	ArchiveChat(ctx context.Context, request ArchiveChatRequest) (response ArchiveChatResponse, err error)
 	// RequestChatHistory asks the phone (via an on-demand history sync request)

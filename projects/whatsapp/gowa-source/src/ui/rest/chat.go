@@ -21,6 +21,7 @@ func InitRestChat(app fiber.Router, service domainChat.IChatUsecase) Chat {
 	app.Get("/chats", rest.ListChats)
 	app.Get("/chat/:chat_jid/messages", rest.GetChatMessages)
 	app.Post("/chat/:chat_jid/pin", rest.PinChat)
+	app.Post("/chat/:chat_jid/labels", rest.SetChatLabel)
 	app.Post("/chat/:chat_jid/disappearing", rest.SetDisappearingTimer)
 	app.Post("/chat/:chat_jid/archive", rest.ArchiveChat)
 	app.Post("/chat/:chat_jid/history", rest.RequestChatHistory)
@@ -94,6 +95,37 @@ func (controller *Chat) GetChatMessages(c fiber.Ctx) error {
 		Status:  200,
 		Code:    "SUCCESS",
 		Message: "Success get chat messages",
+		Results: response,
+	})
+}
+
+func (controller *Chat) SetChatLabel(c fiber.Ctx) error {
+	var request domainChat.SetChatLabelRequest
+
+	chatJID, err := chatJIDParam(c)
+	if err != nil {
+		return c.Status(400).JSON(utils.ResponseData{
+			Status:  400,
+			Code:    "BAD_REQUEST",
+			Message: "invalid chat_jid path parameter: " + err.Error(),
+		})
+	}
+	if err := c.Bind().Body(&request); err != nil {
+		return c.Status(400).JSON(utils.ResponseData{
+			Status:  400,
+			Code:    "BAD_REQUEST",
+			Message: "Invalid request body",
+		})
+	}
+	// The route is authoritative; never accept a different chat JID from the body.
+	request.ChatJID = chatJID
+
+	response, err := controller.Service.SetChatLabel(whatsapp.ContextWithDevice(c.Context(), getDeviceFromCtx(c)), request)
+	utils.PanicIfNeeded(err)
+	return c.JSON(utils.ResponseData{
+		Status:  200,
+		Code:    "SUCCESS",
+		Message: response.Message,
 		Results: response,
 	})
 }

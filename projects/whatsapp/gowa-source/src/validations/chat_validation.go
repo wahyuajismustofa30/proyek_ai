@@ -2,6 +2,7 @@ package validations
 
 import (
 	"context"
+	"strings"
 
 	domainChat "github.com/aldinokemal/go-whatsapp-web-multidevice/domains/chat"
 	pkgError "github.com/aldinokemal/go-whatsapp-web-multidevice/pkg/error"
@@ -54,6 +55,29 @@ func ValidatePinChat(ctx context.Context, request *domainChat.PinChatRequest) er
 		return pkgError.ValidationError(err.Error())
 	}
 
+	return nil
+}
+
+// ValidateSetChatLabel rejects blank, padded, or excessively long WhatsApp label IDs.
+func ValidateSetChatLabel(ctx context.Context, request *domainChat.SetChatLabelRequest) error {
+	err := validation.ValidateStructWithContext(ctx, request,
+		validation.Field(&request.ChatJID, validation.Required),
+		validation.Field(&request.LabelID,
+			validation.Required,
+			validation.Length(1, 128),
+			validation.By(func(value any) error {
+				labelID, ok := value.(string)
+				if !ok || strings.TrimSpace(labelID) != labelID || strings.ContainsAny(labelID, "\r\n\t") {
+					return pkgError.ValidationError("label_id must be a non-empty identifier without surrounding or control whitespace")
+				}
+				return nil
+			}),
+		),
+	)
+
+	if err != nil {
+		return pkgError.ValidationError(err.Error())
+	}
 	return nil
 }
 

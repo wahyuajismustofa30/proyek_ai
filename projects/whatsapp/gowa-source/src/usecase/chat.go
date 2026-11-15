@@ -338,6 +338,42 @@ func (service serviceChat) PinChat(ctx context.Context, request domainChat.PinCh
 	return response, nil
 }
 
+// SetChatLabel applies or removes one label without replacing other chat labels.
+func (service serviceChat) SetChatLabel(ctx context.Context, request domainChat.SetChatLabelRequest) (response domainChat.SetChatLabelResponse, err error) {
+	if err = validations.ValidateSetChatLabel(ctx, &request); err != nil {
+		return response, err
+	}
+
+	client := whatsapp.ClientFromContext(ctx)
+	if client == nil {
+		return response, pkgError.ErrWaCLI
+	}
+
+	targetJID, err := utils.ValidateJidWithLogin(client, request.ChatJID)
+	if err != nil {
+		return response, err
+	}
+
+	if err = client.SendAppState(ctx, appstate.BuildLabelChat(targetJID, request.LabelID, request.Labeled)); err != nil {
+		logrus.WithError(err).WithFields(logrus.Fields{
+			"chat_jid": request.ChatJID,
+			"labeled":  request.Labeled,
+		}).Error("Failed to update chat label")
+		return response, err
+	}
+
+	response.Status = "success"
+	response.ChatJID = request.ChatJID
+	response.LabelID = request.LabelID
+	response.Labeled = request.Labeled
+	if request.Labeled {
+		response.Message = "Chat label added successfully"
+	} else {
+		response.Message = "Chat label removed successfully"
+	}
+	return response, nil
+}
+
 func (service serviceChat) SetDisappearingTimer(ctx context.Context, request domainChat.SetDisappearingTimerRequest) (response domainChat.SetDisappearingTimerResponse, err error) {
 	if err = validations.ValidateSetDisappearingTimer(ctx, &request); err != nil {
 		return response, err

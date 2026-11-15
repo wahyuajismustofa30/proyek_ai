@@ -45,6 +45,22 @@ type PinChatResponse struct {
 	Pinned  bool   `json:"pinned"`
 }
 
+// Chat label operations. Label changes are additive/removal per label ID;
+// this request never replaces the chat's complete label set.
+type SetChatLabelRequest struct {
+	ChatJID string `json:"chat_jid" uri:"chat_jid"`
+	LabelID string `json:"label_id"`
+	Labeled bool   `json:"labeled"`
+}
+
+type SetChatLabelResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	ChatJID string `json:"chat_jid"`
+	LabelID string `json:"label_id"`
+	Labeled bool   `json:"labeled"`
+}
+
 type ChatInfo struct {
 	JID                 string `json:"jid"`
 	Name                string `json:"name"`

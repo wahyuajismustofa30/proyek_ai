@@ -19,7 +19,6 @@ File `PORT` dan `.webport` yang sudah ada tidak pernah diubah atau dihapus oleh 
 
 Deteksi server mempertahankan prioritas `index.php` lalu `index.html`. Jika keduanya tidak ada di root, Webport mencari file PHP, HTML, atau HTM di subfolder, dengan mengabaikan `.git`, `node_modules`, dan `__pycache__`.
 
-
 ## Proyek tersimpan
 
 Daftar proyek yang dapat digunakan kembali disimpan terpisah dari metadata proses:

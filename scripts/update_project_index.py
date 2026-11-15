@@ -60,7 +60,7 @@ def render_project_index(repository_root: Path) -> str:
         path = item["path"]
         readme = repository_root / path / "README.md"
         readme_link = f"[README.md](../{path}/README.md)" if readme.is_file() else "—"
-        lines.append(f"| {item['name']} | {item['category']} | [ {path}/ ](../{path}/) | {item['description']} | {readme_link} |")
+        lines.append(f"| {item['name']} | {item['category']} | [{path}/](../{path}/) | {item['description']} | {readme_link} |")
     lines.extend(["", "## Tooling dan utilitas", "", "| Nama | Lokasi | Fungsi |", "|---|---|---|"])
     for item in catalog["tooling"]:
         path = item["path"]

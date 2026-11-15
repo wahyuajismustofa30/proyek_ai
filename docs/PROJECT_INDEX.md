@@ -12,6 +12,7 @@ Struktur internal setiap proyek fleksibel; README bersifat opsional.
 | Preview | [projects/preview/](../projects/preview/) | [README.md](../projects/preview/README.md) |
 | Termux | [projects/termux/](../projects/termux/) | — |
 | Testing | [projects/testing/](../projects/testing/) | [README.md](../projects/testing/README.md) |
+| Whatsapp | [projects/whatsapp/](../projects/whatsapp/) | — |
 
 ## Arsip
 

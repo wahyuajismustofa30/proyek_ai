@@ -1,28 +1,28 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # repo-programs
-# Menu ringkas untuk mendeteksi dan menjalankan program di repository proyek_ai/scripts
+# Menu interaktif untuk menjalankan program operasional di scripts/.
 
-REPO="$HOME/git-repos/proyek_ai"
+SCRIPT_PATH="$(readlink -f -- "$0" 2>/dev/null || printf '%s' "$0")"
+SCRIPT_DIR="$(cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)"
+REPO="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null)"
+if [[ -z "$REPO" ]]; then
+    REPO="$(cd -- "$SCRIPT_DIR/.." && pwd -P)"
+fi
 ROOT="$REPO/scripts"
-SELF="$ROOT/repo-programs"
+PROJECTS_ROOT="$REPO/projects"
+SELF="$SCRIPT_PATH"
 
-declare -a PROGRAM_PATHS
-declare -a PROGRAM_NAMES
-declare -a PROGRAM_TYPES
-declare -a PROGRAM_COMMANDS
+declare -a PROGRAM_PATHS PROGRAM_NAMES PROGRAM_TYPES PROGRAM_COMMANDS
 
 detect_program() {
-    local file="$1"
-    local ext first_line
-
+    local file="$1" ext first_line
     ext="${file##*.}"
     ext="${ext,,}"
     first_line="$(head -n 1 "$file" 2>/dev/null)"
 
     TYPE=""
     COMMAND=""
-
     case "$ext" in
         sh)         TYPE="Shell"; COMMAND="bash" ;;
         bash)       TYPE="Bash"; COMMAND="bash" ;;
@@ -35,7 +35,6 @@ detect_program() {
         r)          TYPE="R"; COMMAND="Rscript" ;;
     esac
 
-    # Deteksi berdasarkan shebang untuk file tanpa ekstensi yang dikenal.
     if [[ -z "$COMMAND" && "$first_line" == '#!'* ]]; then
         case "$first_line" in
             *python*)  TYPE="Python"; COMMAND="python3" ;;
@@ -49,13 +48,11 @@ detect_program() {
             *Rscript*) TYPE="R"; COMMAND="Rscript" ;;
         esac
     fi
-
     [[ -n "$COMMAND" ]]
 }
 
 scan_programs() {
-    local file
-
+    local file relative
     PROGRAM_PATHS=()
     PROGRAM_NAMES=()
     PROGRAM_TYPES=()
@@ -67,12 +64,15 @@ scan_programs() {
     fi
 
     while IFS= read -r -d '' file; do
-        # Jangan tampilkan peluncur menu itu sendiri.
         [[ "$file" == "$SELF" ]] && continue
+        relative="${file#"$ROOT"/}"
+        case "/$relative/" in
+            */tests/*|*/.git/*|*/__pycache__/*) continue ;;
+        esac
 
         if detect_program "$file"; then
             PROGRAM_PATHS+=("$file")
-            PROGRAM_NAMES+=("${file#"$ROOT"/}")
+            PROGRAM_NAMES+=("$relative")
             PROGRAM_TYPES+=("$TYPE")
             PROGRAM_COMMANDS+=("$COMMAND")
         fi
@@ -80,10 +80,8 @@ scan_programs() {
 }
 
 show_menu() {
-    local i number relative interpreter status
-
+    local i number interpreter status
     clear 2>/dev/null || true
-
     printf '%s\n' '=============================================='
     printf '%s\n' '          PROYEK_AI PROGRAM MANAGER'
     printf '%s\n' '=============================================='
@@ -92,21 +90,18 @@ show_menu() {
     printf 'DAFTAR PROGRAM (%d)\n\n' "${#PROGRAM_PATHS[@]}"
 
     if (( ${#PROGRAM_PATHS[@]} == 0 )); then
-        printf '%s\n' 'Belum ditemukan program yang didukung.'
+        printf '%s\n' 'Belum ditemukan program operasional.'
     else
         for i in "${!PROGRAM_PATHS[@]}"; do
             number=$((i + 1))
-            relative="${PROGRAM_NAMES[$i]}"
             interpreter="${PROGRAM_COMMANDS[$i]}"
-
             if command -v "$interpreter" >/dev/null 2>&1; then
                 status="OK"
             else
                 status="NO INTERPRETER"
             fi
-
             printf '[%02d] %-42s %-12s %s\n' \
-                "$number" "$relative" "${PROGRAM_TYPES[$i]}" "$status"
+                "$number" "${PROGRAM_NAMES[$i]}" "${PROGRAM_TYPES[$i]}" "$status"
         done
     fi
 
@@ -115,25 +110,165 @@ show_menu() {
     printf '%s\n' '=============================================='
 }
 
+select_project() {
+    local prompt="$1" mode="$2" dir existing choice skip
+    local -a projects=()
+
+    if [[ ! -d "$PROJECTS_ROOT" ]]; then
+        printf '[ERROR] Folder projects tidak ditemukan: %s\n' "$PROJECTS_ROOT" >&2
+        return 1
+    fi
+
+    while IFS= read -r -d '' dir; do
+        case "$mode" in
+            node)
+                [[ -f "$dir/package.json" ]] || continue
+                ;;
+            python)
+                if [[ ! -f "$dir/pyproject.toml" &&
+                      ! -f "$dir/requirements.txt" &&
+                      ! -f "$dir/requirements-test.txt" &&
+                      ! -f "$dir/requirements-dev.txt" ]]; then
+                    [[ -d "$dir/tests" ]] || continue
+                    find "$dir/tests" -maxdepth 1 -type f \
+                        \( -name 'test_*.py' -o -name '*_test.py' \) \
+                        -print -quit | grep -q . || continue
+                fi
+                ;;
+            php)
+                [[ -f "$dir/composer.json" ]] || continue
+                ;;
+            static|web)
+                [[ -f "$dir/index.html" ]] || continue
+                ;;
+            *)
+                printf '[ERROR] Jenis proyek tidak dikenal: %s\n' "$mode" >&2
+                return 2
+                ;;
+        esac
+
+        skip=0
+        for existing in "${projects[@]}"; do
+            if [[ "$dir" == "$existing/"* ]]; then
+                skip=1
+                break
+            fi
+        done
+        (( skip == 0 )) && projects+=("$dir")
+    done < <(
+        find "$PROJECTS_ROOT" -mindepth 1 \
+            \( -name .git -o -name node_modules -o -name vendor \
+               -o -name .venv -o -name venv -o -name __pycache__ \) -prune \
+            -o -type d -print0
+    )
+
+    if (( ${#projects[@]} == 0 )); then
+        printf '[ERROR] Tidak ada proyek yang cocok untuk jenis "%s".\n' "$mode" >&2
+        return 1
+    fi
+
+    printf '\n%s\n' "$prompt"
+    for i in "${!projects[@]}"; do
+        printf '[%02d] %s\n' "$((i + 1))" "${projects[$i]#"$REPO"/}"
+    done
+    printf '[0] Batal\n'
+    read -r -p 'Pilih proyek: ' choice
+    [[ "$choice" =~ ^[0-9]+$ ]] || {
+        printf '[ERROR] Pilihan tidak valid.\n' >&2
+        return 1
+    }
+    (( choice == 0 )) && return 1
+    (( choice >= 1 && choice <= ${#projects[@]} )) || {
+        printf '[ERROR] Pilihan di luar daftar.\n' >&2
+        return 1
+    }
+    SELECTED_PROJECT="${projects[$((choice - 1))]}"
+}
+
+run_selected() {
+    local file="$1" name="$2" interpreter="$3"
+    local project stack action entrypoint mode choice program
+    local -a args=()
+    program="$(basename -- "$name")"
+
+    case "$program" in
+        run_project_checks.py)
+            printf '\nStack yang akan diperiksa:\n[1] Node.js\n[2] Python\n[3] PHP\n[0] Batal\n'
+            read -r -p 'Pilih stack: ' choice
+            case "$choice" in
+                1) stack="node" ;;
+                2) stack="python" ;;
+                3) stack="php" ;;
+                0) return 0 ;;
+                *) printf '[ERROR] Pilihan stack tidak valid.\n'; return 2 ;;
+            esac
+            select_project 'Pilih direktori proyek:' "$stack" || return 0
+            project="${SELECTED_PROJECT#"$REPO"/}"
+            args=("$stack" "$project")
+            ;;
+        update_project_index.py)
+            printf '\nTindakan indeks proyek:\n[1] Periksa (--check, aman/tidak mengubah file)\n[2] Perbarui (--write)\n[0] Batal\n'
+            read -r -p 'Pilih tindakan: ' action
+            case "$action" in
+                1) args=(--check --root "$REPO") ;;
+                2) args=(--write --root "$REPO") ;;
+                0) return 0 ;;
+                *) printf '[ERROR] Pilihan tindakan tidak valid.\n'; return 2 ;;
+            esac
+            ;;
+        check_static_site.py)
+            select_project 'Pilih direktori website statis:' static || return 0
+            read -r -p 'Nama entrypoint [index.html]: ' entrypoint
+            entrypoint="${entrypoint:-index.html}"
+            args=("$SELECTED_PROJECT" --entrypoint "$entrypoint")
+            ;;
+        validate_web_projects.py)
+            printf '\nValidasi proyek web:\n[1] Semua proyek (default)\n[2] Pilih satu proyek\n[0] Batal\n'
+            read -r -p 'Pilih cakupan: ' mode
+            case "$mode" in
+                1|'') args=(--root "$REPO") ;;
+                2)
+                    select_project 'Pilih proyek web:' web || return 0
+                    args=("$SELECTED_PROJECT" --root "$REPO")
+                    ;;
+                0) return 0 ;;
+                *) printf '[ERROR] Pilihan cakupan tidak valid.\n'; return 2 ;;
+            esac
+            ;;
+        discover_projects.py)
+            args=(--root "$REPO")
+            ;;
+    esac
+
+    printf '\n==============================================\n'
+    printf 'Menjalankan: %s\n' "$name"
+    printf '==============================================\n\n'
+    "$interpreter" "$file" "${args[@]}"
+    return $?
+}
+
+if [[ ! -d "$REPO/.git" && ! -f "$REPO/.git" ]]; then
+    printf '[ERROR] Repository tidak ditemukan: %s\n' "$REPO"
+    printf 'Pastikan menu dijalankan dari dalam repository proyek_ai.\n'
+    exit 1
+fi
+
 while true; do
     scan_programs || exit 1
     show_menu
-
-    read -r -p "Pilih program: " choice
+    read -r -p 'Pilih program: ' choice
 
     case "$choice" in
         0)
             printf '%s\n' 'Keluar dari repo-programs.'
             exit 0
             ;;
-        r|R)
-            continue
-            ;;
+        r|R) continue ;;
         *)
             if [[ ! "$choice" =~ ^[0-9]+$ ]] ||
                 (( choice < 1 || choice > ${#PROGRAM_PATHS[@]} )); then
                 printf '\n%s\n' '[ERROR] Pilihan tidak valid.'
-                read -r -p "Tekan Enter untuk melanjutkan..."
+                read -r -p 'Tekan Enter untuk melanjutkan...'
                 continue
             fi
             ;;
@@ -141,6 +276,7 @@ while true; do
 
     index=$((choice - 1))
     file="${PROGRAM_PATHS[$index]}"
+    name="${PROGRAM_NAMES[$index]}"
     interpreter="${PROGRAM_COMMANDS[$index]}"
 
     if [[ ! -f "$file" ]]; then
@@ -148,17 +284,13 @@ while true; do
     elif ! command -v "$interpreter" >/dev/null 2>&1; then
         printf '[ERROR] Interpreter "%s" belum tersedia.\n' "$interpreter"
     else
-        printf '\n==============================================\n'
-        printf 'Menjalankan: %s\n' "${PROGRAM_NAMES[$index]}"
-        printf '==============================================\n\n'
-
-        "$interpreter" "$file"
+        cd "$REPO" || exit 1
+        run_selected "$file" "$name" "$interpreter"
         result=$?
-
         printf '\n----------------------------------------------\n'
         printf 'Program selesai dengan kode: %d\n' "$result"
     fi
 
     printf '\n'
-    read -r -p "Tekan Enter untuk kembali ke menu..."
+    read -r -p 'Tekan Enter untuk kembali ke menu...'
 done

@@ -61,13 +61,18 @@ def local_target(raw: str, source: Path, project: Path) -> Path | None:
 
 
 def is_html_fragment(document: str, file: Path) -> bool:
-    """Identify intentionally partial HTML snippets/components, not full documents."""
-    if file.name in HTML_FRAGMENT_FILENAMES:
-        return True
+    """Identify intentionally partial HTML snippets/components."""
     lowered = document.lower()
-    has_doctype = re.search(r"<!doctype\\s+html", lowered) is not None
-    has_html_root = re.search(r"<html(?:\\s|>)", lowered) is not None
-    return not has_doctype and not has_html_root
+
+    has_doctype = re.search(r"<!doctype\s+html", lowered) is not None
+    has_html_root = re.search(r"<html(?:\s|>)", lowered) is not None
+
+    # A complete HTML document must always use the document parser.
+    if has_doctype or has_html_root:
+        return False
+
+    # Known standalone snippets and partial components use fragment parsing.
+    return True
 
 
 def parse_srcset(value: str) -> list[str]:

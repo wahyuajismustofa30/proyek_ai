@@ -8,10 +8,25 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from validate_web_projects import validate_project
+from validate_web_projects import is_html_fragment, validate_project
 
 
 class WebValidationTests(unittest.TestCase):
+    def test_doctype_document_is_not_fragment(self) -> None:
+        document = "<!doctype html><html><body>Home</body></html>"
+        self.assertFalse(is_html_fragment(document, Path("index.html")))
+
+    def test_html_root_document_is_not_fragment(self) -> None:
+        document = "<html><body>Home</body></html>"
+        self.assertFalse(is_html_fragment(document, Path("index.html")))
+
+    def test_header_and_footer_components_are_fragments(self) -> None:
+        header = "<header><h1>Website</h1></header>"
+        footer = "<footer><p>Copyright</p></footer>"
+
+        self.assertTrue(is_html_fragment(header, Path("header.html")))
+        self.assertTrue(is_html_fragment(footer, Path("footer.html")))
+
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.project = Path(self.temp.name)

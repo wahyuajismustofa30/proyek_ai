@@ -1,27 +1,39 @@
 # Ruang Kerja Proyek
 
-Folder ini hanya digunakan untuk proyek internal yang benar-benar dipelihara di repository.
-Saat ini terdapat dua proyek aktif: `preview/` dan `testing/`.
+Folder ini menampung proyek aplikasi dan tooling yang dipelihara di repository.
+Tidak semua direktori di bawah projects/ merupakan proyek mandiri: sebagian
+berfungsi sebagai kategori atau wadah untuk proyek bertingkat.
 
-Di tingkat root `projects/`, hanya README ini yang boleh disimpan selain direktori
-proyek. Jangan menaruh fixture, arsip, backup, file sementara, cache, dependency,
-log, hasil build, laporan, atau artefak pengujian di sini. Gunakan direktori
-sementara sistem/CI untuk kebutuhan pengujian dan output yang dapat dibuat ulang.
+## Klasifikasi
 
-Setiap proyek aktif berada tepat satu tingkat di bawah `projects/` dan memakai
-nama slug huruf kecil, angka, serta tanda hubung. Jangan membuat direktori proyek
-tersembunyi seperti `.draft/`, `.archive/`, atau `.internal/`. Direktori
-konfigurasi tersembunyi di dalam proyek, seperti `.github/` atau `.config/`,
-tetap diperbolehkan.
+Daftar resmi dipelihara di [katalog proyek](../docs/project-catalog.json) dan
+ditampilkan melalui [indeks proyek](../docs/PROJECT_INDEX.md).
 
-Setiap proyek dimulai dari template resmi dan mengikuti [aturan struktur proyek](../docs/PROJECT_STRUCTURE.md).
-Buat proyek baru secara eksplisit melalui bootstrap:
+- **Proyek** adalah unit kerja mandiri dengan tujuan dan siklus pemeliharaan sendiri.
+- **Kategori/wadah** mengelompokkan proyek terkait. Contohnya projects/whatsapp/
+  yang menaungi gowa-gemini-bridge/; folder kategori bukan proyek aplikasi.
+- **Tooling** berisi utilitas pengembangan atau operasional, bukan aplikasi produk.
+  Contohnya projects/termux/.
 
-```bash
-python scripts/bootstrap_project.py --name "Nama Proyek"
-```
+Proyek boleh berada langsung di bawah projects/ atau di dalam folder kategori.
+Tambahkan lokasi proyek yang sebenarnya ke docs/project-catalog.json; jangan
+mendaftarkan subfolder halaman, aset, fixture, dependency, cache, atau hasil build.
 
-Bootstrap menolak output yang bersarang di dalam proyek lain. Untuk fixture CI,
-gunakan direktori sementara di luar repository; script fixture juga menolak lokasi
-output di dalam repository. Baca [panduan bootstrap](../docs/PROJECT_BOOTSTRAP.md)
-dan [indeks proyek](../docs/PROJECT_INDEX.md) sebelum memulai.
+## Struktur dan bootstrap
+
+Gunakan nama direktori lowercase ASCII, angka, dan tanda hubung. Hindari direktori
+tersembunyi untuk draft/arsip. Direktori konfigurasi tersembunyi di dalam proyek,
+seperti .github/ atau .config/, diperbolehkan.
+
+Setiap proyek mengikuti [aturan struktur proyek](../docs/PROJECT_STRUCTURE.md).
+Bootstrap saat ini membuat proyek di tingkat pertama projects/<slug>/.
+Untuk proyek dalam kategori, buat direktori pada lokasi kategori yang sesuai,
+lalu daftarkan path lengkapnya pada katalog. Jangan menganggap bootstrap telah
+mendukung nested path.
+
+## Batasan root
+
+Jangan menaruh fixture, arsip, backup, file sementara, cache, dependency, log,
+hasil build, laporan, atau artefak pengujian langsung di root projects/.
+Gunakan direktori sementara sistem/CI untuk kebutuhan pengujian dan output yang
+dapat dibuat ulang.

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "projects": [
+    {"name":"Arto Printing","path":"projects/artoprinting","category":"Website bisnis","description":"Website layanan percetakan, katalog produk, dan undangan digital."},
+    {"name":"DEKEKU","path":"projects/dekeku","category":"Website dan identitas brand","description":"Website utama DEKEKU dan referensi master theme."},
+    {"name":"Landing Page Kampanye Slamet","path":"projects/preview","category":"Website kampanye","description":"Landing page statis untuk kampanye Slamet Purwanto."},
+    {"name":"Testing — Web Page Lab","path":"projects/testing","category":"Laboratorium","description":"Proyek latihan pengembangan dan pengujian halaman web statis."},
+    {"name":"GoWA Gemini Bridge","path":"projects/whatsapp/gowa-gemini-bridge","category":"Integrasi WhatsApp","description":"Bridge antara GoWA dan Gemini untuk pemrosesan pesan WhatsApp."}
+  ],
+  "tooling": [
+    {"name":"Termux Utilities","path":"projects/termux","description":"Kumpulan utilitas dan program pendukung lingkungan Termux Android."}
+  ],
+  "categories": [
+    {"name":"WhatsApp","path":"projects/whatsapp","description":"Wadah proyek integrasi WhatsApp; bukan proyek mandiri."}
+  ]
+}

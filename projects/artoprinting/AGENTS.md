@@ -9,6 +9,7 @@ Seluruh pengembangan, perbaikan, debugging, refactoring, dan pemeliharaan antarm
 Master Theme merupakan sumber standar visual dan pola komponen proyek. Jangan membuat tema, design system, token, atau pola komponen alternatif yang menduplikasi atau bertentangan dengannya.
 
 Sebelum mengubah UI, periksa implementasi aktual pada:
+
 - `master-theme.html` — showcase dan referensi visual komponen.
 - `assets/css/base.css` — sumber kebenaran tema: token, warna, tipografi, spacing, radius, surface, tombol, dan utilitas.
 - `assets/css/layout.css` — layout global.
@@ -21,6 +22,7 @@ Periksa file dan API yang benar-benar tersedia sebelum menggunakannya. Jangan me
 ## 2. Prioritas penggunaan ulang
 
 Sebelum membuat implementasi baru:
+
 1. Periksa apakah pola atau komponen yang dibutuhkan sudah ada di Master Theme.
 2. Gunakan token, class, markup, dan API yang tersedia.
 3. Jika perlu variasi, perluas komponen yang ada dengan cara yang konsisten dan tidak merusak pemakaian lain.
@@ -31,6 +33,7 @@ Jangan menyalin CSS atau JavaScript komponen bersama ke stylesheet atau script h
 ## 3. Konsistensi visual
 
 Semua halaman dan komponen wajib mengikuti standar Master Theme, termasuk:
+
 - Identitas merek, palet warna, dan semantic color token.
 - Tipografi, hierarki heading, dan keterbacaan.
 - Skala spacing, ukuran, border, radius, dan shadow.
@@ -44,6 +47,7 @@ Gunakan token semantik yang sudah tersedia, misalnya token warna brand, text, su
 ## 4. Pembagian tanggung jawab file
 
 Pertahankan pembagian tanggung jawab yang sudah digunakan proyek:
+
 - `assets/css/base.css`: fondasi dan token tema.
 - `assets/css/layout.css`: layout global.
 - `assets/css/components.css`: komponen lintas halaman.
@@ -56,7 +60,8 @@ Jangan memindahkan aturan global ke stylesheet halaman untuk menyelesaikan masal
 ## 5. Aksesibilitas dan perilaku komponen
 
 Pertahankan semantik dan perilaku aksesibilitas Master Theme. Contoh:
-- Breadcrumb menggunakan pola `.ui-breadcrumb`, elemen `nav berlabel, dan `aria-current="page"` sesuai struktur yang berlaku.
+
+- Breadcrumb menggunakan pola `.ui-breadcrumb`, elemen `nav` berlabel, dan `aria-current="page"` sesuai struktur yang berlaku.
 - Skip link tetap tersedia untuk pengguna keyboard; boleh disembunyikan secara visual saat tidak fokus, tetapi jangan dihapus atau dibuat tidak dapat dijangkau.
 - Navigasi menggunakan tautan; aksi menggunakan tombol.
 - Formulir memiliki label yang terhubung dengan kontrol.
@@ -70,6 +75,7 @@ Periksa markup, selector, dan API aktual pada Master Theme sebelum mengubah komp
 Jangan mengubah token, komponen global, atau standar Master Theme hanya untuk menyelesaikan masalah satu halaman.
 
 Jika perubahan fondasi memang diperlukan:
+
 1. Jelaskan kebutuhan dan alasan teknisnya.
 2. Periksa semua pemakaian token atau komponen yang terdampak.
 3. Pilih perubahan sekecil mungkin.
@@ -81,6 +87,7 @@ Variasi halaman diperbolehkan hanya jika memiliki kebutuhan fungsional yang jela
 ## 7. Validasi setiap perubahan UI
 
 Sebelum pekerjaan dinyatakan selesai:
+
 - Cocokkan hasil dengan showcase dan standar Master Theme.
 - Periksa penggunaan ulang token dan komponen.
 - Periksa duplikasi atau override CSS/JavaScript.

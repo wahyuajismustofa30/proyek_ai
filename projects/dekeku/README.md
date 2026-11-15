@@ -14,7 +14,6 @@ Proyek ini berisi homepage DEKEKU, aset identitas brand, dan halaman referensi M
 
 Data katalog referensi telah dipindahkan ke `data/produk.json`. Katalog menggunakan JavaScript native; pemesanan dilakukan langsung melalui WhatsApp tanpa keranjang atau checkout lokal.
 
-
 ## Menjalankan lokal
 
 Website bersifat statis dan tidak memerlukan build maupun dependency tambahan.
@@ -41,7 +40,6 @@ Lalu buka `http://localhost:8000`.
 ### Alur pemesanan
 
 Pemesanan dimulai dari kartu produk dan dilanjutkan langsung melalui WhatsApp. Pelanggan memilih paket dan menyepakati detail pesanan di percakapan dengan DEKEKU. Website tidak menggunakan keranjang, checkout lokal, riwayat pesanan, atau pembayaran otomatis.
-
 
 ## Catatan konten
 

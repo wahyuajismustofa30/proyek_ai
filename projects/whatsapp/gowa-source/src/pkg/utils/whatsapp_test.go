@@ -1,0 +1,1079 @@
+package utils
+
+import (
+	"bytes"
+	"os"
+	"path/filepath"
+	"testing"
+
+	domainChatStorage "github.com/aldinokemal/go-whatsapp-web-multidevice/domains/chatstorage"
+	"go.mau.fi/whatsmeow"
+	"go.mau.fi/whatsmeow/proto/waE2E"
+	"google.golang.org/protobuf/proto"
+)
+
+func TestDetermineMediaExtension(t *testing.T) {
+	tests := []struct {
+		name       string
+		filename   string
+		mimeType   string
+		wantSuffix string
+	}{
+		{
+			name:       "DocxFromFilename",
+			filename:   "report.docx",
+			mimeType:   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+			wantSuffix: ".docx",
+		},
+		{
+			name:       "XlsxFromMime",
+			filename:   "",
+			mimeType:   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+			wantSuffix: ".xlsx",
+		},
+		{
+			name:       "PptxFromMime",
+			filename:   "",
+			mimeType:   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+			wantSuffix: ".pptx",
+		},
+		{
+			name:       "ZipFallback",
+			filename:   "",
+			mimeType:   "application/zip",
+			wantSuffix: ".zip",
+		},
+		{
+			name:       "AudioOgaWithCodecsParam",
+			filename:   "",
+			mimeType:   "audio/ogg; codecs=opus",
+			wantSuffix: ".oga",
+		},
+		{
+			name:       "ExeFromFilename",
+			filename:   "installer.exe",
+			mimeType:   "application/octet-stream",
+			wantSuffix: ".exe",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := determineMediaExtension(tt.filename, tt.mimeType)
+			if got != tt.wantSuffix {
+				t.Fatalf("determineMediaExtension() = %q, want %q", got, tt.wantSuffix)
+			}
+		})
+	}
+}
+
+func TestExtractPhoneFromVCard(t *testing.T) {
+	tests := []struct {
+		name  string
+		vcard string
+		want  string
+	}{
+		{
+			name:  "LFEndings",
+			vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:Alice\nTEL;type=Mobile:+62 812 3456 7890\nEND:VCARD",
+			want:  "+62 812 3456 7890",
+		},
+		{
+			name:  "CRLFEndings",
+			vcard: "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Bob\r\nTEL:+1 555 0100\r\nEND:VCARD",
+			want:  "+1 555 0100",
+		},
+		{
+			name:  "FoldedLine",
+			vcard: "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Julio\r\nTEL;type=CELL;waid=5511998913283:\r\n +5511998913283\r\nEND:VCARD",
+			want:  "+5511998913283",
+		},
+		{
+			// iOS exports every phone with a group prefix and an Apple label line.
+			name:  "GroupedTelFromIOS",
+			vcard: "BEGIN:VCARD\nVERSION:3.0\nN:;Dave;;;\nFN:Dave\nitem1.TEL;type=CELL;type=VOICE;type=pref;waid=5511999990006:+55 11 99999-0006\nitem1.X-ABLabel:Mobile\nEND:VCARD",
+			want:  "+55 11 99999-0006",
+		},
+		{
+			name:  "GroupedTelLowercase",
+			vcard: "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Erin\r\nitem2.tel;type=CELL:+1 555 0101\r\nEND:VCARD",
+			want:  "+1 555 0101",
+		},
+		{
+			name:  "GroupedTelFolded",
+			vcard: "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Frank\r\nitem1.TEL;type=CELL;waid=5511998913283:\r\n +5511998913283\r\nEND:VCARD",
+			want:  "+5511998913283",
+		},
+		{
+			// Only the property name counts: a group or a value that merely
+			// contains "TEL" is not a phone.
+			name:  "OnlyTelPropertyName",
+			vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:Grace\nTELEX:12345\nitem3.URL:https://example.com/TEL\nitem4.TEL:+1 555 0102\nEND:VCARD",
+			want:  "+1 555 0102",
+		},
+		{
+			name:  "NoTelLine",
+			vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:Carol\nEND:VCARD",
+			want:  "",
+		},
+		{
+			name:  "Empty",
+			vcard: "",
+			want:  "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ExtractPhoneFromVCard(tt.vcard)
+			if got != tt.want {
+				t.Fatalf("ExtractPhoneFromVCard() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFormatContactSummary(t *testing.T) {
+	tests := []struct {
+		name   string
+		dName  string
+		phone  string
+		plural bool
+		want   string
+	}{
+		{name: "SingleNameAndPhone", dName: "Alice", phone: "+62 812", plural: false, want: "Contact: Alice (+62 812)"},
+		{name: "SingleNameOnly", dName: "Alice", phone: "", plural: false, want: "Contact: Alice"},
+		{name: "SinglePhoneOnly", dName: "", phone: "+62 812", plural: false, want: "Contact: +62 812"},
+		{name: "SingleEmpty", dName: "", phone: "", plural: false, want: "Contact shared"},
+		{name: "SingleWhitespaceOnly", dName: " ", phone: " ", plural: false, want: "Contact shared"},
+		{name: "PluralNameAndPhone", dName: "Alice", phone: "+62 812", plural: true, want: "Contacts: Alice (+62 812)"},
+		{name: "PluralEmpty", dName: "", phone: "", plural: true, want: "Contacts shared"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := FormatContactSummary(tt.dName, tt.phone, tt.plural)
+			if got != tt.want {
+				t.Fatalf("FormatContactSummary() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestExtractMessageTextFromProtoContactMessage(t *testing.T) {
+	phoneVCard := "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Alice\r\nTEL;type=Mobile:\r\n +62 812 3456 7890\r\nEND:VCARD"
+
+	tests := []struct {
+		name string
+		msg  *waE2E.Message
+		want string
+	}{
+		{
+			name: "NameAndPhone",
+			msg: &waE2E.Message{
+				ContactMessage: &waE2E.ContactMessage{
+					DisplayName: strPtr("Alice"),
+					Vcard:       strPtr(phoneVCard),
+				},
+			},
+			want: "Contact: Alice (+62 812 3456 7890)",
+		},
+		{
+			name: "NameOnly",
+			msg: &waE2E.Message{
+				ContactMessage: &waE2E.ContactMessage{
+					DisplayName: strPtr("Alice"),
+					Vcard:       strPtr(""),
+				},
+			},
+			want: "Contact: Alice",
+		},
+		{
+			name: "PhoneOnly",
+			msg: &waE2E.Message{
+				ContactMessage: &waE2E.ContactMessage{
+					DisplayName: strPtr(""),
+					Vcard:       strPtr(phoneVCard),
+				},
+			},
+			want: "Contact: +62 812 3456 7890",
+		},
+		{
+			name: "Neither",
+			msg: &waE2E.Message{
+				ContactMessage: &waE2E.ContactMessage{
+					DisplayName: strPtr(""),
+					Vcard:       strPtr(""),
+				},
+			},
+			want: "Contact shared",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ExtractMessageTextFromProto(tt.msg)
+			if got != tt.want {
+				t.Fatalf("ExtractMessageTextFromProto() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestExtractMessageTextFromProtoContactsArrayMessage(t *testing.T) {
+	bob := "Bob"
+	bobVcard := "BEGIN:VCARD\nVERSION:3.0\nFN:Bob\nTEL:+1 555 0100\nEND:VCARD"
+	carol := "Carol"
+	carolVcard := "BEGIN:VCARD\nVERSION:3.0\nFN:Carol\nTEL:+1 555 0200\nEND:VCARD"
+
+	tests := []struct {
+		name string
+		msg  *waE2E.Message
+		want string
+	}{
+		{
+			name: "FirstContactWithNameAndPhone",
+			msg: &waE2E.Message{
+				ContactsArrayMessage: &waE2E.ContactsArrayMessage{
+					Contacts: []*waE2E.ContactMessage{
+						{DisplayName: &bob, Vcard: &bobVcard},
+						{DisplayName: &carol, Vcard: &carolVcard},
+					},
+				},
+			},
+			want: "Contacts: Bob (+1 555 0100)",
+		},
+		{
+			name: "EmptyContactsArray",
+			msg: &waE2E.Message{
+				ContactsArrayMessage: &waE2E.ContactsArrayMessage{Contacts: nil},
+			},
+			want: "Contacts shared",
+		},
+		{
+			name: "FirstContactEmpty",
+			msg: &waE2E.Message{
+				ContactsArrayMessage: &waE2E.ContactsArrayMessage{
+					Contacts: []*waE2E.ContactMessage{{}},
+				},
+			},
+			want: "Contacts shared",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ExtractMessageTextFromProto(tt.msg)
+			if got != tt.want {
+				t.Fatalf("ExtractMessageTextFromProto() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestExtractMediaInfoIncludesDirectPath(t *testing.T) {
+	mediaKey := []byte("media-key")
+	fileSHA256 := []byte("file-sha")
+	fileEncSHA256 := []byte("file-enc-sha")
+	fileLength := uint64(1234)
+	mediaURL := "https://mmg.whatsapp.net/v/t62.7118-24/media.enc?ccb=11-4"
+	directPath := "/v/t62.7118-24/media.enc?ccb=11-4"
+
+	tests := []struct {
+		name     string
+		msg      *waE2E.Message
+		wantType string
+	}{
+		{
+			name: "Image",
+			msg: &waE2E.Message{ImageMessage: &waE2E.ImageMessage{
+				URL:           proto.String(mediaURL),
+				DirectPath:    proto.String(directPath),
+				MediaKey:      mediaKey,
+				FileSHA256:    fileSHA256,
+				FileEncSHA256: fileEncSHA256,
+				FileLength:    proto.Uint64(fileLength),
+			}},
+			wantType: "image",
+		},
+		{
+			name: "Video",
+			msg: &waE2E.Message{VideoMessage: &waE2E.VideoMessage{
+				URL:           proto.String(mediaURL),
+				DirectPath:    proto.String(directPath),
+				MediaKey:      mediaKey,
+				FileSHA256:    fileSHA256,
+				FileEncSHA256: fileEncSHA256,
+				FileLength:    proto.Uint64(fileLength),
+			}},
+			wantType: "video",
+		},
+		{
+			name: "VideoNote",
+			msg: &waE2E.Message{PtvMessage: &waE2E.VideoMessage{
+				URL:           proto.String(mediaURL),
+				DirectPath:    proto.String(directPath),
+				MediaKey:      mediaKey,
+				FileSHA256:    fileSHA256,
+				FileEncSHA256: fileEncSHA256,
+				FileLength:    proto.Uint64(fileLength),
+			}},
+			wantType: "video_note",
+		},
+		{
+			name: "Audio",
+			msg: &waE2E.Message{AudioMessage: &waE2E.AudioMessage{
+				URL:           proto.String(mediaURL),
+				DirectPath:    proto.String(directPath),
+				MediaKey:      mediaKey,
+				FileSHA256:    fileSHA256,
+				FileEncSHA256: fileEncSHA256,
+				FileLength:    proto.Uint64(fileLength),
+			}},
+			wantType: "audio",
+		},
+		{
+			name: "Document",
+			msg: &waE2E.Message{DocumentMessage: &waE2E.DocumentMessage{
+				URL:           proto.String(mediaURL),
+				DirectPath:    proto.String(directPath),
+				MediaKey:      mediaKey,
+				FileSHA256:    fileSHA256,
+				FileEncSHA256: fileEncSHA256,
+				FileLength:    proto.Uint64(fileLength),
+				FileName:      proto.String("report.pdf"),
+			}},
+			wantType: "document",
+		},
+		{
+			name: "Sticker",
+			msg: &waE2E.Message{StickerMessage: &waE2E.StickerMessage{
+				URL:           proto.String(mediaURL),
+				DirectPath:    proto.String(directPath),
+				MediaKey:      mediaKey,
+				FileSHA256:    fileSHA256,
+				FileEncSHA256: fileEncSHA256,
+				FileLength:    proto.Uint64(fileLength),
+			}},
+			wantType: "sticker",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotType, _, gotURL, gotDirectPath, gotMediaKey, gotFileSHA256, gotFileEncSHA256, gotFileLength := ExtractMediaInfo(tt.msg)
+			if gotType != tt.wantType {
+				t.Fatalf("mediaType = %q, want %q", gotType, tt.wantType)
+			}
+			if gotURL != mediaURL {
+				t.Fatalf("url = %q, want %q", gotURL, mediaURL)
+			}
+			if gotDirectPath != directPath {
+				t.Fatalf("directPath = %q, want %q", gotDirectPath, directPath)
+			}
+			if !bytes.Equal(gotMediaKey, mediaKey) {
+				t.Fatalf("mediaKey = %q, want %q", gotMediaKey, mediaKey)
+			}
+			if !bytes.Equal(gotFileSHA256, fileSHA256) {
+				t.Fatalf("fileSHA256 = %q, want %q", gotFileSHA256, fileSHA256)
+			}
+			if !bytes.Equal(gotFileEncSHA256, fileEncSHA256) {
+				t.Fatalf("fileEncSHA256 = %q, want %q", gotFileEncSHA256, fileEncSHA256)
+			}
+			if gotFileLength != fileLength {
+				t.Fatalf("fileLength = %d, want %d", gotFileLength, fileLength)
+			}
+		})
+	}
+}
+
+func TestBuildDownloadableMessageSetsMimetype(t *testing.T) {
+	tests := []struct {
+		name      string
+		mediaType string
+		filename  string
+		wantMime  string
+	}{
+		{name: "Image", mediaType: "image", filename: "image_20260101_120000_caption.jpg", wantMime: "image/jpeg"},
+		{name: "Video", mediaType: "video", filename: "video_20260101_120000.mp4", wantMime: "video/mp4"},
+		{name: "VideoNote", mediaType: "video_note", filename: "video_note_20260101_120000.mp4", wantMime: "video/mp4"},
+		{name: "Audio", mediaType: "audio", filename: "audio_20260101_120000.ogg", wantMime: ""},
+		{name: "PTT", mediaType: "ptt", filename: "audio_20260101_120000.ogg", wantMime: ""},
+		{name: "Sticker", mediaType: "sticker", filename: "", wantMime: "image/webp"},
+		{name: "Document", mediaType: "document", filename: "report.pdf", wantMime: "application/pdf"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := BuildDownloadableMessage(tt.mediaType, "https://mmg.whatsapp.net/ignored", "/v/t62/media.enc", tt.filename, []byte("k"), []byte("s"), []byte("e"), 1)
+			if err != nil {
+				t.Fatalf("BuildDownloadableMessage() error = %v", err)
+			}
+			withMime, ok := got.(interface{ GetMimetype() string })
+			if !ok {
+				t.Fatalf("message type %T has no mimetype", got)
+			}
+			if withMime.GetMimetype() != tt.wantMime {
+				t.Fatalf("mimetype = %q, want %q", withMime.GetMimetype(), tt.wantMime)
+			}
+			if tt.wantMime == "" {
+				return
+			}
+			originalFilename := ""
+			if tt.mediaType == "document" {
+				originalFilename = tt.filename
+			}
+			if ext := determineMediaExtension(originalFilename, withMime.GetMimetype()); ext == "" {
+				t.Fatalf("determineMediaExtension() = %q, want a file extension", ext)
+			}
+		})
+	}
+}
+
+func TestStoredAudioDownloadPreservesFormat(t *testing.T) {
+	mp3WithoutID3, err := os.ReadFile("testdata/no-id3.mp3")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tests := []struct {
+		name     string
+		mimeType string
+		ptt      bool
+		data     []byte
+		wantMime string
+	}{
+		{"voice note", "audio/ogg; codecs=opus", true, []byte("OggS\x00\x02voice-note-OpusHead"), "audio/ogg"},
+		{"ogg audio", "audio/ogg", false, []byte("OggS\x00\x02audio-OpusHead"), "audio/ogg"},
+		{"mp3 audio", "audio/mpeg", false, []byte("ID3\x04\x00\x00\x00\x00\x00\x00"), "audio/mpeg"},
+		{"mp3 without id3", "audio/mpeg", false, mp3WithoutID3, "audio/mpeg"},
+		{"wav audio", "audio/wav", false, []byte("RIFF\x24\x00\x00\x00WAVEfmt \x10\x00\x00\x00"), "audio/wave"},
+		{"mp4 audio", "audio/mp4", false, []byte{0, 0, 0, 24, 'f', 't', 'y', 'p', 'M', '4', 'A', ' ', 0, 0, 0, 0, 'i', 's', 'o', 'm', 'm', 'p', '4', '2'}, "audio/mp4"},
+		{"aac adts", "audio/aac", false, []byte{0xff, 0xf1, 0x50, 0x80, 0x01, 0x3f, 0xfc, 0, 0}, "audio/aac"},
+		{"aac mpeg2 adts", "audio/aac", false, []byte{0xff, 0xf9, 0x50, 0x80, 0x01, 0x3f, 0xfc, 0, 0}, "audio/aac"},
+		{"aac adts with crc", "audio/aac", false, []byte{0xff, 0xf0, 0x50, 0x80, 0x01, 0x7f, 0xfc, 0, 0, 0, 0}, "audio/aac"},
+		{"amr", "audio/amr", false, []byte("#!AMR\n\x3c\x00\x00"), "audio/amr"},
+		{"amr wideband", "audio/amr-wb", false, []byte("#!AMR-WB\n\x3c\x00\x00"), "audio/amr-wb"},
+		{"truncated adts", "audio/aac", false, []byte{0xff, 0xf1, 0x50}, "application/octet-stream"},
+		{"truncated adts frame", "audio/aac", false, []byte{0xff, 0xf1, 0x50, 0x80, 0x01, 0x3f, 0xfc, 0}, "application/octet-stream"},
+		{"missing adts crc", "audio/aac", false, []byte{0xff, 0xf0, 0x50, 0x80, 0x00, 0xff, 0xfc}, "application/octet-stream"},
+		{"invalid adts layer", "audio/aac", false, []byte{0xff, 0xf7, 0x50, 0x80, 0x01, 0x3f, 0xfc, 0, 0}, "application/octet-stream"},
+		{"invalid adts sample rate", "audio/aac", false, []byte{0xff, 0xf1, 0x7c, 0x80, 0x01, 0x3f, 0xfc, 0, 0}, "application/octet-stream"},
+		{"invalid adts frame length", "audio/aac", false, []byte{0xff, 0xf1, 0x50, 0x80, 0x00, 0x3f, 0xfc, 0, 0}, "application/octet-stream"},
+		{"unknown audio", "audio/aac", false, []byte{0, 1, 2, 3}, "application/octet-stream"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			original := &waE2E.Message{AudioMessage: &waE2E.AudioMessage{
+				Mimetype: proto.String(tt.mimeType), PTT: proto.Bool(tt.ptt),
+				DirectPath: proto.String("/audio.enc"), FileLength: proto.Uint64(uint64(len(tt.data))),
+			}}
+			mediaType, filename, mediaURL, directPath, key, hash, encHash, length := ExtractMediaInfo(original)
+			if mediaType != "audio" || filepath.Ext(filename) != ".ogg" {
+				t.Fatalf("stored audio metadata = %q, %q; expected the legacy audio/.ogg representation", mediaType, filename)
+			}
+			rebuilt, err := BuildDownloadableMessage(mediaType, mediaURL, directPath, filename, key, hash, encHash, length)
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := storeExtractedMedia(t.TempDir(), rebuilt, tt.data)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got.MimeType != tt.wantMime {
+				t.Errorf("download MIME = %q, want %q", got.MimeType, tt.wantMime)
+			}
+			ext := filepath.Ext(got.MediaPath)
+			if ext == "" || ext != determineMediaExtension("", tt.wantMime) {
+				t.Errorf("download extension = %q, want one derived from %q", ext, tt.wantMime)
+			}
+			data, err := os.ReadFile(got.MediaPath)
+			if err != nil || !bytes.Equal(data, tt.data) {
+				t.Fatalf("download changed audio bytes: %v", err)
+			}
+			forwarded, err := BuildForwardMessageFromStorage(&domainChatStorage.Message{
+				MediaType: mediaType, Filename: filename,
+			}, ForwardBuildOptions{
+				MimeType: got.MimeType,
+				Upload:   &whatsmeow.UploadResponse{FileLength: length},
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if mimeType := forwarded.GetAudioMessage().GetMimetype(); mimeType != tt.wantMime {
+				t.Errorf("reuploaded audio MIME = %q, want %q", mimeType, tt.wantMime)
+			}
+		})
+	}
+}
+
+func TestAudioDownloadPreservesDeclaredMIME(t *testing.T) {
+	for _, mimeType := range []string{"audio/ogg; codecs=opus", "audio/aac", "audio/amr", "audio/amr-wb", "audio/mpeg"} {
+		t.Run(mimeType, func(t *testing.T) {
+			data := []byte{0, 1, 2, 3}
+			got, err := storeExtractedMedia(t.TempDir(), &waE2E.AudioMessage{Mimetype: proto.String(mimeType)}, data)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got.MimeType != mimeType {
+				t.Fatalf("download MIME = %q, want declared MIME %q", got.MimeType, mimeType)
+			}
+		})
+	}
+}
+
+func TestAudioDownloadMP3FrameValidation(t *testing.T) {
+	mp3, err := os.ReadFile("testdata/no-id3.mp3")
+	if err != nil {
+		t.Fatal(err)
+	}
+	mutate := func(offset int, value byte) []byte {
+		data := bytes.Clone(mp3)
+		data[offset] = value
+		return data
+	}
+	// FFprobe reports the first audio packet at offset 192 with a size of 192 bytes.
+	singleFrame := mp3[192:384]
+	id3v1 := make([]byte, 128)
+	copy(id3v1, "TAG")
+	tests := []struct {
+		name     string
+		data     []byte
+		wantMime string
+	}{
+		{"single frame", singleFrame, "audio/mpeg"},
+		{"single frame with id3v1", append(bytes.Clone(singleFrame), id3v1...), "audio/mpeg"},
+		{"truncated header", mp3[:3], "application/octet-stream"},
+		{"truncated first frame", mp3[:191], "application/octet-stream"},
+		{"truncated next header", mp3[:195], "application/octet-stream"},
+		{"truncated next frame", mp3[:383], "application/octet-stream"},
+		{"invalid sync", mutate(0, 0xfe), "application/octet-stream"},
+		{"reserved version", mutate(1, 0xeb), "application/octet-stream"},
+		{"reserved layer", mutate(1, 0xf9), "application/octet-stream"},
+		{"free bitrate", mutate(2, 0x04), "application/octet-stream"},
+		{"reserved bitrate", mutate(2, 0xf4), "application/octet-stream"},
+		{"reserved sample rate", mutate(2, 0x5c), "application/octet-stream"},
+		{"reserved emphasis", mutate(3, 0xc2), "application/octet-stream"},
+		{"invalid next sync", mutate(192, 0), "application/octet-stream"},
+		{"reserved next bitrate", mutate(194, 0xf4), "application/octet-stream"},
+		{"different next version", mutate(193, 0xf3), "application/octet-stream"},
+		{"different next sample rate", mutate(194, 0x50), "application/octet-stream"},
+		{"truncated id3v1", append(bytes.Clone(singleFrame), id3v1[:127]...), "application/octet-stream"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := storeExtractedMedia(t.TempDir(), &waE2E.AudioMessage{}, tt.data)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got.MimeType != tt.wantMime {
+				t.Errorf("download MIME = %q, want %q", got.MimeType, tt.wantMime)
+			}
+		})
+	}
+}
+
+func TestBuildDownloadableMessageSetsDirectPath(t *testing.T) {
+	mediaKey := []byte("media-key")
+	fileSHA256 := []byte("file-sha")
+	fileEncSHA256 := []byte("file-enc-sha")
+	fileLength := uint64(1234)
+	directPath := "/v/t62.7118-24/media.enc?ccb=11-4"
+
+	tests := []struct {
+		name      string
+		mediaType string
+		wantType  any
+	}{
+		{name: "Image", mediaType: "image", wantType: &waE2E.ImageMessage{}},
+		{name: "Video", mediaType: "video", wantType: &waE2E.VideoMessage{}},
+		{name: "VideoNote", mediaType: "video_note", wantType: &waE2E.VideoMessage{}},
+		{name: "Audio", mediaType: "audio", wantType: &waE2E.AudioMessage{}},
+		{name: "PTT", mediaType: "ptt", wantType: &waE2E.AudioMessage{}},
+		{name: "Document", mediaType: "document", wantType: &waE2E.DocumentMessage{}},
+		{name: "Sticker", mediaType: "sticker", wantType: &waE2E.StickerMessage{}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := BuildDownloadableMessage(tt.mediaType, "https://mmg.whatsapp.net/ignored", directPath, "report.pdf", mediaKey, fileSHA256, fileEncSHA256, fileLength)
+			if err != nil {
+				t.Fatalf("BuildDownloadableMessage() error = %v", err)
+			}
+			if got.GetDirectPath() != directPath {
+				t.Fatalf("directPath = %q, want %q", got.GetDirectPath(), directPath)
+			}
+			switch tt.wantType.(type) {
+			case *waE2E.ImageMessage:
+				if _, ok := got.(*waE2E.ImageMessage); !ok {
+					t.Fatalf("message type = %T, want *waE2E.ImageMessage", got)
+				}
+			case *waE2E.VideoMessage:
+				if _, ok := got.(*waE2E.VideoMessage); !ok {
+					t.Fatalf("message type = %T, want *waE2E.VideoMessage", got)
+				}
+			case *waE2E.AudioMessage:
+				if _, ok := got.(*waE2E.AudioMessage); !ok {
+					t.Fatalf("message type = %T, want *waE2E.AudioMessage", got)
+				}
+			case *waE2E.DocumentMessage:
+				if _, ok := got.(*waE2E.DocumentMessage); !ok {
+					t.Fatalf("message type = %T, want *waE2E.DocumentMessage", got)
+				}
+			case *waE2E.StickerMessage:
+				if _, ok := got.(*waE2E.StickerMessage); !ok {
+					t.Fatalf("message type = %T, want *waE2E.StickerMessage", got)
+				}
+			}
+		})
+	}
+}
+
+func TestResolveMediaDirectPathFallsBackToURLRequestURI(t *testing.T) {
+	storedDirectPath := "/stored/path.enc?auth=stored"
+	mediaURL := "https://mmg.whatsapp.net/v/t62.7118-24/media.enc?ccb=11-4&oh=token"
+	wantFallback := "/v/t62.7118-24/media.enc?ccb=11-4&oh=token"
+
+	if got := ResolveMediaDirectPath(storedDirectPath, mediaURL); got != storedDirectPath {
+		t.Fatalf("ResolveMediaDirectPath() = %q, want stored direct path %q", got, storedDirectPath)
+	}
+	if got := ResolveMediaDirectPath("", mediaURL); got != wantFallback {
+		t.Fatalf("ResolveMediaDirectPath() = %q, want URL request URI %q", got, wantFallback)
+	}
+	if got := ResolveMediaDirectPath("", "://not-a-url"); got != "" {
+		t.Fatalf("ResolveMediaDirectPath() = %q, want empty for invalid URL", got)
+	}
+}
+
+func TestFormatLocationSummary(t *testing.T) {
+	tests := []struct {
+		name    string
+		locName string
+		address string
+		lat     float64
+		long    float64
+		want    string
+	}{
+		{
+			name:    "NameAndAddress",
+			locName: "Monas",
+			address: "Gambir, Jakarta",
+			lat:     -6.175392,
+			long:    106.827153,
+			want:    "Monas — Gambir, Jakarta — https://maps.google.com/?q=-6.175392,106.827153",
+		},
+		{
+			name:    "NameOnly",
+			locName: "Monas",
+			address: "",
+			lat:     -6.2,
+			long:    106.8,
+			want:    "Monas — https://maps.google.com/?q=-6.2,106.8",
+		},
+		{
+			name:    "CoordinatesOnly",
+			locName: "",
+			address: "",
+			lat:     -6.2,
+			long:    106.8,
+			want:    "https://maps.google.com/?q=-6.2,106.8",
+		},
+		{
+			name:    "WhitespaceOnlyNameAndAddress",
+			locName: " ",
+			address: " ",
+			lat:     0,
+			long:    0,
+			want:    "https://maps.google.com/?q=0,0",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := FormatLocationSummary(tt.locName, tt.address, tt.lat, tt.long)
+			if got != tt.want {
+				t.Fatalf("FormatLocationSummary() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestExtractMessageTextFromProtoLocationMessages(t *testing.T) {
+	tests := []struct {
+		name string
+		msg  *waE2E.Message
+		want string
+	}{
+		{
+			name: "LocationWithNameAndAddress",
+			msg: &waE2E.Message{
+				LocationMessage: &waE2E.LocationMessage{
+					Name:             strPtr("Monas"),
+					Address:          strPtr("Gambir, Jakarta"),
+					DegreesLatitude:  proto.Float64(-6.2),
+					DegreesLongitude: proto.Float64(106.8),
+				},
+			},
+			want: "Monas — Gambir, Jakarta — https://maps.google.com/?q=-6.2,106.8",
+		},
+		{
+			name: "LocationCoordinatesOnly",
+			msg: &waE2E.Message{
+				LocationMessage: &waE2E.LocationMessage{
+					DegreesLatitude:  proto.Float64(-6.2),
+					DegreesLongitude: proto.Float64(106.8),
+				},
+			},
+			want: "https://maps.google.com/?q=-6.2,106.8",
+		},
+		{
+			name: "LiveLocationWithCaption",
+			msg: &waE2E.Message{
+				LiveLocationMessage: &waE2E.LiveLocationMessage{
+					Caption:          strPtr("On my way"),
+					DegreesLatitude:  proto.Float64(-6.2),
+					DegreesLongitude: proto.Float64(106.8),
+				},
+			},
+			want: "On my way — https://maps.google.com/?q=-6.2,106.8",
+		},
+		{
+			name: "LiveLocationWithoutCaption",
+			msg: &waE2E.Message{
+				LiveLocationMessage: &waE2E.LiveLocationMessage{
+					DegreesLatitude:  proto.Float64(-6.2),
+					DegreesLongitude: proto.Float64(106.8),
+				},
+			},
+			want: "https://maps.google.com/?q=-6.2,106.8",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ExtractMessageTextFromProto(tt.msg)
+			if got != tt.want {
+				t.Fatalf("ExtractMessageTextFromProto() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestExtractMessageTextFromProtoExtendedTextMessage(t *testing.T) {
+	tests := []struct {
+		name string
+		msg  *waE2E.Message
+		want string
+	}{
+		{
+			name: "TextTakesPriorityOverMatchedText",
+			msg: &waE2E.Message{
+				ExtendedTextMessage: &waE2E.ExtendedTextMessage{
+					Text:        strPtr("check this out https://example.com"),
+					MatchedText: strPtr("https://example.com"),
+				},
+			},
+			want: "check this out https://example.com",
+		},
+		{
+			name: "FallsBackToMatchedTextWhenTextEmpty",
+			msg: &waE2E.Message{
+				ExtendedTextMessage: &waE2E.ExtendedTextMessage{
+					Text:        strPtr(""),
+					MatchedText: strPtr("https://example.com"),
+				},
+			},
+			want: "https://example.com",
+		},
+		{
+			name: "EmptyTextAndMatchedTextFallsThrough",
+			msg: &waE2E.Message{
+				ExtendedTextMessage: &waE2E.ExtendedTextMessage{
+					Text:        strPtr(""),
+					MatchedText: strPtr(""),
+				},
+			},
+			want: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ExtractMessageTextFromProto(tt.msg)
+			if got != tt.want {
+				t.Fatalf("ExtractMessageTextFromProto() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func strPtr(value string) *string {
+	return &value
+}
+
+func TestBuildForwardMessageFromStorageText(t *testing.T) {
+	msg, err := BuildForwardMessageFromStorage(&domainChatStorage.Message{
+		Content: "hello forward",
+	}, ForwardBuildOptions{})
+	if err != nil {
+		t.Fatalf("BuildForwardMessageFromStorage() error = %v", err)
+	}
+	ext := msg.GetExtendedTextMessage()
+	if ext == nil {
+		t.Fatal("expected ExtendedTextMessage")
+	}
+	if ext.GetText() != "hello forward" {
+		t.Fatalf("text = %q, want %q", ext.GetText(), "hello forward")
+	}
+	if !ext.GetContextInfo().GetIsForwarded() {
+		t.Fatal("expected IsForwarded=true")
+	}
+	if ext.GetContextInfo().GetForwardingScore() != 100 {
+		t.Fatalf("forwarding score = %d, want 100", ext.GetContextInfo().GetForwardingScore())
+	}
+}
+
+func TestBuildForwardMessageFromStorageImage(t *testing.T) {
+	directPath := "/v/t62.media.enc"
+	msg, err := BuildForwardMessageFromStorage(&domainChatStorage.Message{
+		MediaType:     "image",
+		Content:       "caption text",
+		URL:           "https://mmg.whatsapp.net/ignored",
+		DirectPath:    directPath,
+		MediaKey:      []byte("key"),
+		FileSHA256:    []byte("sha"),
+		FileEncSHA256: []byte("enc"),
+		FileLength:    42,
+	}, ForwardBuildOptions{})
+	if err != nil {
+		t.Fatalf("BuildForwardMessageFromStorage() error = %v", err)
+	}
+	img := msg.GetImageMessage()
+	if img == nil {
+		t.Fatal("expected ImageMessage")
+	}
+	if img.GetCaption() != "caption text" {
+		t.Fatalf("caption = %q, want %q", img.GetCaption(), "caption text")
+	}
+	if img.GetDirectPath() != directPath {
+		t.Fatalf("directPath = %q, want %q", img.GetDirectPath(), directPath)
+	}
+	if !img.GetContextInfo().GetIsForwarded() {
+		t.Fatal("expected IsForwarded=true")
+	}
+	if img.GetMimetype() != "image/jpeg" {
+		t.Fatalf("mimetype = %q, want image/jpeg", img.GetMimetype())
+	}
+}
+
+func TestBuildForwardMessageFromStorageDocument(t *testing.T) {
+	msg, err := BuildForwardMessageFromStorage(&domainChatStorage.Message{
+		MediaType:     "document",
+		Filename:      "report.pdf",
+		Content:       "see attached",
+		URL:           "https://mmg.whatsapp.net/doc",
+		DirectPath:    "/v/doc.enc",
+		MediaKey:      []byte("key"),
+		FileSHA256:    []byte("sha"),
+		FileEncSHA256: []byte("enc"),
+		FileLength:    100,
+	}, ForwardBuildOptions{})
+	if err != nil {
+		t.Fatalf("BuildForwardMessageFromStorage() error = %v", err)
+	}
+	doc := msg.GetDocumentMessage()
+	if doc == nil {
+		t.Fatal("expected DocumentMessage")
+	}
+	if doc.GetFileName() != "report.pdf" {
+		t.Fatalf("filename = %q, want report.pdf", doc.GetFileName())
+	}
+	if doc.GetCaption() != "see attached" {
+		t.Fatalf("caption = %q, want see attached", doc.GetCaption())
+	}
+	if doc.GetMimetype() != "application/pdf" {
+		t.Fatalf("mimetype = %q, want application/pdf", doc.GetMimetype())
+	}
+}
+
+func TestBuildForwardMessageFromStorageReuploadedAudioMIME(t *testing.T) {
+	for _, tt := range []struct {
+		name, mediaType, mimeType, wantMime string
+	}{
+		{"PTT Ogg", "ptt", "audio/ogg", "audio/ogg; codecs=opus"},
+		{"PTT with codec", "ptt", "audio/ogg; codecs=opus", "audio/ogg; codecs=opus"},
+		{"ordinary Ogg", "audio", "audio/ogg", "audio/ogg"},
+		{"other PTT MIME", "ptt", "audio/mpeg", "audio/mpeg"},
+		{"AAC", "audio", "audio/aac", "audio/aac"},
+		{"AMR", "audio", "audio/amr", "audio/amr"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			msg, err := BuildForwardMessageFromStorage(&domainChatStorage.Message{MediaType: tt.mediaType}, ForwardBuildOptions{
+				Upload: &whatsmeow.UploadResponse{DirectPath: "/reuploaded.enc"}, MimeType: tt.mimeType,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := msg.GetAudioMessage().GetMimetype(); got != tt.wantMime {
+				t.Errorf("re-upload MIME = %q, want %q", got, tt.wantMime)
+			}
+			if got := msg.GetAudioMessage().GetPTT(); got != (tt.mediaType == "ptt") {
+				t.Errorf("PTT = %v, want %v", got, tt.mediaType == "ptt")
+			}
+		})
+	}
+}
+
+func TestBuildForwardMessageFromStorageUnsupportedType(t *testing.T) {
+	_, err := BuildForwardMessageFromStorage(&domainChatStorage.Message{
+		MediaType: "call",
+		Content:   "incoming call",
+	}, ForwardBuildOptions{})
+	if err == nil {
+		t.Fatal("expected error for call type")
+	}
+	if err.Error() != ErrUnsupportedForwardType {
+		t.Fatalf("error = %q, want %q", err.Error(), ErrUnsupportedForwardType)
+	}
+
+	_, err = BuildForwardMessageFromStorage(&domainChatStorage.Message{
+		Content: "Contact: Alice (+62 812)",
+	}, ForwardBuildOptions{})
+	if err == nil {
+		t.Fatal("expected error for contact summary")
+	}
+}
+
+func TestIsForwardableStorageMessage(t *testing.T) {
+	tests := []struct {
+		name    string
+		message *domainChatStorage.Message
+		want    bool
+	}{
+		{name: "text", message: &domainChatStorage.Message{Content: "hi"}, want: true},
+		{name: "image", message: &domainChatStorage.Message{MediaType: "image", URL: "u", DirectPath: "/p"}, want: true},
+		{name: "call", message: &domainChatStorage.Message{MediaType: "call"}, want: false},
+		{name: "contact", message: &domainChatStorage.Message{Content: "Contact: Bob"}, want: false},
+		{name: "location", message: &domainChatStorage.Message{Content: "Pin — https://maps.google.com/?q=1,2"}, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsForwardableStorageMessage(tt.message); got != tt.want {
+				t.Fatalf("IsForwardableStorageMessage() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFormatJIDStripsDeviceSuffix(t *testing.T) {
+	tests := []struct {
+		name string
+		jid  string
+		want string
+	}{
+		{
+			name: "PhoneNumberJIDWithoutDevice",
+			jid:  "6281234567890@s.whatsapp.net",
+			want: "6281234567890@s.whatsapp.net",
+		},
+		{
+			name: "PhoneNumberJIDWithDevice",
+			jid:  "6281234567890:12@s.whatsapp.net",
+			want: "6281234567890@s.whatsapp.net",
+		},
+		{
+			name: "LIDWithoutDevice",
+			jid:  "123456789012345@lid",
+			want: "123456789012345@lid",
+		},
+		{
+			// Messages sent from WhatsApp Web/Desktop carry a device suffix.
+			// whatsmeow rejects AD JIDs as a send recipient, so it must be stripped
+			// for @lid senders too, not just @s.whatsapp.net ones.
+			name: "LIDWithDevice",
+			jid:  "123456789012345:12@lid",
+			want: "123456789012345@lid",
+		},
+		{
+			name: "BareNumberGetsDefaultServer",
+			jid:  "6281234567890",
+			want: "6281234567890@s.whatsapp.net",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := FormatJID(tt.jid)
+			if got.String() != tt.want {
+				t.Errorf("FormatJID(%q) = %q, want %q", tt.jid, got.String(), tt.want)
+			}
+			if got.Device != 0 {
+				t.Errorf("FormatJID(%q) kept device %d, want 0", tt.jid, got.Device)
+			}
+		})
+	}
+}
+
+// TestExtractContextInfoInteractiveMessage pins that quoted/forwarded context
+// on an InteractiveMessage (business/Cloud API CTA buttons) is preserved.
+// Before this case existed, BuildEventMessage/BuildForwarded silently lost
+// replied_to_id/quoted_body and the forwarded flag for these messages, even
+// though every other message type carries them through ExtractContextInfo.
+func TestExtractContextInfoInteractiveMessage(t *testing.T) {
+	t.Run("interactive message with context info", func(t *testing.T) {
+		msg := &waE2E.Message{
+			InteractiveMessage: &waE2E.InteractiveMessage{
+				Body: &waE2E.InteractiveMessage_Body{Text: proto.String("Check this out")},
+				ContextInfo: &waE2E.ContextInfo{
+					StanzaID: proto.String("ABC123"),
+				},
+			},
+		}
+		ci := ExtractContextInfo(msg)
+		if ci == nil {
+			t.Fatal("expected non-nil ContextInfo")
+		}
+		if ci.GetStanzaID() != "ABC123" {
+			t.Fatalf("got StanzaID %q, want %q", ci.GetStanzaID(), "ABC123")
+		}
+	})
+
+	t.Run("interactive message with no context info yields nil", func(t *testing.T) {
+		msg := &waE2E.Message{
+			InteractiveMessage: &waE2E.InteractiveMessage{
+				Body: &waE2E.InteractiveMessage_Body{Text: proto.String("Check this out")},
+			},
+		}
+		if ci := ExtractContextInfo(msg); ci != nil {
+			t.Fatalf("expected nil ContextInfo, got %+v", ci)
+		}
+	})
+}
+
+// TestExtractContextInfoOtherMessageTypes pins the remaining message types that
+// carry their own ContextInfo, so replies, mentions, forwarding and ad
+// attribution are not lost when a customer answers a button, list or template,
+// or sends a poll, contact list, group invite or event.
+func TestExtractContextInfoOtherMessageTypes(t *testing.T) {
+	ci := &waE2E.ContextInfo{StanzaID: proto.String("ABC123")}
+	tests := map[string]*waE2E.Message{
+		"buttons response":      {ButtonsResponseMessage: &waE2E.ButtonsResponseMessage{ContextInfo: ci}},
+		"list response":         {ListResponseMessage: &waE2E.ListResponseMessage{ContextInfo: ci}},
+		"template button reply": {TemplateButtonReplyMessage: &waE2E.TemplateButtonReplyMessage{ContextInfo: ci}},
+		"interactive response":  {InteractiveResponseMessage: &waE2E.InteractiveResponseMessage{ContextInfo: ci}},
+		"contacts array":        {ContactsArrayMessage: &waE2E.ContactsArrayMessage{ContextInfo: ci}},
+		"buttons":               {ButtonsMessage: &waE2E.ButtonsMessage{ContextInfo: ci}},
+		"list":                  {ListMessage: &waE2E.ListMessage{ContextInfo: ci}},
+		"template":              {TemplateMessage: &waE2E.TemplateMessage{ContextInfo: ci}},
+		"product":               {ProductMessage: &waE2E.ProductMessage{ContextInfo: ci}},
+		"order":                 {OrderMessage: &waE2E.OrderMessage{ContextInfo: ci}},
+		"group invite":          {GroupInviteMessage: &waE2E.GroupInviteMessage{ContextInfo: ci}},
+		"event":                 {EventMessage: &waE2E.EventMessage{ContextInfo: ci}},
+		"poll v3":               {PollCreationMessageV3: &waE2E.PollCreationMessage{ContextInfo: ci}},
+		"poll v4":               {PollCreationMessageV4: &waE2E.FutureProofMessage{Message: &waE2E.Message{PollCreationMessage: &waE2E.PollCreationMessage{ContextInfo: ci}}}},
+	}
+	for name, msg := range tests {
+		if got := ExtractContextInfo(msg).GetStanzaID(); got != "ABC123" {
+			t.Errorf("%s: StanzaID = %q, want %q", name, got, "ABC123")
+		}
+	}
+}

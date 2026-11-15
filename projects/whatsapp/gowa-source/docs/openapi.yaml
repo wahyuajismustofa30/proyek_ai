@@ -3132,6 +3132,63 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorInternalServer'
+  /chat/{chat_jid}/labels:
+    post:
+      operationId: setChatLabel
+      tags:
+        - chat
+      summary: Add or remove one label from a chat
+      description: Applies one label ID to a chat or removes that label. Other labels on the chat are not changed.
+      parameters:
+        - $ref: '#/components/parameters/DeviceIdHeader'
+        - in: path
+          name: chat_jid
+          schema:
+            type: string
+          required: true
+          description: Chat JID. Percent-encoded values are accepted.
+          example: '6289685028129@s.whatsapp.net'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [label_id, labeled]
+              properties:
+                label_id:
+                  type: string
+                  minLength: 1
+                  maxLength: 128
+                  example: '9'
+                labeled:
+                  type: boolean
+                  description: true adds the label; false removes only this label.
+      responses:
+        '200':
+          description: Label updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetChatLabelResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServer'
   /chat/{chat_jid}/pin:
     post:
       operationId: pinChat
@@ -6684,6 +6741,33 @@ components:
               type: string
               format: date-time
               example: '2026-05-16T08:00:00Z'
+    SetChatLabelResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: SUCCESS
+        message:
+          type: string
+          example: Chat label added successfully
+        results:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            message:
+              type: string
+              example: Chat label added successfully
+            chat_jid:
+              type: string
+              example: '6289685028129@s.whatsapp.net'
+            label_id:
+              type: string
+              example: '9'
+            labeled:
+              type: boolean
+              example: true
     PinChatResponse:
       type: object
       properties:

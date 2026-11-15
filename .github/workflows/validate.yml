@@ -63,6 +63,9 @@ jobs:
       - name: Compile Python files
         run: python -m compileall -q scripts
 
+      - name: Validate repo-programs Bash syntax
+        run: bash -n scripts/repo-programs
+
       - name: Verify generated project index
         run: python scripts/update_project_index.py --check
 

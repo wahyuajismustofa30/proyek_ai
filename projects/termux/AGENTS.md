@@ -126,6 +126,7 @@ Setiap perubahan harus divalidasi secara proporsional:
 7. Jangan menyatakan kompatibel penuh dengan Termux sebelum diuji pada Termux. Laporkan keterbatasan pengujian secara eksplisit.
 
 Gunakan status:
+
 - **PASS** — pemeriksaan dijalankan dan memenuhi kriteria.
 - **NOTICE** — command, permission, API, atau lingkungan tidak tersedia/terbatas.
 - **FAIL** — ditemukan kesalahan nyata.

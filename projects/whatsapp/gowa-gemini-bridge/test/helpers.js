@@ -3,7 +3,7 @@
 const crypto = require('node:crypto');
 
 const SECRET = 'a'.repeat(64);
-const OWNER_JID = '6281234567890@s.whatsapp.net';
+const OWNER_JID = '6285161517176@s.whatsapp.net';
 const DEVICE_ID = 'test-device';
 
 function sign(body, secret = SECRET) {

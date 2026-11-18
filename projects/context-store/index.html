@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Context Store</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Context Store</h1>
+    <p>Penyimpanan konteks percakapan</p>
+  </header>
+
+  <main>
+    <section class="controls">
+      <input type="text" id="search" placeholder="Cari konteks..." aria-label="Cari konteks" />
+      <button id="export-btn">Ekspor JSON</button>
+      <label class="import-btn">
+        Impor JSON
+        <input type="file" id="import-file" accept="application/json" hidden />
+      </label>
+    </section>
+
+    <section class="entry-form">
+      <textarea id="entry-input" rows="4" placeholder="Ketik konteks percakapan..."></textarea>
+      <button id="add-btn">Simpan</button>
+    </section>
+
+    <section id="entry-list" aria-live="polite"></section>
+
+    <p id="empty-state" class="empty-state">Belum ada konteks. Tambahkan yang baru di atas.</p>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
